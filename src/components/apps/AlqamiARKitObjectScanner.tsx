@@ -39,6 +39,8 @@ import { SightRecognizer, SightTarget } from '../../recognize/recognizer';
 import { publishedRecords } from '../../moon/moonObjects';
 import { setScannerOpen } from '../../utils/scannerState';
 import { TeachPanel } from '../scan/TeachPanel';
+import { CoverPose, CoverTracker } from '../../pin/coverTracker';
+import { PinnedCard } from '../../pin/PinnedCard';
 
 interface AlqamiARKitObjectScannerProps {
   isOpen: boolean;
@@ -66,6 +68,63 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   const [scanMessage, setScanMessage] = useState('وجّه الكاميرا نحو ملصق QR أو باركود الكتاب · Point at a QR label or a book barcode');
   const [copiedRdf, setCopiedRdf] = useState(false);
   const [isLockedOnObject, setIsLockedOnObject] = useState(false);
+
+  // A recognised Moon record whose cover has a tracking marker is pinned beside the cover; otherwise (or if the cover
+  // is not found within PIN_WAIT_MS) its full card opens as before.
+  const PIN_WAIT_MS = 2500;
+  const [pinned, setPinned] = useState<string | null>(null);
+  const [pose, setPose] = useState<CoverPose | null>(null);
+  const trackerRef = useRef<CoverTracker | null>(null);
+  const pinnedRef = useRef<string | null>(null);
+  const handleMoonRef = useRef<(recordId: string) => void>(() => {});
+  handleMoonRef.current = (recordId: string) => {
+    if (pinnedRef.current === recordId) return;
+    const video = videoRef.current;
+    const tracker = trackerRef.current;
+    const plain = () => {
+      tracker?.stop();
+      pinnedRef.current = null;
+      setPinned(null);
+      setPose(null);
+      onMoonRecord?.(recordId);
+    };
+    if (!video || !tracker) return plain();
+    pinnedRef.current = recordId;
+    let seen = false;
+    tracker
+      .follow(recordId, video)
+      .then((ok) => {
+        if (!ok) return plain();
+        setPinned(recordId);
+        window.setTimeout(() => {
+          if (!seen && pinnedRef.current === recordId) plain();
+        }, PIN_WAIT_MS);
+      })
+      .catch(plain);
+    seenRef.current = () => {
+      seen = true;
+    };
+  };
+  const seenRef = useRef<() => void>(() => {});
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const tracker = new CoverTracker(
+      (p) => {
+        seenRef.current();
+        setPose(p);
+      },
+      () => setPose(null)
+    );
+    trackerRef.current = tracker;
+    return () => {
+      tracker.dispose();
+      trackerRef.current = null;
+      pinnedRef.current = null;
+      setPinned(null);
+      setPose(null);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     setScannerOpen(isOpen);
@@ -132,7 +191,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
           if (target.kind === 'moon') {
             spatialSound.playPinchTap();
             setScanMessage('وُجد في مون · Found in Moon');
-            onMoonRecord?.(target.recordId);
+            handleMoonRef.current(target.recordId);
           } else if (target.kind === 'artifact') {
             const targetIndex = referenceObjects.findIndex((item) =>
               [item.id, item.slug].some((value) => value.toLowerCase() === target.id.toLowerCase())
@@ -171,7 +230,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   const openSightTarget = (target: SightTarget) => {
     setSightCandidates([]);
     if (target.kind === 'moon') {
-      onMoonRecordRef.current?.(target.recordId);
+      handleMoonRef.current(target.recordId);
       return;
     }
     const targetIndex = referenceObjects.findIndex((item) => item.id.toLowerCase() === target.id.toLowerCase());
@@ -650,6 +709,21 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
               </div>
             )}
           </div>
+        )}
+
+        {pinned && activeMode === 'detect' && (
+          <PinnedCard
+            recordId={pinned}
+            pose={pose}
+            video={videoRef.current}
+            onDetails={() => onMoonRecord?.(pinned)}
+            onClose={() => {
+              trackerRef.current?.stop();
+              pinnedRef.current = null;
+              setPinned(null);
+              setPose(null);
+            }}
+          />
         )}
 
         {activeMode === 'teach' && (

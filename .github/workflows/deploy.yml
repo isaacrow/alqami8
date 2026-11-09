@@ -47,6 +47,18 @@ jobs:
       - name: Build recognition index
         run: node scripts/build-recognition-index.mjs || echo "Recognition index not rebuilt; keeping the committed one."
 
+      # Image-tracking markers for Moon covers (pinned cards). Each takes ~10 s, so they are kept in the cache and
+      # each run makes only new ones (up to 60); the nightly run fills in the rest. A failure keeps what is cached.
+      - name: Restore cover markers
+        uses: actions/cache@v4
+        with:
+          path: public/nft
+          key: nft-markers-${{ github.run_id }}
+          restore-keys: nft-markers-
+
+      - name: Build cover markers
+        run: node scripts/build-nft-targets.mjs || echo "Cover markers not updated; keeping the cached ones."
+
       - name: Build project
         run: npm run build
 

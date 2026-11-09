@@ -35,3 +35,7 @@ screenshot-*.png
 telegram_config.json
 chrome-test-profile*
 
+
+# Image-tracking markers are built in CI (scripts/build-nft-targets.mjs) and cached there
+public/nft/*
+!public/nft/camera_para.dat
