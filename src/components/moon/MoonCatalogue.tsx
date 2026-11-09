@@ -4,6 +4,7 @@ import { coverGuess } from '../../moon/moonApi';
 import { UiLang } from '../../moon/readRecord';
 import { useMoonRecord, useMoonSearch } from '../../moon/useMoon';
 import { MoonRecordPanel } from './MoonRecordCard';
+import { OfflineButton } from './OfflineButton';
 
 /** Records from Moon for the gallery: Moon's newest, or what matches the gallery search. */
 export const MoonShelf: React.FC<{ query: string; lang: UiLang; onOpen: (recordId: string) => void }> = ({ query, lang, onOpen }) => {
@@ -12,8 +13,9 @@ export const MoonShelf: React.FC<{ query: string; lang: UiLang; onOpen: (recordI
 
   return (
     <section className="space-y-3" aria-label={t('من فهرس مون', 'From the Moon catalogue')}>
-      <div className="flex items-baseline justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <h3 className="text-[20px] font-bold">{t('من فهرس مون', 'From the Moon catalogue')}</h3>
+        <OfflineButton lang={lang} />
         {search.state === 'ready' && (
           <span className="text-[12px] text-white/60 flex items-center gap-1.5">
             {search.offline && <WifiOff className="w-3.5 h-3.5" />}

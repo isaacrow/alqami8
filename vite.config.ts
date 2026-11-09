@@ -1,7 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import basicSsl from '@vitejs/plugin-basic-ssl';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 
 function serveUsdModels(publicDir: string) {
@@ -42,9 +42,32 @@ const usdzContentType: Plugin = {
   },
 };
 
+// Lists every file of the built site that a visit can need, so "Save for offline" (src/offline/saveOffline.ts) can
+// fetch them ahead of time. Leaves out the separate pre-built mobile app and source maps.
+const offlineManifest: Plugin = {
+  name: 'alqami-offline-manifest',
+  apply: 'build',
+  async closeBundle() {
+    const dist = resolve(__dirname, 'dist');
+    const files: Array<{ path: string; bytes: number }> = [];
+    const walk = async (dir: string, rel: string) => {
+      for (const entry of await readdir(dir, { withFileTypes: true })) {
+        const path = rel ? `${rel}/${entry.name}` : entry.name;
+        if (entry.isDirectory()) {
+          if (path !== 'mobile' && path !== 'records') await walk(resolve(dir, entry.name), path);
+        } else if (!path.endsWith('.map') && path !== 'offline-manifest.json' && path !== 'CNAME') {
+          files.push({ path, bytes: (await stat(resolve(dir, entry.name))).size });
+        }
+      }
+    };
+    await walk(dist, '');
+    await writeFile(resolve(dist, 'offline-manifest.json'), JSON.stringify({ builtAt: new Date().toISOString(), files }));
+  },
+};
+
 export default defineConfig({
   base: './',
-  plugins: [react(), usdzContentType, basicSsl()],
+  plugins: [react(), usdzContentType, basicSsl(), offlineManifest],
   build: {
     rollupOptions: {
       // bench.html measures recognition by sight on a phone (see src/bench/sightBench.ts).
