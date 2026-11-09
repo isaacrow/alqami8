@@ -45,6 +45,12 @@ const usdzContentType: Plugin = {
 export default defineConfig({
   base: './',
   plugins: [react(), usdzContentType, basicSsl()],
+  build: {
+    rollupOptions: {
+      // bench.html measures recognition by sight on a phone (see src/bench/sightBench.ts).
+      input: { main: resolve(__dirname, 'index.html'), bench: resolve(__dirname, 'bench.html') },
+    },
+  },
   server: {
     port: 5173,
     host: true,

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { disposeObject, downscaleTextures, getDracoLoader } from '../../utils/modelMemory';
+import { isScannerOpen, onScannerChange } from '../../utils/scannerState';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { ArrowRight } from 'lucide-react';
 import { assetUrl } from '../../utils/assetUrl';
@@ -56,6 +57,9 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
   // Only hold a WebGL context while the viewer is on (or near) the screen; a page full of live
   // contexts runs iPhone Safari out of memory.
   const [inView, setInView] = useState(false);
+  // A camera scanner (recognition model + camera) needs the memory: every viewer stops while one is open.
+  const [paused, setPaused] = useState(isScannerOpen());
+  useEffect(() => onScannerChange(setPaused), []);
   useEffect(() => {
     const el = mountRef.current;
     if (!el) return;
@@ -70,7 +74,7 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
 
   useEffect(() => {
     const container = mountRef.current;
-    if (!container || !inView) return;
+    if (!container || !inView || paused) return;
 
     setLoading(true);
 
@@ -449,7 +453,7 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
       renderer.forceContextLoss();
       renderer.domElement.remove();
     };
-  }, [glbUrl, mode, inView]);
+  }, [glbUrl, mode, inView, paused]);
 
   return (
     <div className={`relative w-full h-full flex items-center justify-center select-none pointer-events-auto overflow-visible ${className}`}>

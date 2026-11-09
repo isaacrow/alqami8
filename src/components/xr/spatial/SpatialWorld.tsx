@@ -20,7 +20,7 @@ import { createTroikaSpatialText } from '../../../utils/troika3DText';
 import { networkedSync } from '../../../utils/networkedSpatialSync';
 import { assetUrl } from '../../../utils/assetUrl';
 import { ALQAMI_ARTIFACTS, type AlqamiArtifact } from '../../../data/alqamiArtifacts';
-import { AlqamiArtifactRecognizer } from '../../../utils/alqamiArtifactRecognition';
+import { ArRecognitionOverlay, useArRecognition } from './ArRecognition';
 
 /* ──────────────────────────────────────────────────────────────────────────────
  * Spatial World — a visionOS-style "every window is its own object" renderer for
@@ -433,8 +433,8 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
   const [isMicroPinching, setIsMicroPinching] = useState(false);
   const [handControlActive, setHandControlActive] = useState(false);
   const handControlActiveRef = useRef(false);
-  const [recognizedArtifact, setRecognizedArtifact] = useState<{ artifact: AlqamiArtifact; confidence: number } | null>(null);
-  const [recognitionStatus, setRecognitionStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading');
+  // QR labels, book barcodes, and recognition by sight on request: all open Moon records (ArRecognition.tsx).
+  const recognition = useArRecognition(cameraActive);
 
   const [immersionLevel, setImmersionLevel] = useState<number>(0);
   const immersionRef = useRef(immersionLevel);
@@ -448,73 +448,6 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
   const [activeEnvIndex, setActiveEnvIndex] = useState(0);
   const activeEnvRef = useRef(activeEnvIndex);
   activeEnvRef.current = activeEnvIndex;
-
-  // Keep the closed-set scanner running as part of the AR world, using the camera stream
-  // already owned by RealARXREngine. Three stable matches are required before showing a record.
-  useEffect(() => {
-    if (!cameraActive) {
-      setRecognizedArtifact(null);
-      setRecognitionStatus('loading');
-      return;
-    }
-
-    let disposed = false;
-    let timer = 0;
-    let lastCandidateId: string | null = null;
-    let consecutiveMatches = 0;
-    let consecutiveMisses = 0;
-    let modelReady = false;
-    const recognizer = new AlqamiArtifactRecognizer();
-
-    const scan = async () => {
-      if (disposed) return;
-      const video = document.querySelector<HTMLVideoElement>('video[data-passthrough-video]');
-      if (!video || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
-        timer = window.setTimeout(scan, 500);
-        return;
-      }
-
-      try {
-        const match = await recognizer.recognize(video);
-        if (disposed) return;
-        if (!modelReady) {
-          modelReady = true;
-          setRecognitionStatus('ready');
-        }
-        if (match) {
-          consecutiveMisses = 0;
-          consecutiveMatches = match.artifactId === lastCandidateId ? consecutiveMatches + 1 : 1;
-          lastCandidateId = match.artifactId;
-          if (consecutiveMatches >= 3) {
-            const artifact = ALQAMI_ARTIFACTS.find((item) => item.id === match.artifactId);
-            if (artifact) {
-              setRecognitionStatus('ready');
-              setRecognizedArtifact({ artifact, confidence: match.score });
-            }
-          }
-        } else {
-          consecutiveMisses += 1;
-          consecutiveMatches = 0;
-          lastCandidateId = null;
-          if (consecutiveMisses >= 3) setRecognizedArtifact(null);
-        }
-        timer = window.setTimeout(scan, 1100);
-      } catch (error) {
-        if (disposed) return;
-        console.warn('Alqami artifact recognition is unavailable:', error);
-        setRecognitionStatus('unavailable');
-        timer = window.setTimeout(scan, 10000);
-      }
-    };
-
-    setRecognitionStatus('loading');
-    void scan();
-    return () => {
-      disposed = true;
-      window.clearTimeout(timer);
-      recognizer.dispose();
-    };
-  }, [cameraActive]);
 
   const [layoutMenuOpen, setLayoutMenuOpen] = useState(false);
 
@@ -1773,26 +1706,7 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
             Waiting for Safari camera access…
           </div>
         )}
-        {recognizedArtifact && (
-          <div
-            dir="rtl"
-            className="absolute left-1/2 top-[34%] z-[54] w-[min(360px,88vw)] -translate-x-1/2 rounded-2xl vision-glass border border-emerald-300/50 bg-[#071322]/80 p-3 text-white shadow-xl pointer-events-none animate-in fade-in zoom-in-95 duration-200"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="text-[9px] font-semibold tracking-wide text-emerald-200/90">ALQAMI · MATCHED ARTIFACT</div>
-                <div className="mt-0.5 truncate text-sm font-bold">{recognizedArtifact.artifact.title.ar}</div>
-                <div dir="ltr" className="truncate text-[10px] text-white/70">{recognizedArtifact.artifact.title.en}</div>
-              </div>
-              <span dir="ltr" className="shrink-0 rounded-full bg-emerald-300/15 px-2 py-1 text-[10px] font-semibold text-emerald-100">
-                {Math.round(recognizedArtifact.confidence * 100)}%
-              </span>
-            </div>
-            <div className="mt-2 border-t border-white/10 pt-2 text-[10px] leading-relaxed text-white/80">
-              {recognizedArtifact.artifact.period.ar} · {recognizedArtifact.artifact.details.material.ar}
-            </div>
-          </div>
-        )}
+        <ArRecognitionOverlay state={recognition} cameraActive={cameraActive} />
 
         {/* Spatial 360° Room Radar Mini-Map (awesome-arkit) */}
         <div

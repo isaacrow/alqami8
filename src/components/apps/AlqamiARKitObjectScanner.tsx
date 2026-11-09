@@ -34,6 +34,9 @@ import { spatialSound } from '../../utils/spatialSound';
 import { ALQAMI_ARTIFACTS, AlqamiArtifact } from '../../data/alqamiArtifacts';
 import { CodeReader } from '../../scan/codeReader';
 import { resolveCode } from '../../scan/resolveCode';
+import { SightRecognizer, SightTarget } from '../../recognize/recognizer';
+import { publishedRecords } from '../../moon/moonObjects';
+import { setScannerOpen } from '../../utils/scannerState';
 
 interface AlqamiARKitObjectScannerProps {
   isOpen: boolean;
@@ -61,6 +64,11 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   const [scanMessage, setScanMessage] = useState('وجّه الكاميرا نحو ملصق QR أو باركود الكتاب · Point at a QR label or a book barcode');
   const [copiedRdf, setCopiedRdf] = useState(false);
   const [isLockedOnObject, setIsLockedOnObject] = useState(false);
+
+  useEffect(() => {
+    setScannerOpen(isOpen);
+    return () => setScannerOpen(false);
+  }, [isOpen]);
 
   // The web workflow stores an RDF record; it does not reconstruct a 3D scan.
 
@@ -151,6 +159,75 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
       disposed = true;
       window.clearTimeout(timer);
       reader.dispose();
+    };
+  }, [isOpen, activeMode]);
+
+  // Recognition by sight, beside the code reader: DINOv2 compares the centre of the frame with the nightly index
+  // of Moon covers and enrolled objects. A steady match opens it; when unsure, up to three candidates are offered.
+  const [sightCandidates, setSightCandidates] = useState<Array<{ target: SightTarget; title: string }>>([]);
+  const [sightReady, setSightReady] = useState<'loading' | 'ready' | 'off'>('loading');
+  const openSightTarget = (target: SightTarget) => {
+    setSightCandidates([]);
+    if (target.kind === 'moon') {
+      onMoonRecordRef.current?.(target.recordId);
+      return;
+    }
+    const targetIndex = referenceObjects.findIndex((item) => item.id.toLowerCase() === target.id.toLowerCase());
+    if (targetIndex >= 0) {
+      setSelectedTargetIndex(targetIndex);
+      setIsLockedOnObject(true);
+    }
+  };
+  const onMoonRecordRef = useRef(onMoonRecord);
+  onMoonRecordRef.current = onMoonRecord;
+
+  useEffect(() => {
+    if (!isOpen || activeMode !== 'detect') return;
+    let disposed = false;
+    let timer = 0;
+    const sight = new SightRecognizer();
+    const titles = new Map<string, string>();
+    void publishedRecords()
+      .then((records) => records.forEach((r) => titles.set(`moon:${r.id}`, r.title)))
+      .catch(() => {});
+    const titleOf = (t: SightTarget) =>
+      t.kind === 'moon'
+        ? titles.get(`moon:${t.recordId}`) || t.recordId
+        : ALQAMI_ARTIFACTS.find((a) => a.id === t.id)?.title.ar || t.id;
+
+    setSightReady('loading');
+    sight
+      .prepare()
+      .then(() => !disposed && setSightReady('ready'))
+      .catch(() => !disposed && setSightReady('off'));
+
+    const tick = async () => {
+      const video = videoRef.current;
+      try {
+        const result = video ? await sight.step(video) : { kind: 'none' as const };
+        if (disposed) return;
+        if (result.kind === 'match') {
+          spatialSound.playPinchTap();
+          setScanMessage('تم التعرّف بالنظر · Recognised by sight');
+          openSightTarget(result.target);
+          sight.reset();
+        } else if (result.kind === 'unsure') {
+          setSightCandidates(result.candidates.map((c) => ({ target: c.target, title: titleOf(c.target) })));
+        }
+      } catch {
+        // Model or index unavailable: codes still work.
+        if (!disposed) setSightReady('off');
+        return;
+      }
+      if (!disposed) timer = window.setTimeout(tick, 250);
+    };
+    void tick();
+
+    return () => {
+      disposed = true;
+      window.clearTimeout(timer);
+      setSightCandidates([]);
+      void sight.dispose();
     };
   }, [isOpen, activeMode]);
 
@@ -363,7 +440,33 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
               {scanMessage}
             </div>
             <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
-              <div className="w-56 h-40 border-2 border-emerald-300/80 rounded-2xl shadow-[0_0_28px_rgba(52,211,153,0.3)]" />
+              <div className="w-60 h-60 max-w-[70vw] max-h-[70vw] border-2 border-emerald-300/80 rounded-2xl shadow-[0_0_28px_rgba(52,211,153,0.3)]" />
+            </div>
+            <div className="absolute bottom-4 inset-x-3 z-30 flex flex-col items-center gap-2 pointer-events-none">
+              {sightCandidates.length > 0 && (
+                <div className="pointer-events-auto max-w-full px-3 py-2.5 rounded-2xl vision-glass border border-white/20 bg-black/70 text-white space-y-2">
+                  <p className="text-[11.5px] text-white/70 text-center">هل هو أحد هذه؟ · Is it one of these?</p>
+                  <div className="flex flex-wrap justify-center gap-1.5">
+                    {sightCandidates.map((c) => (
+                      <button
+                        key={c.target.kind === 'moon' ? c.target.recordId : c.target.id}
+                        onClick={() => openSightTarget(c.target)}
+                        dir="auto"
+                        className="max-w-[16rem] truncate px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-[12px] cursor-pointer active:scale-95"
+                      >
+                        {c.title}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <span className="px-3 py-1 rounded-full bg-black/60 border border-white/15 text-[10.5px] text-white/70">
+                {sightReady === 'loading'
+                  ? 'تجهيز التعرّف بالنظر… · Preparing recognition by sight…'
+                  : sightReady === 'ready'
+                    ? 'التعرّف بالنظر يعمل · Recognition by sight on'
+                    : 'الرموز فقط (التعرّف بالنظر غير متاح) · Codes only (sight unavailable)'}
+              </span>
             </div>
           </>
         )}
