@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ALQAMI_ARTIFACTS, AlqamiArtifact } from '../data/alqamiArtifacts';
 import { coverGuess, MoonRecord, searchRecords } from './moonApi';
 import { MoonCardData, readRecord } from './readRecord';
+import { toIsbn13 } from './isbn';
 
 /**
  * The objects ALQAMI shows are the ones catalogued in Moon with a 3D model: every published Moon record whose
@@ -13,6 +14,7 @@ import { MoonCardData, readRecord } from './readRecord';
  */
 
 const STORE_KEY = 'alqami-moon-objects';
+const ISBN_KEY = 'alqami-moon-isbn-index';
 const PAGE = 200;
 
 // Every published Moon record, a page at a time (Moon answers at most 200 per page).
@@ -24,6 +26,41 @@ async function allPublished(): Promise<MoonRecord[]> {
     if (page.records.length < PAGE || records.length >= page.total) break;
   }
   return records;
+}
+
+let published: Promise<MoonRecord[]> | null = null;
+
+/**
+ * Moon's published records, fetched once per visit and shared by the gallery and the scanner. Also saves an
+ * ISBN index on the device, so a book barcode opens its record without asking Moon (and with no signal).
+ */
+export function publishedRecords(): Promise<MoonRecord[]> {
+  published ??= allPublished().then((records) => {
+    const isbns: Record<string, string> = {};
+    for (const r of records) for (const isbn of readRecord(r, 'en').isbns) {
+      const key = toIsbn13(isbn);
+      if (key) isbns[key] = r.id;
+    }
+    try {
+      localStorage.setItem(ISBN_KEY, JSON.stringify(isbns));
+    } catch {
+      // Storage blocked: barcodes fall back to Moon's search.
+    }
+    return records;
+  });
+  published.catch(() => {
+    published = null;
+  });
+  return published;
+}
+
+/** The Moon record ID saved on this device for an ISBN (as Moon catalogued it), if any. */
+export function savedIsbnRecord(isbn: string): string | undefined {
+  try {
+    return JSON.parse(localStorage.getItem(ISBN_KEY) || '{}')[isbn];
+  } catch {
+    return undefined;
+  }
 }
 
 function toArtifact(record: MoonRecord, ar: MoonCardData, en: MoonCardData, local?: AlqamiArtifact): AlqamiArtifact {
@@ -85,7 +122,7 @@ export function useAlqamiArtifacts(): AlqamiArtifact[] {
     let live = true;
     shared =
       shared ??
-      allPublished()
+      publishedRecords()
         .then((records) => {
           // Keep only the records with a 3D model, so a hall with no signal still shows them.
           const withModels = records.filter((r) => readRecord(r, 'en').modelUrl);

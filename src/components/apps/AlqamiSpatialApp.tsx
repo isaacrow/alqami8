@@ -489,6 +489,10 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
       <AlqamiARKitObjectScanner
         isOpen={isScanModalOpen}
         onClose={() => setIsScanModalOpen(false)}
+        onMoonRecord={(id) => {
+          setIsScanModalOpen(false);
+          setMoonSheetId(id);
+        }}
         onDeployInSpace={(art) => triggerARPreviewInSpace(art)}
         onOpenDetail={(art) => {
           const idx = artifacts.findIndex((a) => a.id === art.id);

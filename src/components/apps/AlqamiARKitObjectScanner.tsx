@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import jsQR from 'jsqr';
 import QRCode from 'qrcode';
 import { assetUrl } from '../../utils/assetUrl';
 import {
@@ -33,12 +32,16 @@ import {
 } from '../../utils/alqamiRdfStore';
 import { spatialSound } from '../../utils/spatialSound';
 import { ALQAMI_ARTIFACTS, AlqamiArtifact } from '../../data/alqamiArtifacts';
+import { CodeReader } from '../../scan/codeReader';
+import { resolveCode } from '../../scan/resolveCode';
 
 interface AlqamiARKitObjectScannerProps {
   isOpen: boolean;
   onClose: () => void;
   onDeployInSpace?: (artifact: AlqamiArtifact) => void;
   onOpenDetail?: (artifact: AlqamiArtifact) => void;
+  /** A scanned QR label or book barcode matched a published Moon record. */
+  onMoonRecord?: (recordId: string) => void;
 }
 
 export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> = ({
@@ -46,6 +49,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   onClose,
   onDeployInSpace,
   onOpenDetail,
+  onMoonRecord,
 }) => {
   // Catalog identification by printed QR label, plus metadata record creation.
   const [activeMode, setActiveMode] = useState<'detect' | 'scan'>('detect');
@@ -54,7 +58,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   const referenceObjects = getAllReferenceObjects();
   const [selectedTargetIndex, setSelectedTargetIndex] = useState(0);
   const [activeRdfTab, setActiveRdfTab] = useState<'summary' | 'transcription' | 'turtle' | 'bibframe'>('summary');
-  const [scanMessage, setScanMessage] = useState('وجه الكاميرا نحو رمز القطعة');
+  const [scanMessage, setScanMessage] = useState('وجّه الكاميرا نحو ملصق QR أو باركود الكتاب · Point at a QR label or a book barcode');
   const [copiedRdf, setCopiedRdf] = useState(false);
   const [isLockedOnObject, setIsLockedOnObject] = useState(false);
 
@@ -76,7 +80,6 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
 
   // Live camera and QR decoder refs
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const qrCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
   const activeTarget = referenceObjects[selectedTargetIndex] || referenceObjects[0];
@@ -95,52 +98,59 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
     setScanMessage('تم تنزيل ملصق QR. اطبعه وضعه قرب القطعة ليتعرف عليها الماسح.');
   };
 
-  // Decode real QR codes from the live camera. QR payloads may be an artifact ID,
-  // slug, or an Alqami artifact URL containing ?artifact=<id>.
+  // Read QR labels and book barcodes (ISBN) from the live camera. A Moon link, Moon URI or ISBN opens the Moon
+  // record; an ALQAMI label ("ALQAMI:<id>", "?artifact=<id>") selects one of the objects listed here.
   useEffect(() => {
     if (!isOpen || activeMode !== 'detect') return;
     let disposed = false;
-    const canvas = qrCanvasRef.current;
-    const context = canvas?.getContext('2d', { willReadFrequently: true });
-    if (!canvas || !context) return;
+    let timer = 0;
+    let lastText = '';
+    let lastAt = 0;
+    const reader = new CodeReader();
 
-    const timer = window.setInterval(() => {
+    const tick = async () => {
       const video = videoRef.current;
-      if (disposed || !video || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
-
-      if (!video.videoWidth || !video.videoHeight) return;
-      const scale = Math.min(1, 720 / video.videoWidth);
-      canvas.width = Math.round(video.videoWidth * scale);
-      canvas.height = Math.round(video.videoHeight * scale);
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(pixels.data, pixels.width, pixels.height, { inversionAttempts: 'attemptBoth' });
-      if (!code) return;
-
-      const payload = code.data.trim();
-      let lookup = payload.replace(/^ALQAMI:/i, '').trim();
       try {
-        const url = new URL(payload);
-        lookup = url.searchParams.get('artifact') || decodeURIComponent(url.pathname.split('/').filter(Boolean).pop() || lookup);
+        const code = video ? await reader.read(video) : null;
+        // The same code held in view is resolved once, not every frame.
+        if (code && !disposed && (code.text !== lastText || performance.now() - lastAt > 4000)) {
+          lastText = code.text;
+          lastAt = performance.now();
+          setScanMessage('جارٍ البحث في مون… · Looking it up in Moon…');
+          const target = await resolveCode(code.text);
+          if (disposed) return;
+          if (target.kind === 'moon') {
+            spatialSound.playPinchTap();
+            setScanMessage('وُجد في مون · Found in Moon');
+            onMoonRecord?.(target.recordId);
+          } else if (target.kind === 'artifact') {
+            const targetIndex = referenceObjects.findIndex((item) =>
+              [item.id, item.slug].some((value) => value.toLowerCase() === target.id.toLowerCase())
+            );
+            if (targetIndex >= 0) {
+              setSelectedTargetIndex(targetIndex);
+              setIsLockedOnObject(true);
+              setScanMessage('تم التعرّف على رمز القطعة · Object label recognised');
+            } else {
+              setScanMessage(`رمز غير موجود في السجل · Not in the catalogue: ${target.id.slice(0, 48)}`);
+            }
+          } else if (target.reason === 'not-in-moon') {
+            setScanMessage(`غير مفهرس في مون بعد · Not catalogued in Moon yet: ${target.text.slice(0, 48)}`);
+          } else {
+            setScanMessage(`رمز غير معروف · Code not recognised: ${target.text.slice(0, 48)}`);
+          }
+        }
       } catch {
-        // A plain artifact ID or slug is also a valid QR payload.
+        // Moon unreachable or a decoding hiccup: keep scanning.
       }
-      const targetIndex = referenceObjects.findIndex((item) =>
-        [item.id, item.slug].some((value) => value.toLowerCase() === lookup.toLowerCase())
-      );
-
-      if (targetIndex >= 0) {
-        setSelectedTargetIndex(targetIndex);
-        setIsLockedOnObject(true);
-        setScanMessage('تم التعرّف على رمز القطعة');
-      } else {
-        setScanMessage(`رمز غير موجود في السجل: ${payload.slice(0, 48)}`);
-      }
-    }, 180);
+      if (!disposed) timer = window.setTimeout(tick, 200);
+    };
+    void tick();
 
     return () => {
       disposed = true;
-      window.clearInterval(timer);
+      window.clearTimeout(timer);
+      reader.dispose();
     };
   }, [isOpen, activeMode]);
 
@@ -347,7 +357,6 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
           className="w-full h-full object-cover pointer-events-none"
         />
 
-        <canvas ref={qrCanvasRef} className="hidden" aria-hidden="true" />
         {activeMode === 'detect' && (
           <>
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full vision-glass border border-white/20 bg-black/65 text-white text-xs text-center max-w-[92%] pointer-events-none">
