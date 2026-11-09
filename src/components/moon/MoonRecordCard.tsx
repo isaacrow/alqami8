@@ -1,6 +1,7 @@
 import React from 'react';
-import { BookOpen, ExternalLink, WifiOff } from 'lucide-react';
+import { BookOpen, ExternalLink, QrCode, WifiOff } from 'lucide-react';
 import { MoonCardData, MoonLink, UiLang } from '../../moon/readRecord';
+import { downloadQrLabel } from '../../scan/qrLabel';
 import { MoonLoad } from '../../moon/useMoon';
 
 const words = (lang: UiLang, ar: string, en: string) => (lang === 'ar' ? ar : en);
@@ -73,6 +74,14 @@ export const MoonRecordCard: React.FC<{ card: MoonCardData; lang: UiLang; offlin
           {t('افتح في مون', 'Open in Moon')}
           <ExternalLink className="w-3 h-3 opacity-60" />
         </a>
+        <button
+          onClick={() => void downloadQrLabel(card)}
+          className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-[12.5px] font-medium transition active:scale-95 cursor-pointer"
+          title={t('ملصق للطباعة يفتح هذا السجل', 'A printable label that opens this record')}
+        >
+          <QrCode className="w-3.5 h-3.5" />
+          {t('ملصق QR', 'QR label')}
+        </button>
         <span className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-white/10 border border-white/15 text-[11.5px] text-white/70">
           {offline ? <WifiOff className="w-3.5 h-3.5" /> : <span className="w-2 h-2 rounded-full bg-emerald-400" />}
           {offline ? t('نسخة محفوظة على الجهاز', 'Copy saved on this device') : t('من فهرس مون', 'From the Moon catalogue')}

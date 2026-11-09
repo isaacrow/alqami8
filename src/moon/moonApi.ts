@@ -81,6 +81,31 @@ export async function getRecentChanges(signal?: AbortSignal): Promise<MoonChange
   });
 }
 
+export interface MoonChangeItem {
+  recordId: string;
+  /** The changed resource's URI (usually the Instance). */
+  objectId?: string;
+  /** The Work that Instance belongs to. */
+  workId?: string;
+}
+
+/** Every page of Moon's change feed: which record each published Work and Instance URI belongs to. */
+export async function getChangePages(signal?: AbortSignal): Promise<MoonChangeItem[]> {
+  const items: MoonChangeItem[] = [];
+  for (let page = 1; page <= 200; page++) {
+    const res = await moonGet<{ orderedItems?: Array<{ id: string; object?: { id?: string; 'bf:instanceOf'?: string } }>; next?: string }>(
+      `/resource/changes?page=${page}`,
+      signal
+    );
+    for (const item of res.orderedItems || []) {
+      const match = /\/resource\/changes\/([^/]+)\/[^/]+$/.exec(item.id || '');
+      if (match) items.push({ recordId: decodeURIComponent(match[1]), objectId: item.object?.id, workId: item.object?.['bf:instanceOf'] });
+    }
+    if (!res.next) break;
+  }
+  return items;
+}
+
 /**
  * Where Moon keeps a record's cover. Search results do not say whether a record has one, so callers must
  * cope with a missing image (the full record's coverUrl is the authority).

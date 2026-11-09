@@ -13,14 +13,14 @@
     "@mediapipe/tasks-vision": "^1.1.1",
     "@tensorflow-models/mobilenet": "^2.1.1",
     "@tensorflow/tfjs": "^4.22.0",
-    "jsqr": "^1.4.0",
     "lucide-react": "^0.468.0",
     "motion": "^14.6.0",
     "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.170.0",
-    "troika-three-text": "^0.52.5"
+    "troika-three-text": "^0.52.5",
+    "zxing-wasm": "3.1.6"
   },
   "devDependencies": {
     "@types/qrcode": "^1.5.6",
