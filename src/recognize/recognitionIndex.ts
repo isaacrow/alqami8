@@ -1,3 +1,4 @@
+import { listEnrolled } from './localEnrol';
 import { IndexEntry } from './decide';
 
 /**
@@ -37,5 +38,15 @@ export async function loadRecognitionIndex(model: string): Promise<{ file: Recog
   const res = await fetch(`${base}data/recognition-${model}.json`, { cache: 'no-cache' });
   if (!res.ok) throw new Error(`Recognition index missing (${res.status})`);
   const file = (await res.json()) as RecognitionIndexFile;
-  return { file, entries: file.entries.map((e) => ({ key: e.key, threshold: e.threshold, views: e.views.map(decodeView) })) };
+  const entries: IndexEntry[] = file.entries.map((e) => ({ key: e.key, threshold: e.threshold, views: e.views.map(decodeView) }));
+
+  // Objects taught on this phone count at once, with the same score floor as the server-built entries.
+  const floor = file.entries[0]?.threshold ?? 0.76;
+  for (const taught of await listEnrolled().catch(() => [])) {
+    const views = taught.views.map(decodeView);
+    const same = entries.find((e) => e.key === taught.key);
+    if (same) same.views.push(...views);
+    else entries.push({ key: taught.key, threshold: floor, views });
+  }
+  return { file, entries };
 }
