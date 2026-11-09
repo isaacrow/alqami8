@@ -22,6 +22,7 @@ import {
   Maximize2,
   Trash2,
   ExternalLink,
+  Camera,
 } from 'lucide-react';
 import {
   getAllReferenceObjects,
@@ -37,6 +38,7 @@ import { resolveCode } from '../../scan/resolveCode';
 import { SightRecognizer, SightTarget } from '../../recognize/recognizer';
 import { publishedRecords } from '../../moon/moonObjects';
 import { setScannerOpen } from '../../utils/scannerState';
+import { TeachPanel } from '../scan/TeachPanel';
 
 interface AlqamiARKitObjectScannerProps {
   isOpen: boolean;
@@ -55,7 +57,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   onMoonRecord,
 }) => {
   // Catalog identification by printed QR label, plus metadata record creation.
-  const [activeMode, setActiveMode] = useState<'detect' | 'scan'>('detect');
+  const [activeMode, setActiveMode] = useState<'detect' | 'teach' | 'scan'>('detect');
 
   // Detection state
   const referenceObjects = getAllReferenceObjects();
@@ -400,6 +402,21 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
           <button
             onClick={() => {
               spatialSound.playPinchTap?.();
+              setActiveMode('teach');
+            }}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+              activeMode === 'teach'
+                ? 'bg-sky-300 text-black shadow-md font-bold'
+                : 'text-white/80 hover:text-white'
+            }`}
+          >
+            <Camera className="w-3.5 h-3.5" />
+            <span>علّم ALQAMI (Teach an object)</span>
+          </button>
+
+          <button
+            onClick={() => {
+              spatialSound.playPinchTap?.();
               setActiveMode('scan');
             }}
             className={`px-4 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
@@ -635,6 +652,12 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
           </div>
         )}
 
+        {activeMode === 'teach' && (
+          <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
+            <div className="w-60 h-60 max-w-[70vw] max-h-[70vw] border-2 border-sky-300/80 rounded-2xl shadow-[0_0_28px_rgba(125,211,252,0.3)]" />
+          </div>
+        )}
+
         {/* Metadata registration. This browser flow does not reconstruct a 3D mesh. */}
         {activeMode === 'scan' && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-xl vision-glass border border-amber-400/40 bg-black/75 text-[11px] text-amber-100 text-center max-w-md">
@@ -690,6 +713,8 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
             </div>
           </div>
         )}
+
+        {activeMode === 'teach' && <TeachPanel videoRef={videoRef} />}
 
         {/* Scan Mode Step 4: Metadata Form */}
         {activeMode === 'scan' && (
