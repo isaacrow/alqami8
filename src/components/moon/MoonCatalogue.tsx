@@ -56,6 +56,7 @@ export const MoonShelf: React.FC<{ query: string; lang: UiLang; onOpen: (recordI
                 <BookOpen className="w-8 h-8 text-white/35" />
                 <img
                   src={coverGuess(card.id)}
+                  crossOrigin="anonymous"
                   alt=""
                   loading="lazy"
                   onError={(e) => {
