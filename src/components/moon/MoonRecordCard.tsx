@@ -36,6 +36,7 @@ export const MoonRecordCard: React.FC<{ card: MoonCardData; lang: UiLang; offlin
         {card.coverUrl && (
           <img
             src={card.coverUrl}
+            crossOrigin="anonymous"
             alt=""
             loading="lazy"
             className="w-20 h-28 object-cover rounded-lg border border-white/20 shadow-lg flex-shrink-0 bg-white/10"
