@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { BookOpen, ScanEye, X } from 'lucide-react';
+import { BookOpen, Box, ScanEye, X } from 'lucide-react';
 import { ALQAMI_ARTIFACTS } from '../../../data/alqamiArtifacts';
 import { opacUrl } from '../../../moon/moonApi';
+import { roomViewUrl } from '../../../moon/roomView';
 import { useMoonRecord } from '../../../moon/useMoon';
 import { CodeReader } from '../../../scan/codeReader';
 import { resolveCode } from '../../../scan/resolveCode';
@@ -170,6 +171,15 @@ const RecognizedCard: React.FC<{ target: SightTarget; via: 'code' | 'sight'; onD
         <a href={opacUrl(moonId)} target="_blank" rel="noopener noreferrer" className="mt-2.5 inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-white text-black text-[12px] font-semibold">
           <BookOpen className="w-3.5 h-3.5" />
           افتح في مون · Open in Moon
+        </a>
+      )}
+      {(card?.modelUrl || artifact?.model.glb) && (
+        <a
+          href={roomViewUrl((card?.modelUrl || artifact?.model.glb)!, title)}
+          className="mt-2.5 ms-2 inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-[#FFD60A] text-black text-[12px] font-semibold"
+        >
+          <Box className="w-3.5 h-3.5" />
+          اعرضه في مكانك · View in your room
         </a>
       )}
       {target.kind === 'moon' && load?.state === 'missing' && <div className="mt-2 text-[11px] text-white/60">هذا السجل غير منشور في مون.</div>}
