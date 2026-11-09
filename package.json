@@ -12,6 +12,7 @@
   "dependencies": {
     "@huggingface/transformers": "4.3.1",
     "@mediapipe/tasks-vision": "^1.1.1",
+    "@webarkit/jsartoolkit-nft": "1.14.0",
     "fflate": "0.8.3",
     "lucide-react": "^0.468.0",
     "motion": "^14.6.0",
@@ -29,6 +30,7 @@
     "@types/three": "^0.170.0",
     "@vitejs/plugin-basic-ssl": "^1.2.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "@webarkit/nft-marker-creator-app": "0.4.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
