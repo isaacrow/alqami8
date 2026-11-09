@@ -33,6 +33,7 @@ import { MoonRecordPanel } from '../moon/MoonRecordCard';
 import { MoonRecordSheet, MoonShelf } from '../moon/MoonCatalogue';
 import { useAlqamiArtifacts } from '../../moon/moonObjects';
 import { useMoonRecord } from '../../moon/useMoon';
+import { roomViewUrl } from '../../moon/roomView';
 
 interface BentoHotspot {
   id: string;
@@ -211,8 +212,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
   // Auto-generate QR code data URL pointing to the authentic AR Quick Look mode
   useEffect(() => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const arUrl = `${origin}${assetUrl('/immersive-ar.html')}?model=${encodeURIComponent(assetUrl(currentArtifact.model.glb))}&title=${encodeURIComponent(isAr ? currentArtifact.title.ar : currentArtifact.title.en)}`;
+    const arUrl = new URL(roomViewUrl(currentArtifact.model.glb, isAr ? currentArtifact.title.ar : currentArtifact.title.en), window.location.href).href;
     QRCode.toDataURL(arUrl, {
       width: 420,
       margin: 1.5,
@@ -1091,7 +1091,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
               <div className="flex items-center gap-2.5">
                 {/* Round yellow AR Mode button with SVG Scan icon (User Request) */}
                 <a
-                  href={`${assetUrl('/immersive-ar.html')}?model=${encodeURIComponent(assetUrl(currentArtifact.model.glb))}&title=${encodeURIComponent(isAr ? currentArtifact.title.ar : currentArtifact.title.en)}`}
+                  href={roomViewUrl(currentArtifact.model.glb, isAr ? currentArtifact.title.ar : currentArtifact.title.en)}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => spatialSound.playPinchTap()}
@@ -1400,8 +1400,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
               <button
                 onClick={() => {
                   spatialSound.playPinchTap();
-                  const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                  const arUrl = `${origin}${assetUrl('/immersive-ar.html')}?model=${encodeURIComponent(assetUrl(currentArtifact.model.glb))}&title=${encodeURIComponent(isAr ? currentArtifact.title.ar : currentArtifact.title.en)}`;
+                  const arUrl = new URL(roomViewUrl(currentArtifact.model.glb, isAr ? currentArtifact.title.ar : currentArtifact.title.en), window.location.href).href;
                   navigator.clipboard.writeText(arUrl);
                   setQrCopied(true);
                   setTimeout(() => setQrCopied(false), 2000);

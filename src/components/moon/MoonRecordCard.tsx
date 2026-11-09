@@ -1,7 +1,8 @@
 import React from 'react';
-import { BookOpen, ExternalLink, QrCode, WifiOff } from 'lucide-react';
+import { BookOpen, Box, ExternalLink, QrCode, WifiOff } from 'lucide-react';
 import { MoonCardData, MoonLink, UiLang } from '../../moon/readRecord';
 import { downloadQrLabel } from '../../scan/qrLabel';
+import { roomViewUrl } from '../../moon/roomView';
 import { MoonLoad } from '../../moon/useMoon';
 
 const words = (lang: UiLang, ar: string, en: string) => (lang === 'ar' ? ar : en);
@@ -74,6 +75,16 @@ export const MoonRecordCard: React.FC<{ card: MoonCardData; lang: UiLang; offlin
           {t('افتح في مون', 'Open in Moon')}
           <ExternalLink className="w-3 h-3 opacity-60" />
         </a>
+        {card.modelUrl && (
+          <a
+            href={roomViewUrl(card.modelUrl, card.title)}
+            className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-[#FFD60A] text-black text-[12.5px] font-semibold hover:bg-[#ffe03b] transition active:scale-95"
+            title={t('ضعه في مكانك بالحجم الحقيقي', 'Place it in your room at true size')}
+          >
+            <Box className="w-3.5 h-3.5" />
+            {t('اعرضه في مكانك', 'View in your room')}
+          </a>
+        )}
         <button
           onClick={() => void downloadQrLabel(card)}
           className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-[12.5px] font-medium transition active:scale-95 cursor-pointer"
