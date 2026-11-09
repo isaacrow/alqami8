@@ -713,6 +713,19 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
               {/* Header Action Buttons: Live 3D Toggle AND 3D Popout Inspect side-by-side (Matching Image 1 in red circle) */}
               <div className="flex items-center gap-2">
+                {/* Scan: QR labels, book barcodes and recognition by sight, all opening Moon records */}
+                <button
+                  onClick={() => {
+                    spatialSound.playPinchTap();
+                    setIsScanModalOpen(true);
+                  }}
+                  className="h-9 px-3.5 rounded-full flex items-center gap-1.5 bg-[#FFD60A] hover:bg-[#ffe03b] text-black text-[12.5px] font-semibold transition-all cursor-pointer shadow-sm active:scale-95"
+                  aria-label={isAr ? 'امسح قطعة أو كتابًا' : 'Scan an object or a book'}
+                  title={isAr ? 'امسح ملصق QR أو باركود كتاب أو وجّه الكاميرا نحو القطعة' : 'Scan a QR label, a book barcode, or point at the object'}
+                >
+                  <Scan className="w-4 h-4" />
+                  <span>{isAr ? 'امسح' : 'Scan'}</span>
+                </button>
                 {/* Button 1: Toggle live interactive 3D models in all cards */}
                 <button
                   onClick={() => {

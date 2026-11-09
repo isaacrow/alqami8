@@ -10,9 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@huggingface/transformers": "4.3.1",
     "@mediapipe/tasks-vision": "^1.1.1",
-    "@tensorflow-models/mobilenet": "^2.1.1",
-    "@tensorflow/tfjs": "^4.22.0",
     "lucide-react": "^0.468.0",
     "motion": "^14.6.0",
     "qrcode": "^1.5.4",
