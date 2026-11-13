@@ -21,6 +21,8 @@ interface HomeViewLauncherProps {
 
 interface HomeAppItem {
   id: AppId;
+  /** Opens a separate page instead of an app window. */
+  href?: string;
   name: string;
   bg: string;
   glyph: React.ReactNode;
@@ -137,6 +139,13 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({
 
   const row3: HomeAppItem[] = [
     {
+      id: 'messages',
+      href: './jawahiri.html',
+      name: 'الجواهري · Talk',
+      bg: 'radial-gradient(circle at 50% 30%, #6b5536, #1a140c)',
+      glyph: <span className="text-[30px]">🗣️</span>,
+    },
+    {
       id: 'search',
       name: 'Spotlight',
       bg: 'linear-gradient(180deg, #0a84ff 0%, #32ade6 100%)',
@@ -192,7 +201,8 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({
           onMouseEnter={() => spatialSound.playHover()}
           onClick={() => {
             spatialSound.playPinchTap();
-            onLaunchApp(item.id);
+            if (item.href) window.location.href = item.href;
+            else onLaunchApp(item.id);
           }}
           className="group flex flex-col items-center gap-2.5 preserve-3d"
         >
