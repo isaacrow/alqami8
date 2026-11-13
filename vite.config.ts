@@ -70,8 +70,8 @@ export default defineConfig({
   plugins: [react(), usdzContentType, basicSsl(), offlineManifest],
   build: {
     rollupOptions: {
-      // bench.html measures recognition by sight on a phone (see src/bench/sightBench.ts).
-      input: { main: resolve(__dirname, 'index.html'), bench: resolve(__dirname, 'bench.html') },
+      // jawahiri.html is the talking character (src/character). bench.html measures recognition by sight on a phone (see src/bench/sightBench.ts).
+      input: { main: resolve(__dirname, 'index.html'), bench: resolve(__dirname, 'bench.html'), jawahiri: resolve(__dirname, 'jawahiri.html') },
     },
   },
   server: {
