@@ -3,6 +3,8 @@ import { BookOpen, Box, ExternalLink, QrCode, WifiOff } from 'lucide-react';
 import { MoonCardData, MoonLink, UiLang } from '../../moon/readRecord';
 import { downloadQrLabel } from '../../scan/qrLabel';
 import { roomViewUrl } from '../../moon/roomView';
+import { SpeakingPanel } from '../voice/SpeakingPanel';
+import { factsFromCard } from '../../voice/persona';
 import { MoonLoad } from '../../moon/useMoon';
 
 const words = (lang: UiLang, ar: string, en: string) => (lang === 'ar' ? ar : en);
@@ -99,6 +101,8 @@ export const MoonRecordCard: React.FC<{ card: MoonCardData; lang: UiLang; offlin
           {offline ? t('نسخة محفوظة على الجهاز', 'Copy saved on this device') : t('من فهرس مون', 'From the Moon catalogue')}
         </span>
       </div>
+
+      <SpeakingPanel facts={factsFromCard(card)} lang={lang} model={card.modelUrl} />
 
       {card.summary && (
         <p className="text-[13px] leading-relaxed text-white/80" dir="auto">
