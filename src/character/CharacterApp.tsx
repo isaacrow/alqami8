@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Camera, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
+import { ArrowLeft, Camera, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, TerminalSquare, X } from 'lucide-react';
+import { KeyTerminal } from './KeyTerminal';
 import { JAWAHIRI, OPENING_CUE, systemInstruction } from './jawahiri';
 import { GEMINI_VOICES, LiveConversation, LiveState, loadSettings, saveSettings, VoiceSettings } from './liveVoice';
 import { Stage } from './stage';
@@ -31,7 +32,7 @@ export const CharacterApp: React.FC = () => {
   const [loaded, setLoaded] = useState(0);
   const [loadError, setLoadError] = useState('');
   const [settings, setSettings] = useState<VoiceSettings>(loadSettings);
-  const [sheet, setSheet] = useState<'none' | 'settings' | 'about'>('none');
+  const [sheet, setSheet] = useState<'none' | 'settings' | 'about' | 'terminal'>(() => (location.hash === '#keys' ? 'terminal' : 'none'));
   const [state, setState] = useState<LiveState>('idle');
   const [stateDetail, setStateDetail] = useState('');
   const [his, setHis] = useState('');
@@ -138,7 +139,7 @@ export const CharacterApp: React.FC = () => {
       return;
     }
     if (!settings.geminiKey) {
-      setSheet('settings');
+      setSheet('terminal');
       return;
     }
     live.current?.dispose();
@@ -245,6 +246,9 @@ export const CharacterApp: React.FC = () => {
         </button>
         <button onClick={() => setSheet('about')} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center" aria-label={t('عنه', 'About him')}>
           <Info className="w-5 h-5" />
+        </button>
+        <button onClick={() => setSheet('terminal')} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center" aria-label={t('طرفية المفاتيح', 'Key terminal')}>
+          <TerminalSquare className="w-5 h-5" />
         </button>
         <button onClick={() => setSheet('settings')} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center" aria-label={t('الإعدادات', 'Settings')}>
           <Settings className="w-5 h-5" />
@@ -359,6 +363,7 @@ export const CharacterApp: React.FC = () => {
       </footer>
 
       {sheet === 'settings' && <SettingsSheet lang={lang} settings={settings} onClose={() => setSheet('none')} onSave={(s) => (setSettings(s), saveSettings(s), setSheet('none'))} />}
+      {sheet === 'terminal' && <KeyTerminal settings={settings} onClose={() => setSheet('none')} onSave={(s) => (setSettings(s), saveSettings(s))} />}
       {sheet === 'about' && <AboutSheet lang={lang} onClose={() => setSheet('none')} />}
     </div>
   );
