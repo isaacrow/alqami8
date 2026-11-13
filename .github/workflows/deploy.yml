@@ -64,6 +64,8 @@ jobs:
         env:
           # Set once from a terminal: node scripts/set-gemini-key.mjs (the Jawahiri character talks with it).
           VITE_GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # His cloned-voice server (the owner's PC behind a tunnel); set by start-voice on that PC. Empty = Gemini voice.
+          VITE_VOICE_SERVER: ${{ vars.VOICE_SERVER_URL }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

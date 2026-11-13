@@ -1,10 +1,13 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { BustMotion, rigBust } from './bustRig';
+import { BustMotion, rigBust, VoiceFeatures } from './bustRig';
 import { GyroCamera } from './gyro';
+import { PointCloud4D } from './pointCloud4d';
 
 export type StageMode = 'studio' | 'ar';
+/** model = the sculpted bust that speaks; 4d = the filmed point-cloud capture. */
+export type StageView = 'model' | '4d';
 
 /**
  * The 3D scene of the character.
@@ -19,6 +22,9 @@ export class Stage {
   private holder = new THREE.Group();
   private ring: THREE.Mesh;
   private motion: BustMotion | null = null;
+  private bust: THREE.Object3D | null = null;
+  private cloud: PointCloud4D | null = null;
+  view: StageView = 'model';
   private gyro = new GyroCamera();
   private needsPlacement = false;
   private t = 0;
@@ -66,7 +72,21 @@ export class Stage {
     });
     if (!mesh) throw new Error('no mesh');
     this.motion = new BustMotion(rigBust(mesh));
+    this.bust = gltf.scene;
     this.holder.add(gltf.scene);
+  }
+
+  /** Switches between the bust and the 4D capture (loaded the first time it is shown). */
+  async setView(view: StageView, url4d: string) {
+    if (view === '4d' && !this.cloud) {
+      const cloud = new PointCloud4D();
+      await cloud.load(url4d);
+      this.cloud = cloud;
+      this.holder.add(cloud.object);
+    }
+    this.view = view;
+    if (this.bust) this.bust.visible = view === 'model';
+    if (this.cloud) this.cloud.object.visible = view === '4d';
   }
 
   async setMode(mode: StageMode) {
@@ -119,7 +139,7 @@ export class Stage {
    * One frame. `look` is where the visitor is on screen (0..1), or null to let him glance around.
    * In AR with nobody seen, he looks at the phone.
    */
-  frame(dt: number, voice: number, look: { x: number; y: number } | null) {
+  frame(dt: number, voice: VoiceFeatures, look: { x: number; y: number } | null) {
     this.t += dt;
     if (this.mode === 'ar') {
       this.gyro.apply(this.camera);
@@ -129,7 +149,7 @@ export class Stage {
       this.holder.rotation.y = Math.atan2(-p.x, -p.z) + this.bodyYaw;
       p.y = -0.12 + Math.sin(this.t * 1.3) * 0.025;
       this.holder.scale.setScalar(0.36 * this.arScale);
-      (this.ring.material as THREE.MeshBasicMaterial).opacity = 0.25 + Math.sin(this.t * 2.6) * 0.1 + voice * 0.25;
+      (this.ring.material as THREE.MeshBasicMaterial).opacity = 0.25 + Math.sin(this.t * 2.6) * 0.1 + voice.level * 0.25;
     } else {
       this.holder.rotation.y = this.bodyYaw;
     }
@@ -143,6 +163,12 @@ export class Stage {
         this.motion.targetPitch = 0;
       }
       this.motion.update(dt, voice, Boolean(look) || this.mode === 'ar');
+    }
+    if (this.cloud && this.view === '4d') {
+      this.cloud.update(dt, voice.level);
+      // The capture cannot bend, so the whole figure turns a little towards the visitor.
+      const target = look ? THREE.MathUtils.clamp((look.x - 0.5) * 0.6, -0.3, 0.3) : 0;
+      this.cloud.object.rotation.y += (target - this.cloud.object.rotation.y) * Math.min(1, dt * 3);
     }
     this.renderer.render(this.scene, this.camera);
   }

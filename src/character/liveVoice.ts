@@ -3,7 +3,12 @@
  * the server decides when the visitor has finished speaking, and the answer streams back as 24 kHz PCM that starts
  * playing with the first chunk. That single round trip is what makes the answers quick.
  *
- * Optional: an ElevenLabs voice. Gemini still listens and thinks; its words (the output transcript) are spoken by the
+ * Optional: his cloned voice from a voice server (the owner's PC runs it, see docs/jawahiri-voice.md), or an
+ * ElevenLabs voice. Gemini still listens and thinks; its words (the output transcript) are spoken by
+ * that voice instead of Gemini's own, sentence by sentence. If the voice server cannot be reached, Gemini's own voice
+ * speaks instead.
+ *
+ * ElevenLabs: an ElevenLabs voice. Gemini still listens and thinks; its words (the output transcript) are spoken by the
  * chosen ElevenLabs voice instead of Gemini's own, sentence by sentence. Slower by a few hundred milliseconds.
  *
  * Keys are typed by the visitor on their own device and kept there (localStorage). Nothing is in the site's code.
@@ -26,15 +31,20 @@ export interface VoiceSettings {
   geminiVoice: string;
   elevenKey: string;
   elevenVoiceId: string;
+  /** Base URL of his cloned-voice server (POST /tts → 16-bit PCM). Empty = not used. */
+  voiceServer: string;
 }
+
+export type VoiceKind = 'gemini' | 'cloned' | 'eleven';
 
 const STORE = 'alqami.character.voice';
 export function loadSettings(): VoiceSettings {
   // The site owner's key, built in by the deploy (scripts/set-gemini-key.mjs), so visitors need none.
-  const base: VoiceSettings = { geminiKey: import.meta.env.VITE_GEMINI_KEY || '', geminiVoice: GEMINI_VOICES[0].id, elevenKey: '', elevenVoiceId: '' };
+  const base: VoiceSettings = { geminiKey: import.meta.env.VITE_GEMINI_KEY || '', geminiVoice: GEMINI_VOICES[0].id, elevenKey: '', elevenVoiceId: '', voiceServer: import.meta.env.VITE_VOICE_SERVER || '' };
   try {
     const saved = { ...base, ...JSON.parse(localStorage.getItem(STORE) || '{}') };
     if (!saved.geminiKey) saved.geminiKey = base.geminiKey;
+    if (!saved.voiceServer) saved.voiceServer = base.voiceServer;
     return saved;
   } catch {
     return base;
@@ -55,6 +65,8 @@ export interface LiveHandlers {
   /** Live transcript of what he is saying (accumulates within a turn; `done` when the turn ends). */
   onHisWords: (text: string, done: boolean) => void;
   onVisitorWords: (text: string) => void;
+  /** Which voice is speaking (changes to 'gemini' if the cloned-voice server stops answering). */
+  onVoice?: (kind: VoiceKind) => void;
 }
 
 // Microphone → 16 kHz 16-bit PCM in 40 ms packets. Runs on the audio thread.
@@ -109,6 +121,7 @@ export class LiveConversation {
   private micNode: AudioWorkletNode | null = null;
   private hisWords = '';
   private eleven: { key: string; voice: string } | null;
+  private server: string | null;
   private sentenceBuf = '';
   private ttsChain: Promise<void> = Promise.resolve();
   private ttsAborts = new Set<AbortController>();
@@ -126,6 +139,26 @@ export class LiveConversation {
     this.out.connect(this.analyser);
     this.analyser.connect(this.ctx.destination);
     this.eleven = settings.elevenKey && settings.elevenVoiceId ? { key: settings.elevenKey, voice: settings.elevenVoiceId } : null;
+    this.server = settings.voiceServer ? settings.voiceServer.replace(/\/+$/, '') : null;
+  }
+
+  /** The voice that speaks: his cloned voice, then ElevenLabs, then Gemini's own. */
+  get voice(): VoiceKind {
+    return this.server ? 'cloned' : this.eleven ? 'eleven' : 'gemini';
+  }
+  private get external() {
+    return this.voice !== 'gemini';
+  }
+
+  /** Before connecting: is the cloned-voice server up? If not, Gemini's voice speaks. */
+  private async checkServer() {
+    if (!this.server) return;
+    try {
+      const r = await fetch(`${this.server}/health`, { signal: AbortSignal.timeout(3000) });
+      if (!r.ok) throw new Error(String(r.status));
+    } catch {
+      this.server = null;
+    }
   }
 
   /** Call from a tap: unlocks audio, asks for the microphone, then connects. */
@@ -133,6 +166,8 @@ export class LiveConversation {
     this.closedByUs = false;
     await this.ctx.resume();
     this.h.onState('connecting');
+    await this.checkServer();
+    this.h.onVoice?.(this.voice);
     this.mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
     const url = URL.createObjectURL(new Blob([WORKLET], { type: 'text/javascript' }));
     await this.ctx.audioWorklet.addModule(url);
@@ -195,13 +230,13 @@ export class LiveConversation {
       if (sc.outputTranscription?.text) {
         this.hisWords += sc.outputTranscription.text;
         this.h.onHisWords(this.hisWords, false);
-        if (this.eleven) this.queueSentences(sc.outputTranscription.text, false);
+        if (this.external) this.queueSentences(sc.outputTranscription.text, false);
       }
       for (const part of sc.modelTurn?.parts ?? []) {
-        if (part.inlineData?.data && !this.eleven) this.play(fromBase64(part.inlineData.data));
+        if (part.inlineData?.data && !this.external) this.play(fromBase64(part.inlineData.data));
       }
       if (sc.turnComplete) {
-        if (this.eleven) this.queueSentences('', true);
+        if (this.external) this.queueSentences('', true);
         this.h.onHisWords(this.hisWords, true);
         this.hisWords = '';
       }
@@ -240,6 +275,20 @@ export class LiveConversation {
   }
 
   /** Jaw opening 0..1 from what is playing now. */
+  /** What is playing now: loudness for the jaw, and where its energy sits for the lip shape. */
+  features(buf: Float32Array<ArrayBuffer>, spectrum: Uint8Array<ArrayBuffer>): { level: number; bright: number } {
+    const level = this.level(buf);
+    this.analyser.getByteFrequencyData(spectrum);
+    const hz = this.ctx.sampleRate / this.analyser.fftSize;
+    let sum = 0;
+    let weighted = 0;
+    for (let i = 1; i < spectrum.length && i * hz < 6000; i++) {
+      sum += spectrum[i];
+      weighted += spectrum[i] * i * hz;
+    }
+    return { level, bright: sum ? Math.min(1, weighted / sum / 3000) : 0.5 };
+  }
+
   level(buf: Float32Array<ArrayBuffer>) {
     this.analyser.getFloatTimeDomainData(buf);
     let sum = 0;
@@ -247,10 +296,10 @@ export class LiveConversation {
     return Math.min(1, Math.sqrt(sum / buf.length) * 5);
   }
 
-  private play(bytes: Uint8Array) {
+  private play(bytes: Uint8Array, rate = 24000) {
     const samples = new Int16Array(bytes.buffer, bytes.byteOffset, Math.floor(bytes.byteLength / 2));
     if (!samples.length) return;
-    const buffer = this.ctx.createBuffer(1, samples.length, 24000);
+    const buffer = this.ctx.createBuffer(1, samples.length, rate);
     const ch = buffer.getChannelData(0);
     for (let i = 0; i < samples.length; i++) ch[i] = samples[i] / 32768;
     const src = this.ctx.createBufferSource();
@@ -274,6 +323,7 @@ export class LiveConversation {
     this.ttsAborts.clear();
     this.ttsChain = Promise.resolve();
     this.sentenceBuf = '';
+    this.piecesThisTurn = 0;
     for (const s of this.playing) {
       s.onended = null;
       try {
@@ -287,12 +337,62 @@ export class LiveConversation {
     this.h.onState('listening');
   }
 
-  // ElevenLabs: speak whole sentences as soon as they are complete, in order.
+  // Cloned voice / ElevenLabs: speak whole sentences as soon as they are complete, in order. A long sentence is
+  // also cut at a comma. The cloned voice is made slower than real time (about 1.45x on an RTX 3070), so the first
+  // piece of each answer is kept short (first comma, or the first 8 words) to be heard within a few seconds.
+  private piecesThisTurn = 0;
   private queueSentences(chunk: string, end: boolean) {
     this.sentenceBuf += chunk;
     const parts = this.sentenceBuf.split(/(?<=[.!?؟…\n])\s*/);
     this.sentenceBuf = end ? '' : parts.pop() ?? '';
-    for (const s of parts.map((p) => p.trim()).filter(Boolean)) this.speakEleven(s);
+    const first = this.piecesThisTurn === 0 && parts.length === 0;
+    const comma = this.sentenceBuf.search(/[،,؛;:](?=\s)/);
+    if (!end && comma > (first ? 15 : 70)) {
+      parts.push(this.sentenceBuf.slice(0, comma + 1));
+      this.sentenceBuf = this.sentenceBuf.slice(comma + 1);
+    } else if (!end && first && this.server) {
+      const words = this.sentenceBuf.trim().split(/\s+/);
+      if (words.length > 8) {
+        parts.push(words.slice(0, 8).join(' '));
+        this.sentenceBuf = words.slice(8).join(' ');
+      }
+    }
+    const pieces = parts.map((p) => p.trim()).filter(Boolean);
+    this.piecesThisTurn = end ? 0 : this.piecesThisTurn + pieces.length;
+    for (const s of pieces) {
+      if (this.server) this.speakCloned(s);
+      else this.speakEleven(s);
+    }
+  }
+
+  private speakCloned(text: string) {
+    const turn = this.turn;
+    const abort = new AbortController();
+    this.ttsAborts.add(abort);
+    const latin = (text.match(/[A-Za-z]/g) || []).length;
+    const arabic = (text.match(/[؀-ۿ]/g) || []).length;
+    const res = fetch(`${this.server}/tts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, language: latin > arabic ? 'en' : 'ar' }),
+      signal: abort.signal,
+    });
+    this.ttsChain = this.ttsChain.then(async () => {
+      try {
+        const r = await res;
+        if (!r.ok) throw new Error(`voice server ${r.status}`);
+        const rate = Number(r.headers.get('X-Sample-Rate')) || 24000;
+        const pcm = new Uint8Array(await r.arrayBuffer());
+        if (turn === this.turn) this.play(pcm, rate);
+      } catch (err) {
+        if (turn !== this.turn || (err instanceof DOMException && err.name === 'AbortError')) return;
+        // The server stopped answering: from the next answer on, Gemini's own voice speaks.
+        this.server = null;
+        this.h.onVoice?.(this.voice);
+      } finally {
+        this.ttsAborts.delete(abort);
+      }
+    });
   }
 
   private speakEleven(text: string) {
