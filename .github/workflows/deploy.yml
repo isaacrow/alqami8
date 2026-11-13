@@ -61,6 +61,9 @@ jobs:
 
       - name: Build project
         run: npm run build
+        env:
+          # Set once from a terminal: node scripts/set-gemini-key.mjs (the Jawahiri character talks with it).
+          VITE_GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

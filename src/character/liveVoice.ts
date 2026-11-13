@@ -30,9 +30,12 @@ export interface VoiceSettings {
 
 const STORE = 'alqami.character.voice';
 export function loadSettings(): VoiceSettings {
-  const base: VoiceSettings = { geminiKey: '', geminiVoice: GEMINI_VOICES[0].id, elevenKey: '', elevenVoiceId: '' };
+  // The site owner's key, built in by the deploy (scripts/set-gemini-key.mjs), so visitors need none.
+  const base: VoiceSettings = { geminiKey: import.meta.env.VITE_GEMINI_KEY || '', geminiVoice: GEMINI_VOICES[0].id, elevenKey: '', elevenVoiceId: '' };
   try {
-    return { ...base, ...JSON.parse(localStorage.getItem(STORE) || '{}') };
+    const saved = { ...base, ...JSON.parse(localStorage.getItem(STORE) || '{}') };
+    if (!saved.geminiKey) saved.geminiKey = base.geminiKey;
+    return saved;
   } catch {
     return base;
   }

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Camera, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, TerminalSquare, X } from 'lucide-react';
+import { ArrowLeft, Camera, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
 import { KeyTerminal } from './KeyTerminal';
 import { JAWAHIRI, OPENING_CUE, systemInstruction } from './jawahiri';
 import { GEMINI_VOICES, LiveConversation, LiveState, loadSettings, saveSettings, VoiceSettings } from './liveVoice';
@@ -246,9 +246,6 @@ export const CharacterApp: React.FC = () => {
         </button>
         <button onClick={() => setSheet('about')} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center" aria-label={t('عنه', 'About him')}>
           <Info className="w-5 h-5" />
-        </button>
-        <button onClick={() => setSheet('terminal')} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center" aria-label={t('طرفية المفاتيح', 'Key terminal')}>
-          <TerminalSquare className="w-5 h-5" />
         </button>
         <button onClick={() => setSheet('settings')} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center" aria-label={t('الإعدادات', 'Settings')}>
           <Settings className="w-5 h-5" />
