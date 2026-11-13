@@ -34,6 +34,8 @@ import { MoonRecordSheet, MoonShelf } from '../moon/MoonCatalogue';
 import { useAlqamiArtifacts } from '../../moon/moonObjects';
 import { useMoonRecord } from '../../moon/useMoon';
 import { roomViewUrl } from '../../moon/roomView';
+import { SpeakingPanel } from '../voice/SpeakingPanel';
+import { factsFromArtifact } from '../../voice/persona';
 
 interface BentoHotspot {
   id: string;
@@ -643,7 +645,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                 title={isAr ? 'تبديل عشوائي للمجسم' : 'Randomize 3D Artifact'}
               >
                 <img
-                  src={assetUrl('logo.png')}
+                  src={assetUrl('alqami-logo.png')}
                   alt="Alqami"
                   className="w-7 h-7 object-contain drop-shadow"
                 />
@@ -1017,7 +1019,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
       {activeNav === 'user' && (
         <div className="w-full h-full p-8 flex flex-col items-center justify-center text-center space-y-6 animate-in fade-in duration-300 pointer-events-auto">
           <div className="w-20 h-20 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shadow-2xl backdrop-blur-2xl">
-            <img src={assetUrl('logo.png')} alt="Alqami" className="w-12 h-12 object-contain drop-shadow" />
+            <img src={assetUrl('alqami-logo.png')} alt="Alqami" className="w-12 h-12 object-contain drop-shadow" />
           </div>
           <div className="space-y-1">
             <h2 className="text-2xl font-bold tracking-wide text-white">علقمي · ALQAMI</h2>
@@ -1200,6 +1202,10 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
             <p className="text-[13px] leading-relaxed text-white/80 font-light mb-3">
               {isAr ? currentArtifact.description.ar : currentArtifact.description.en}
             </p>
+
+            <div className="mb-3">
+              <SpeakingPanel facts={factsFromArtifact(currentArtifact, lang)} lang={lang} model={currentArtifact.model.glb} />
+            </div>
 
             {/* Item Code Badge */}
             <div className="mb-3">

@@ -1041,7 +1041,7 @@ export function App() {
           aria-label="Toggle AR World Mode"
         >
           <img
-            src={assetUrl('logo.png')}
+            src={assetUrl('alqami-logo.png')}
             alt="Alqami"
             className="w-4.5 h-4.5 object-contain drop-shadow"
           />

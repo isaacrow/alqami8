@@ -194,7 +194,7 @@ export const ControlCenter3Panel: React.FC<ControlCenter3PanelProps> = ({
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 shrink-0 flex items-center justify-center shadow-lg shadow-amber-500/25 p-1.5 overflow-hidden">
                 <img
-                  src={assetUrl('logo.png')}
+                  src={assetUrl('alqami-logo.png')}
                   alt="Alqami Logo"
                   className="w-full h-full object-contain drop-shadow"
                 />

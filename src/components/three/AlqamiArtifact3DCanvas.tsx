@@ -9,6 +9,16 @@ import { assetUrl } from '../../utils/assetUrl';
 import { applyLightingToThreeScene } from '../../utils/lightingManager';
 import { spatialSound } from '../../utils/spatialSound';
 
+// Which model file is "speaking" right now (set by src/voice/speak.ts through the alqami:speaking event).
+const fileOf = (url: string) => url.split(/[?#]/)[0].split('/').pop() ?? '';
+let speakingModel: string | null = null;
+if (typeof window !== 'undefined') {
+  window.addEventListener('alqami:speaking', (e) => {
+    const d = (e as CustomEvent<{ active: boolean; model?: string }>).detail;
+    speakingModel = d.active && d.model ? fileOf(d.model) : null;
+  });
+}
+
 export interface ArtifactFeaturePoint {
   id: string;
   x?: number; // fallback percentage (0 - 100)
@@ -361,6 +371,8 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
     ro.observe(container);
 
     let reqId = 0;
+    let talk = 0;
+    const modelFile = fileOf(glbUrl);
     const animate = () => {
       reqId = requestAnimationFrame(animate);
       if (modeRef.current === 'card') {
@@ -388,6 +400,19 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
         curRotY += (baseRotY - curRotY) * 0.045;
         modelRoot.rotation.x = curRotX;
         modelRoot.rotation.y = curRotY;
+      }
+
+      // While this object "speaks" (src/voice/speak.ts) it bobs, sways and pulses gently, easing in and out.
+      talk += ((speakingModel === modelFile ? 1 : 0) - talk) * 0.08;
+      if (talk > 0.002 && modeRef.current !== 'banner') {
+        const s = performance.now() / 1000;
+        modelRoot.position.y = Math.sin(s * 5.2) * 0.014 * talk;
+        modelRoot.rotation.z = Math.sin(s * 2.6) * 0.035 * talk;
+        modelRoot.scale.setScalar(1 + Math.sin(s * 10.4) * 0.012 * talk);
+      } else if (talk <= 0.002 && modelRoot.scale.x !== 1) {
+        modelRoot.position.y = 0;
+        modelRoot.rotation.z = 0;
+        modelRoot.scale.setScalar(1);
       }
 
       // Track 3D shape: project local 3D points on the rotating mesh to 2D screen positions every frame
