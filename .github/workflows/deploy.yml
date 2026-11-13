@@ -42,7 +42,12 @@ jobs:
           path: node_modules/@huggingface/transformers/.cache
           key: transformers-dinov2-small-q8
 
-      # Rebuilds public/data/recognition-dinov2s.json from Moon's covers and enrol/. If Moon cannot be reached,
+      # Every 3D object rendered from 36 angles all around (Chrome is preinstalled on the runner), so scan mode
+      # recognises statues and objects from any side and can say which side is in view.
+      - name: Render 3D objects from all around
+        run: node scripts/render-object-views.mjs || echo "Renders not made; the index keeps covers and photos only."
+
+      # Rebuilds public/data/recognition-dinov2s.json from Moon's covers, enrol/ and renders/. If Moon cannot be reached,
       # the committed index is kept and the site still deploys.
       - name: Build recognition index
         run: node scripts/build-recognition-index.mjs || echo "Recognition index not rebuilt; keeping the committed one."

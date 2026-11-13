@@ -34,6 +34,7 @@
     "@webarkit/nft-marker-creator-app": "0.4.0",
     "autoprefixer": "^10.4.20",
     "meshoptimizer": "0.25.0",
+    "playwright-core": "^1.56.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
     "typescript": "^5.6.3",

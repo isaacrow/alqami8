@@ -39,3 +39,7 @@ chrome-test-profile*
 # Image-tracking markers are built in CI (scripts/build-nft-targets.mjs) and cached there
 public/nft/*
 !public/nft/camera_para.dat
+
+# Made in CI by scripts/render-object-views.mjs (and its test set)
+renders/
+renders-test/
