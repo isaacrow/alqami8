@@ -11,7 +11,7 @@ type Line = { kind: 'in' | 'ok' | 'err' | 'info'; text: string };
 
 const HELP = [
   'Paste a key and press Enter. Several lines at once work too.',
-  '  AIza…                 Google Gemini key',
+  '  AIza… or AQ.…         Google Gemini key',
   '  sk_…                  ElevenLabs key',
   '  voice <ElevenLabs voice ID>',
   '  gvoice <name>         Gemini voice: ' + GEMINI_VOICES.map((v) => v.id).join(', '),
@@ -73,13 +73,13 @@ export const KeyTerminal: React.FC<{ settings: VoiceSettings; onSave: (s: VoiceS
   const run = async (raw: string) => {
     const cmd = raw.trim();
     if (!cmd) return;
-    const shown = /^(AIza|sk_)/.test(cmd) ? mask(cmd) : cmd.replace(/^(\S+\s+)(\S{12,})$/, (_, a, b) => a + mask(b));
+    const shown = /^(AIza|AQ.|sk_)/.test(cmd) ? mask(cmd) : cmd.replace(/^(\S+\s+)(\S{12,})$/, (_, a, b) => a + mask(b));
     print({ kind: 'in', text: `$ ${shown}` });
     const [word, ...rest] = cmd.split(/\s+/);
     const arg = rest.join(' ');
     const s = current.current;
 
-    if (/^AIza[0-9A-Za-z_-]{20,}$/.test(cmd)) return save({ geminiKey: cmd }), print({ kind: 'ok', text: 'Gemini key saved. Type test to check it.' });
+    if (/^(AIza[0-9A-Za-z_-]{20,}|AQ.[0-9A-Za-z_.-]{20,})$/.test(cmd)) return save({ geminiKey: cmd }), print({ kind: 'ok', text: 'Gemini key saved. Type test to check it.' });
     if (/^sk_[0-9a-f]{20,}$/i.test(cmd)) return save({ elevenKey: cmd }), print({ kind: 'ok', text: 'ElevenLabs key saved. Add the voice: voice <ID>' });
     if (/^[0-9A-Za-z]{20}$/.test(cmd)) return save({ elevenVoiceId: cmd }), print({ kind: 'ok', text: 'ElevenLabs voice ID saved.' });
 

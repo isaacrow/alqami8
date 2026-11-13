@@ -52,8 +52,9 @@ function ask(question, hidden = false) {
 
 console.log('\nAlqami · Gemini key for the Jawahiri character\n');
 const key = await ask('Paste the Gemini key (it stays hidden) and press Enter: ', true);
-if (!/^AIza[0-9A-Za-z_-]{30,}$/.test(key)) {
-  console.error('That does not look like a Gemini key (it should start with AIza). Nothing was saved.');
+// Google keys start with AIza (classic) or AQ. (newer format).
+if (!/^(AIza[0-9A-Za-z_-]{30,}|AQ.[0-9A-Za-z_.-]{20,})$/.test(key)) {
+  console.error('That does not look like a Google key (it should start with AIza or AQ.). Nothing was saved.');
   process.exit(1);
 }
 
