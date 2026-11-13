@@ -1050,12 +1050,12 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
          ───────────────────────────────────────────────────────────── */}
       {view === 'detail' && (
         <div
-          className={`w-full h-full grid grid-cols-12 transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
+          className={`w-full h-full flex flex-col overflow-y-auto custom-scrollbar sm:grid sm:grid-cols-12 sm:overflow-visible transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
             isLeavingView ? 'ikea-scene-leave' : 'ikea-scene-enter'
           } ${isPopOut3D ? 'opacity-15 blur-xl scale-[0.97] pointer-events-none' : 'opacity-100'}`}
         >
-          {/* Left Pane: Warm Stone-Gray 3D Studio Viewport (#CBC9C5) */}
-          <div className="col-span-7 bg-[#CBC9C5] text-stone-900 relative flex flex-col justify-between p-6 overflow-hidden">
+          {/* Left Pane: Warm Stone-Gray 3D Studio Viewport (#CBC9C5). On a phone it sits on top, the details below. */}
+          <div className="shrink-0 h-[50vh] min-h-[300px] sm:h-auto sm:min-h-0 sm:col-span-7 bg-[#CBC9C5] text-stone-900 relative flex flex-col justify-between p-4 sm:p-6 overflow-hidden">
             {/* Interactive 3D Artifact wrapped with Duo Fold Carousel 3D mechanical hinge transition */}
             <AlqamiDuoFoldTransition
               currentArtifact={currentArtifact}
@@ -1082,10 +1082,10 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
             </AlqamiDuoFoldTransition>
 
             {/* Bottom Controls: "Preview in your space" Pill + AR Mode SVG Icon + < > Gallery Arrows */}
-            <div className="flex items-center justify-between pt-2 pointer-events-auto">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 pointer-events-auto">
               <button
                 onClick={() => triggerARPreviewInSpace(currentArtifact)}
-                className="vision-btn h-10 px-4 rounded-full bg-stone-700/55 hover:bg-stone-800/80 text-white text-[13px] font-medium flex items-center gap-2 shadow-sm backdrop-blur-md cursor-pointer transition-all active:scale-95"
+                className="vision-btn whitespace-nowrap h-10 px-3 sm:px-4 rounded-full bg-stone-700/55 hover:bg-stone-800/80 text-white text-[13px] font-medium flex items-center gap-2 shadow-sm backdrop-blur-md cursor-pointer transition-all active:scale-95"
               >
                 <Box className="w-4 h-4" />
                 <span>{isAr ? 'معاينة في المكان' : 'Preview in your space'}</span>
@@ -1138,7 +1138,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
           </div>
 
           {/* Right Pane: Translucent Spatial Frosted Glass Product Details */}
-          <div className="col-span-5 p-7 flex flex-col justify-between text-white overflow-y-auto pointer-events-auto custom-scrollbar">
+          <div className="sm:col-span-5 p-5 sm:p-7 flex flex-col justify-between gap-4 text-white sm:overflow-y-auto pointer-events-auto custom-scrollbar">
             {/* Top Navigation Bar */}
             <div className="flex items-center justify-between">
               <button

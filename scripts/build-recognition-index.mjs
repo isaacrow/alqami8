@@ -1,7 +1,9 @@
 // Builds public/data/recognition-dinov2s.json: reference embeddings for ALQAMI's "scan by sight".
 //
-// Sources: the cover of every published Moon record (Moon's public storage), and enrolment photos in
-// enrol/<key>/*.jpg|png, where <key> is "moon:<record id>" or "artifact:<ALQAMI id>" (":" written as "__" on disk).
+// Sources: the cover of every published Moon record (Moon's public storage), enrolment photos in
+// enrol/<key>/*.jpg|png, where <key> is "moon:<record id>" or "artifact:<ALQAMI id>" (":" written as "__" on disk),
+// and renders of every 3D object from all around (renders/<key>/az<deg>_el<deg>.jpg, made by
+// scripts/render-object-views.mjs). A render's view keeps its azimuth, so a match also says which side is in view.
 // Each source image also gets a few mild variations (crop, tilt, light), which helps photos taken in a hall match.
 //
 // Runs in the deploy workflow (on every push and nightly). Image preparation must match src/recognize/embedder.ts.
@@ -114,15 +116,37 @@ for (const s of [...(await moonCovers()), ...enrolment()]) {
   sources.set(s.key, [...(sources.get(s.key) || []), ...s.images]);
 }
 
+// Renders from all around: already varied in background, light, size and tilt, so each is embedded once.
+function renders() {
+  const root = join(process.cwd(), 'renders');
+  if (!existsSync(root)) return new Map();
+  const out = new Map();
+  for (const d of readdirSync(root, { withFileTypes: true }).filter((x) => x.isDirectory())) {
+    const shots = readdirSync(join(root, d.name))
+      .map((f) => ({ f, m: /^az(\d+)_el(\d+)\.jpg$/.exec(f) }))
+      .filter((x) => x.m)
+      .map((x) => ({ azimuth: Number(x.m[1]), image: readFileSync(join(root, d.name, x.f)) }));
+    if (shots.length) out.set(d.name.replace('__', ':'), shots);
+  }
+  return out;
+}
+const rendered = renders();
+
 const entries = [];
-for (const [key, images] of sources) {
+for (const key of new Set([...sources.keys(), ...rendered.keys()])) {
   const views = [];
-  for (const img of images) {
+  const angles = [];
+  for (const img of sources.get(key) || []) {
     views.push(await embed(img));
     for (let k = 0; k < VARIATIONS; k++) views.push(await embed(await variation(img)));
     for (let k = 0; k < IN_FRAME; k++) views.push(await embed(await inFrame(img)));
   }
-  entries.push({ key, views });
+  while (angles.length < views.length) angles.push(null);
+  for (const shot of rendered.get(key) || []) {
+    views.push(await embed(shot.image));
+    angles.push(shot.azimuth);
+  }
+  entries.push({ key, views, angles });
 }
 
 for (const e of entries) e.threshold = SCORE_FLOOR;
@@ -132,7 +156,13 @@ const file = {
   model: KEY,
   dim: entries[0]?.views[0].length ?? 0,
   builtAt: new Date().toISOString(),
-  entries: entries.map((e) => ({ key: e.key, threshold: Number(e.threshold.toFixed(3)), views: e.views.map(encode) })),
+  entries: entries.map((e) => ({
+    key: e.key,
+    threshold: Number(e.threshold.toFixed(3)),
+    views: e.views.map(encode),
+    // Azimuth of each view (degrees around the object, 0 = its front), null for photos and covers.
+    ...(e.angles.some((a) => a !== null) ? { angles: e.angles } : {}),
+  })),
 };
 writeFileSync(join(process.cwd(), 'public', 'data', `recognition-${KEY}.json`), JSON.stringify(file));
 console.log(`Recognition index: ${entries.length} entries, ${entries.reduce((n, e) => n + e.views.length, 0)} views.`);

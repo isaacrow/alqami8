@@ -11,15 +11,19 @@ export interface IndexEntry {
   views: Float32Array[];
   /** Below this score the entry is never a match (set per entry when the index is built). */
   threshold: number;
+  /** For views rendered from a 3D model: the azimuth each view was seen from (null for photos). */
+  angles?: Array<number | null>;
 }
 
 export interface Candidate {
   key: string;
   score: number;
+  /** Azimuth of the best-matching view, when it was a render of the 3D model. */
+  angle?: number | null;
 }
 
 export type Decision =
-  | { kind: 'match'; key: string; score: number }
+  | { kind: 'match'; key: string; score: number; angle: number | null }
   | { kind: 'unsure'; candidates: Candidate[] }
   | { kind: 'none' };
 
@@ -46,7 +50,15 @@ function dot(a: Float32Array, b: Float32Array): number {
 /** Every entry's best view score for one query embedding, best first. */
 export function rank(query: Float32Array, entries: IndexEntry[]): Candidate[] {
   return entries
-    .map((e) => ({ key: e.key, score: Math.max(...e.views.map((v) => dot(query, v))) }))
+    .map((e) => {
+      let best = -1;
+      let at = 0;
+      e.views.forEach((v, i) => {
+        const s = dot(query, v);
+        if (s > best) (best = s), (at = i);
+      });
+      return { key: e.key, score: best, angle: e.angles?.[at] ?? null };
+    })
     .sort((a, b) => b.score - a.score);
 }
 
@@ -68,7 +80,7 @@ export class Decider {
 
     if (clear) {
       this.streak = this.streak?.key === best.key ? { key: best.key, count: this.streak.count + 1 } : { key: best.key, count: 1 };
-      if (this.streak.count >= this.options.steadyFrames) return { kind: 'match', key: best.key, score: best.score };
+      if (this.streak.count >= this.options.steadyFrames) return { kind: 'match', key: best.key, score: best.score, angle: best.angle ?? null };
       return { kind: 'none' };
     }
 

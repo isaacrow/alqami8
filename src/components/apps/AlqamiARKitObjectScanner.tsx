@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import QRCode from 'qrcode';
 import { assetUrl } from '../../utils/assetUrl';
 import {
@@ -35,7 +35,8 @@ import { spatialSound } from '../../utils/spatialSound';
 import { ALQAMI_ARTIFACTS, AlqamiArtifact } from '../../data/alqamiArtifacts';
 import { CodeReader } from '../../scan/codeReader';
 import { resolveCode } from '../../scan/resolveCode';
-import { SightRecognizer, SightTarget } from '../../recognize/recognizer';
+import { SightTarget } from '../../recognize/recognizer';
+import { StatueAR } from '../scan/StatueAR';
 import { publishedRecords } from '../../moon/moonObjects';
 import { setScannerOpen } from '../../utils/scannerState';
 import { TeachPanel } from '../scan/TeachPanel';
@@ -242,55 +243,20 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   const onMoonRecordRef = useRef(onMoonRecord);
   onMoonRecordRef.current = onMoonRecord;
 
+  // Titles for the "is it one of these?" candidates.
+  const sightTitles = useRef(new Map<string, string>());
   useEffect(() => {
-    if (!isOpen || activeMode !== 'detect') return;
-    let disposed = false;
-    let timer = 0;
-    const sight = new SightRecognizer();
-    const titles = new Map<string, string>();
+    if (!isOpen) return;
     void publishedRecords()
-      .then((records) => records.forEach((r) => titles.set(`moon:${r.id}`, r.title)))
+      .then((records) => records.forEach((r) => sightTitles.current.set(`moon:${r.id}`, r.title)))
       .catch(() => {});
-    const titleOf = (t: SightTarget) =>
-      t.kind === 'moon'
-        ? titles.get(`moon:${t.recordId}`) || t.recordId
-        : ALQAMI_ARTIFACTS.find((a) => a.id === t.id)?.title.ar || t.id;
-
-    setSightReady('loading');
-    sight
-      .prepare()
-      .then(() => !disposed && setSightReady('ready'))
-      .catch(() => !disposed && setSightReady('off'));
-
-    const tick = async () => {
-      const video = videoRef.current;
-      try {
-        const result = video ? await sight.step(video) : { kind: 'none' as const };
-        if (disposed) return;
-        if (result.kind === 'match') {
-          spatialSound.playPinchTap();
-          setScanMessage('تم التعرّف بالنظر · Recognised by sight');
-          openSightTarget(result.target);
-          sight.reset();
-        } else if (result.kind === 'unsure') {
-          setSightCandidates(result.candidates.map((c) => ({ target: c.target, title: titleOf(c.target) })));
-        }
-      } catch {
-        // Model or index unavailable: codes still work.
-        if (!disposed) setSightReady('off');
-        return;
-      }
-      if (!disposed) timer = window.setTimeout(tick, 250);
-    };
-    void tick();
-
-    return () => {
-      disposed = true;
-      window.clearTimeout(timer);
-      setSightCandidates([]);
-      void sight.dispose();
-    };
-  }, [isOpen, activeMode]);
+  }, [isOpen]);
+  const titleOf = (t: SightTarget) =>
+    t.kind === 'moon' ? sightTitles.current.get(`moon:${t.recordId}`) || t.recordId : ALQAMI_ARTIFACTS.find((a) => a.id === t.id)?.title.ar || t.id;
+  const onSightCandidates = useCallback((targets: SightTarget[]) => {
+    setSightCandidates(targets.map((target) => ({ target, title: titleOf(target) })));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Camera stream setup
   useEffect(() => {
@@ -508,6 +474,18 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
           muted
           autoPlay
           className="w-full h-full object-cover pointer-events-none"
+        />
+        {/* Objects and statues recognised from any side, with their record pinned beside them (and hands). */}
+        <StatueAR
+          video={videoRef}
+          active={isOpen && activeMode === 'detect'}
+          onOpen={(target) => {
+            spatialSound.playPinchTap();
+            setScanMessage('تم التعرّف بالنظر · Recognised by sight');
+            openSightTarget(target);
+          }}
+          onCandidates={onSightCandidates}
+          onStatus={setSightReady}
         />
 
         {activeMode === 'detect' && (
