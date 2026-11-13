@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Camera, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
 import { KeyTerminal } from './KeyTerminal';
 import { JAWAHIRI, OPENING_CUE, systemInstruction } from './jawahiri';
-import { GEMINI_VOICES, LiveConversation, LiveState, loadSettings, saveSettings, VoiceSettings } from './liveVoice';
+import { GEMINI_VOICES, LiveConversation, LiveState, loadSettings, saveSettings, VoiceKind, VoiceSettings } from './liveVoice';
 import { Stage } from './stage';
 import { Gesture, VisitorTracker } from './tracking';
 
@@ -42,6 +42,22 @@ export const CharacterApp: React.FC = () => {
   const [muted, setMuted] = useState(false);
   const [toast, setToast] = useState('');
   const [trackerReady, setTrackerReady] = useState(false);
+  const [view, setViewState] = useState<'model' | '4d'>('model');
+  const [viewLoading, setViewLoading] = useState(false);
+
+  const chooseView = async (v: 'model' | '4d') => {
+    if (!stage.current || v === view) return;
+    setViewLoading(true);
+    try {
+      await stage.current.setView(v, 'characters/jawahiri-4d.bin');
+      setViewState(v);
+    } catch {
+      flash(t('تعذّر تحميل العرض رباعي الأبعاد', 'The 4D view could not load'));
+    } finally {
+      setViewLoading(false);
+    }
+  };
+  const [voice, setVoice] = useState<VoiceKind>('gemini');
 
   const flash = useCallback((text: string) => {
     setToast(text);
@@ -66,8 +82,10 @@ export const CharacterApp: React.FC = () => {
       (e) => setLoadError(String(e))
     );
     const level = new Float32Array(512);
+    const spectrum = new Uint8Array(256);
+    const quiet = { level: 0, bright: 0.5 };
     // ?debug: lets a test drive the voice level and gaze (window.__debug = { voice, look }).
-    const debug = new URLSearchParams(location.search).has('debug') ? ((window as any).__debug = { stage: s, voice: null, look: null }) : null;
+    const debug = new URLSearchParams(location.search).has('debug') ? ((window as any).__debug = { stage: s, voice: null, bright: null, look: null }) : null;
     let last = performance.now();
     let raf = 0;
     const loop = (now: number) => {
@@ -80,7 +98,8 @@ export const CharacterApp: React.FC = () => {
         look = seen.face ?? seen.hand;
         if (seen.pinchDelta) s.bodyYaw += seen.pinchDelta.x * 5;
       }
-      s.frame(dt, debug?.voice ?? live.current?.level(level) ?? 0, debug?.look ?? look);
+      const voice = debug?.voice != null ? { level: debug.voice, bright: debug.bright ?? 0.5 } : live.current?.features(level, spectrum) ?? quiet;
+      s.frame(dt, voice, debug?.look ?? look);
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -150,6 +169,7 @@ export const CharacterApp: React.FC = () => {
       },
       onHisWords: (text) => setHis(text),
       onVisitorWords: (text) => setVisitor((v) => `${v}${text}`.slice(-160)),
+      onVoice: setVoice,
     });
     live.current = conv;
     setHis('');
@@ -206,7 +226,8 @@ export const CharacterApp: React.FC = () => {
 
   const connected = state === 'listening' || state === 'speaking' || state === 'connecting';
   const ar = cam === 'back';
-  const elevenOn = Boolean(settings.elevenKey && settings.elevenVoiceId);
+  // Before a call starts, show what is configured; during it, what really speaks.
+  const recreated = (live.current ? voice : settings.voiceServer ? 'cloned' : settings.elevenKey && settings.elevenVoiceId ? 'eleven' : 'gemini') !== 'gemini';
   const errorText =
     state === 'error'
       ? /1007|1008|API key|permission|invalid/i.test(stateDetail)
@@ -238,7 +259,7 @@ export const CharacterApp: React.FC = () => {
           <h1 className="text-[16px] font-semibold leading-tight truncate">{t(JAWAHIRI.nameAr, JAWAHIRI.nameEn)}</h1>
           <p className="text-[11px] text-white/60 truncate">
             1899–1997 · {t('إعادة بناء بالذكاء الاصطناعي', 'AI recreation')}
-            {elevenOn ? ` · ${t('صوت معاد بناؤه', 'recreated voice')}` : ` · ${t('ليس صوته الحقيقي', 'not his real voice')}`}
+            {recreated ? ` · ${t('صوت معاد بناؤه بالذكاء الاصطناعي', 'AI-recreated voice')}` : ` · ${t('ليس صوته الحقيقي', 'not his real voice')}`}
           </p>
         </div>
         <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className="h-10 px-3 rounded-full bg-white/10 backdrop-blur text-[13px] font-semibold">
@@ -251,6 +272,20 @@ export const CharacterApp: React.FC = () => {
           <Settings className="w-5 h-5" />
         </button>
       </header>
+
+      {/* Two ways to see him: the sculpted bust that speaks, or the filmed 4D capture. */}
+      <div className="absolute top-[calc(env(safe-area-inset-top)+64px)] inset-x-0 z-30 flex justify-center pointer-events-none">
+        <div className="pointer-events-auto flex rounded-full bg-black/45 backdrop-blur border border-white/15 p-1 text-[12.5px] font-medium">
+          {([
+            ['model', t('المجسّم', 'Bust')],
+            ['4d', t('رباعي الأبعاد', '4D capture')],
+          ] as const).map(([v, label]) => (
+            <button key={v} onClick={() => chooseView(v)} aria-pressed={view === v} className={`px-3.5 h-8 rounded-full transition ${view === v ? 'bg-white text-black' : 'text-white/80'}`}>
+              {viewLoading && view !== v ? '…' : label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {loaded < 1 && !loadError && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 pointer-events-none">

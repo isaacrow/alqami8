@@ -13,6 +13,7 @@ const HELP = [
   'Paste a key and press Enter. Several lines at once work too.',
   '  AIza… or AQ.…         Google Gemini key',
   '  sk_…                  ElevenLabs key',
+  '  voice <https://… URL>  his cloned-voice server (voice off = stop using it)',
   '  voice <ElevenLabs voice ID>',
   '  gvoice <name>         Gemini voice: ' + GEMINI_VOICES.map((v) => v.id).join(', '),
   '  status                what is saved (masked)',
@@ -97,7 +98,9 @@ export const KeyTerminal: React.FC<{ settings: VoiceSettings; onSave: (s: VoiceS
       case 'elevenlabs':
         return arg ? (save({ elevenKey: arg }), print({ kind: 'ok', text: 'ElevenLabs key saved.' })) : print({ kind: 'err', text: 'usage: eleven <key>' });
       case 'voice':
-        return arg ? (save({ elevenVoiceId: arg }), print({ kind: 'ok', text: 'ElevenLabs voice ID saved.' })) : print({ kind: 'err', text: 'usage: voice <ElevenLabs voice ID>' });
+        if (/^https?:\/\//i.test(arg)) return save({ voiceServer: arg.replace(/\/+$/, '') }), print({ kind: 'ok', text: 'Cloned-voice server saved. Type test to check it.' });
+        if (arg.toLowerCase() === 'off') return save({ voiceServer: '' }), print({ kind: 'ok', text: 'Cloned-voice server off.' });
+        return arg ? (save({ elevenVoiceId: arg }), print({ kind: 'ok', text: 'ElevenLabs voice ID saved.' })) : print({ kind: 'err', text: 'usage: voice <server URL> | voice <ElevenLabs voice ID> | voice off' });
       case 'gvoice': {
         const v = GEMINI_VOICES.find((g) => g.id.toLowerCase() === arg.toLowerCase());
         return v ? (save({ geminiVoice: v.id }), print({ kind: 'ok', text: `Gemini voice: ${v.id}` })) : print({ kind: 'err', text: `pick one of: ${GEMINI_VOICES.map((g) => g.id).join(', ')}` });
@@ -108,7 +111,8 @@ export const KeyTerminal: React.FC<{ settings: VoiceSettings; onSave: (s: VoiceS
           { kind: 'info', text: `gemini voice ${s.geminiVoice}` },
           { kind: 'info', text: `eleven key   ${mask(s.elevenKey)}` },
           { kind: 'info', text: `eleven voice ${s.elevenVoiceId || '—'}` },
-          { kind: 'info', text: s.elevenKey && s.elevenVoiceId ? 'He speaks with the ElevenLabs voice.' : 'He speaks with the Gemini voice.' }
+          { kind: 'info', text: `voice server ${s.voiceServer || '—'}` },
+          { kind: 'info', text: s.voiceServer ? 'He speaks with his cloned voice (Gemini’s voice if the server is down).' : s.elevenKey && s.elevenVoiceId ? 'He speaks with the ElevenLabs voice.' : 'He speaks with the Gemini voice.' }
         );
       case 'forget': {
         const which = arg.toLowerCase();
@@ -117,6 +121,16 @@ export const KeyTerminal: React.FC<{ settings: VoiceSettings; onSave: (s: VoiceS
         return print(['gemini', 'eleven', 'all'].includes(which) ? { kind: 'ok', text: `Forgot ${which}.` } : { kind: 'err', text: 'usage: forget gemini | eleven | all' });
       }
       case 'test': {
+        if (s.voiceServer) {
+          print({ kind: 'info', text: 'Testing the voice server…' });
+          try {
+            const r = await fetch(`${s.voiceServer}/health`, { signal: AbortSignal.timeout(5000) });
+            const j = await r.json();
+            print({ kind: 'ok', text: `Voice server OK: ${j.ref ?? ''} at ${j.rate ?? '?'} Hz` });
+          } catch (e) {
+            print({ kind: 'err', text: `Voice server not reachable: ${(e as Error).message}` });
+          }
+        }
         if (!s.geminiKey) print({ kind: 'err', text: 'No Gemini key yet. Paste it first.' });
         else {
           print({ kind: 'info', text: 'Testing Gemini…' });
