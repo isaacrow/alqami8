@@ -44,7 +44,7 @@ export class CodeReader {
     const frame = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
     const [hit] = await readBarcodes(frame, {
       formats: qrOnly ? ['QRCode'] : ['QRCode', 'EAN13', 'ISBN'],
-      tryHarder: !qrOnly,
+      tryHarder: true,
       maxNumberOfSymbols: 1,
     });
     if (!hit?.isValid) return null;

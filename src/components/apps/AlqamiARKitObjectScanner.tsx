@@ -102,6 +102,9 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   const [isLockedOnObject, setIsLockedOnObject] = useState(false);
   // The QR label that was recognised: its object's 3D model then stands on it (marker AR, QrModelAR).
   const [lockedCode, setLockedCode] = useState<string | null>(null);
+  // With a 3D model on the QR, the card starts as a slim bar so the model stays in view; a tap opens the details.
+  const [cardOpen, setCardOpen] = useState(false);
+  useEffect(() => setCardOpen(false), [lockedCode]);
   const [qrModel, setQrModel] = useState<string | null>(null);
 
   // A recognised Moon record whose cover has a tracking marker is pinned beside the cover; otherwise (or if the cover
@@ -563,8 +566,31 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
         {/* The recognised QR label's object, in 3D, standing on the code. */}
         {activeMode === 'detect' && isLockedOnObject && lockedCode && qrModel && <QrModelAR video={videoRef} model={qrModel} code={lockedCode} />}
 
+        {/* With a 3D model on the QR: a slim bar with the title; tap for the full card. */}
+        {activeMode === 'detect' && isLockedOnObject && lockedCode && !cardOpen && (
+          <div
+            dir="rtl"
+            className="absolute inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-30 flex items-center gap-2 p-2 ps-3 rounded-full vision-glass border border-emerald-400/60 bg-[#0a1324]/90 pointer-events-auto sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[480px]"
+          >
+            <button onClick={() => setCardOpen(true)} className="flex-1 min-w-0 text-start">
+              <span className="block text-[14px] font-bold text-white truncate">{activeTarget.metadata.titleAr}</span>
+              <span className="block text-[11px] text-white/65 truncate">{activeTarget.metadata.titleEn} · اضغط للتفاصيل · tap for details</span>
+            </button>
+            <button
+              onClick={() => {
+                setIsLockedOnObject(false);
+                setLockedCode(null);
+              }}
+              aria-label="إغلاق · Close"
+              className="w-10 h-10 shrink-0 rounded-full bg-white/10 flex items-center justify-center"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* The object's card: a sheet at the bottom on phones (the object and its 3D model stay visible above). */}
-        {activeMode === 'detect' && isLockedOnObject && (
+        {activeMode === 'detect' && isLockedOnObject && (!lockedCode || cardOpen) && (
           <div
             dir="rtl"
             className="absolute inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-30 max-h-[44vh] overflow-y-auto custom-scrollbar sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[480px] p-4 sm:p-5 rounded-[26px] vision-glass border border-emerald-400/60 bg-[#0a1324]/90 shadow-[0_20px_50px_rgba(0,0,0,0.85)] space-y-3.5 animate-in zoom-in-95 duration-200 pointer-events-auto"

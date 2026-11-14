@@ -74,9 +74,13 @@ export const QrModelAR: React.FC<{ video: React.RefObject<HTMLVideoElement | nul
         const c = box.getCenter(new THREE.Vector3());
         object.position.set(-c.x * s, -box.min.y * s, -c.z * s);
         stand.add(object);
+        stats.model = 'loaded';
         setState('searching');
       })
-      .catch(() => setState('searching'));
+      .catch((e) => {
+        stats.model = 'failed: ' + String(e?.message || e).slice(0, 80);
+        setState('searching');
+      });
 
     // Canvas over the video with the video's cover crop, so the 3D lines up with the picture.
     const layout = () => {
@@ -104,6 +108,9 @@ export const QrModelAR: React.FC<{ video: React.RefObject<HTMLVideoElement | nul
     let have = false;
     let lastSeen = 0;
     let busy = false;
+    // Counters for checking on a device (window.__qrAR): reads, QR hits with corners, poses found.
+    const stats = { reads: 0, hits: 0, poses: 0, text: '', model: 'loading', visible: false, z: 0 };
+    (window as unknown as { __qrAR?: typeof stats }).__qrAR = stats;
     let raf = 0;
     let t0 = performance.now();
 
@@ -117,9 +124,12 @@ export const QrModelAR: React.FC<{ video: React.RefObject<HTMLVideoElement | nul
       if (!busy && v.videoWidth) {
         busy = true;
         void reader
-          .read(v, 640, true)
+          .read(v, 720, true)
           .then((hit) => {
+            stats.reads++;
+            if (hit) stats.text = hit.text;
             if (hit?.corners && hit.text === code) {
+              stats.hits++;
               const m = markerPose(
                 hit.corners.map(([x, y]) => [x * v.videoWidth, y * v.videoHeight] as [number, number]),
                 v.videoWidth,
@@ -127,6 +137,7 @@ export const QrModelAR: React.FC<{ video: React.RefObject<HTMLVideoElement | nul
                 FOV
               );
               if (m) {
+                stats.poses++;
                 target.copy(m);
                 lastSeen = performance.now();
                 if (!have) {
@@ -149,6 +160,8 @@ export const QrModelAR: React.FC<{ video: React.RefObject<HTMLVideoElement | nul
         marker.matrixWorldNeedsUpdate = true;
       }
       marker.visible = have && fresh && Boolean(object);
+      stats.visible = marker.visible;
+      stats.z = Number(curPos.z.toFixed(2));
       if (object) {
         stand.rotation.y += dt * 0.25; // a slow turn, so every side shows
         setState(marker.visible ? 'tracking' : 'searching');
