@@ -1,0 +1,236 @@
+{
+  "@context": {
+    "bf": "http://id.loc.gov/ontologies/bibframe/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  },
+  "@graph": [
+    {
+      "@id": "https://isaacrow.github.io/alqami6/catalogue/quran-1009ah-haydar-ali#work",
+      "@type": [
+        "bf:Work",
+        "bf:Text"
+      ],
+      "bf:title": [
+        {
+          "@type": "bf:Title",
+          "bf:mainTitle": {
+            "@value": "القرآن الكريم — نسخة حيدر علي (1009 هـ)",
+            "@language": "ar"
+          },
+          "bf:subtitle": {
+            "@value": "نُسخت في حائر الإمام الحسين عليه السلام",
+            "@language": "ar"
+          }
+        },
+        {
+          "@type": "bf:ParallelTitle",
+          "bf:mainTitle": {
+            "@value": "The Holy Qur'an — copied by Haydar Ali (1009 AH)",
+            "@language": "en"
+          },
+          "bf:subtitle": {
+            "@value": "Copied at the shrine of Imam al-Husayn (peace be upon him)",
+            "@language": "en"
+          }
+        }
+      ],
+      "bf:content": {
+        "@id": "http://id.loc.gov/vocabulary/contentTypes/txt",
+        "rdfs:label": "text"
+      },
+      "bf:genreForm": {
+        "@type": "bf:GenreForm",
+        "rdfs:label": [
+          {
+            "@value": "المخطوطات والنوادر",
+            "@language": "ar"
+          },
+          {
+            "@value": "Manuscripts",
+            "@language": "en"
+          }
+        ]
+      },
+      "bf:originDate": "1009 AH / 1600 CE",
+      "bf:summary": {
+        "@type": "bf:Summary",
+        "rdfs:label": [
+          {
+            "@value": "مصحف بخط النسخ في 294 ورقة، مجدول بعدة ألوان، والصفحتان الأولى والثانية مزخرفتان. في صدر كل سورة لوحة ذهبية، وفي الهوامش دوائر مزخرفة لبيان الأحزاب وبداية الأجزاء.",
+            "@language": "ar"
+          },
+          {
+            "@value": "A Qur'an in Naskh script on 294 leaves, ruled in several colours, with the first two pages illuminated. Each sura opens with a gold panel; decorated roundels in the margins mark the hizb and juz' divisions.",
+            "@language": "en"
+          }
+        ]
+      },
+      "bf:hasInstance": {
+        "@id": "https://isaacrow.github.io/alqami6/catalogue/quran-1009ah-haydar-ali#instance"
+      }
+    },
+    {
+      "@id": "https://isaacrow.github.io/alqami6/catalogue/quran-1009ah-haydar-ali#instance",
+      "@type": [
+        "bf:Instance",
+        "bf:Manuscript"
+      ],
+      "bf:instanceOf": {
+        "@id": "https://isaacrow.github.io/alqami6/catalogue/quran-1009ah-haydar-ali#work"
+      },
+      "bf:title": [
+        {
+          "@type": "bf:Title",
+          "bf:mainTitle": {
+            "@value": "القرآن الكريم — نسخة حيدر علي (1009 هـ)",
+            "@language": "ar"
+          },
+          "bf:subtitle": {
+            "@value": "نُسخت في حائر الإمام الحسين عليه السلام",
+            "@language": "ar"
+          }
+        },
+        {
+          "@type": "bf:ParallelTitle",
+          "bf:mainTitle": {
+            "@value": "The Holy Qur'an — copied by Haydar Ali (1009 AH)",
+            "@language": "en"
+          },
+          "bf:subtitle": {
+            "@value": "Copied at the shrine of Imam al-Husayn (peace be upon him)",
+            "@language": "en"
+          }
+        }
+      ],
+      "bf:responsibilityStatement": [
+        {
+          "@value": "الناسخ: حيدر علي",
+          "@language": "ar"
+        },
+        {
+          "@value": "Scribe: Haydar Ali",
+          "@language": "en"
+        }
+      ],
+      "bf:media": {
+        "@id": "http://id.loc.gov/vocabulary/mediaTypes/n",
+        "rdfs:label": "unmediated"
+      },
+      "bf:carrier": {
+        "@id": "http://id.loc.gov/vocabulary/carriers/nc",
+        "rdfs:label": "volume"
+      },
+      "bf:dimensions": "294 ورقة (15 سطرًا)",
+      "bf:identifiedBy": {
+        "@type": "bf:Local",
+        "rdf:value": "ALQ-QUR-011",
+        "bf:assigner": {
+          "@type": "bf:Agent",
+          "rdfs:label": "ALQAMI"
+        }
+      },
+      "bf:note": [
+        {
+          "@type": "bf:Note",
+          "bf:noteType": "material",
+          "rdfs:label": [
+            {
+              "@value": "ورق، حبر أسود، خط النسخ",
+              "@language": "ar"
+            },
+            {
+              "@value": "Paper, black ink, Naskh script",
+              "@language": "en"
+            }
+          ]
+        },
+        {
+          "@type": "bf:Note",
+          "bf:noteType": "condition",
+          "rdfs:label": [
+            {
+              "@value": "لم تُذكر حالة النسخة في الفهرسة.",
+              "@language": "ar"
+            },
+            {
+              "@value": "Condition not stated in the catalogue record.",
+              "@language": "en"
+            }
+          ]
+        },
+        {
+          "@type": "bf:Note",
+          "bf:noteType": "binding",
+          "rdfs:label": [
+            {
+              "@value": "غلاف لاكي",
+              "@language": "ar"
+            },
+            {
+              "@value": "Lacquer binding",
+              "@language": "en"
+            }
+          ]
+        },
+        {
+          "@type": "bf:Note",
+          "bf:noteType": "decoration",
+          "rdfs:label": [
+            {
+              "@value": "الصفحتان الأوليان مذهبتان مزخرفتان، ولوحة ذهبية في صدر كل سورة",
+              "@language": "ar"
+            },
+            {
+              "@value": "Illuminated opening double page; a gold panel at the head of each sura",
+              "@language": "en"
+            }
+          ]
+        }
+      ],
+      "bf:hasItem": {
+        "@id": "https://isaacrow.github.io/alqami6/catalogue/quran-1009ah-haydar-ali#item"
+      }
+    },
+    {
+      "@id": "https://isaacrow.github.io/alqami6/catalogue/quran-1009ah-haydar-ali#item",
+      "@type": "bf:Item",
+      "bf:itemOf": {
+        "@id": "https://isaacrow.github.io/alqami6/catalogue/quran-1009ah-haydar-ali#instance"
+      },
+      "bf:shelfMark": {
+        "@type": "bf:ShelfMark",
+        "rdfs:label": "MSS-QUR-1009"
+      },
+      "bf:heldBy": {
+        "@type": "bf:Agent",
+        "rdfs:label": [
+          {
+            "@value": "مكتبة مجلس الشورى، طهران (4175) • مصورة في مكتبة العتبة العباسية المقدسة",
+            "@language": "ar"
+          },
+          {
+            "@value": "Majlis Library, Tehran (4175) • digital copy at the Library of al-Abbas Holy Shrine",
+            "@language": "en"
+          }
+        ]
+      },
+      "bf:electronicLocator": {
+        "@id": "https://isaacrow.github.io/alqami6/models/quran-1009ah-haydar-ali.glb"
+      },
+      "bf:note": {
+        "@type": "bf:Note",
+        "rdfs:label": [
+          {
+            "@value": "نموذج ثلاثي الأبعاد (glTF)",
+            "@language": "ar"
+          },
+          {
+            "@value": "3D model (glTF)",
+            "@language": "en"
+          }
+        ]
+      }
+    }
+  ]
+}

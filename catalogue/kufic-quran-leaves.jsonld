@@ -1,0 +1,250 @@
+{
+  "@context": {
+    "bf": "http://id.loc.gov/ontologies/bibframe/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  },
+  "@graph": [
+    {
+      "@id": "https://isaacrow.github.io/alqami6/catalogue/kufic-quran-leaves#work",
+      "@type": [
+        "bf:Work",
+        "bf:Text"
+      ],
+      "bf:title": [
+        {
+          "@type": "bf:Title",
+          "bf:mainTitle": {
+            "@value": "القرآن الكريم — أوراق بالخط الكوفي على الرق",
+            "@language": "ar"
+          },
+          "bf:subtitle": {
+            "@value": "ينسب نسخها للإمام علي بن الحسين زين العابدين عليه السلام",
+            "@language": "ar"
+          }
+        },
+        {
+          "@type": "bf:ParallelTitle",
+          "bf:mainTitle": {
+            "@value": "The Holy Qur'an — Kufic leaves on parchment",
+            "@language": "en"
+          },
+          "bf:subtitle": {
+            "@value": "Attributed to Imam Ali ibn al-Husayn Zayn al-Abidin (peace be upon him)",
+            "@language": "en"
+          }
+        }
+      ],
+      "bf:content": {
+        "@id": "http://id.loc.gov/vocabulary/contentTypes/txt",
+        "rdfs:label": "text"
+      },
+      "bf:genreForm": {
+        "@type": "bf:GenreForm",
+        "rdfs:label": [
+          {
+            "@value": "المخطوطات والنوادر",
+            "@language": "ar"
+          },
+          {
+            "@value": "Manuscripts",
+            "@language": "en"
+          }
+        ]
+      },
+      "bf:originDate": "[200–299 AH] / [800–899 CE]",
+      "bf:summary": {
+        "@type": "bf:Summary",
+        "rdfs:label": [
+          {
+            "@value": "أوراق متفرقة من ثلاثة مصاحف جُمعت في مجلد واحد، بالخط الكوفي القديم على الرق بحبر أسود مائل إلى القهوائي. أُدخلت النقاط الحمراء للإعراب لاحقًا، وفُصل بين الآيات بوردة أو ورقة منقوشة بماء الذهب. الورقة المعروضة آخر المجلد، وتنتهي بقوله تعالى: «مَا شَاءَ اللَّهُ لَا قُوَّةَ إِلَّا بِاللَّهِ إِن تَرَنِ» (الكهف 39).",
+            "@language": "ar"
+          },
+          {
+            "@value": "Scattered leaves from three Qur'ans bound in one volume, in early Kufic script on parchment in black ink turning brown. The red vowel dots were added later; verses are separated by gold rosettes or leaves. The leaf shown is the last of the volume and ends at Surat al-Kahf 18:39.",
+            "@language": "en"
+          }
+        ]
+      },
+      "bf:hasInstance": {
+        "@id": "https://isaacrow.github.io/alqami6/catalogue/kufic-quran-leaves#instance"
+      }
+    },
+    {
+      "@id": "https://isaacrow.github.io/alqami6/catalogue/kufic-quran-leaves#instance",
+      "@type": [
+        "bf:Instance",
+        "bf:Manuscript"
+      ],
+      "bf:instanceOf": {
+        "@id": "https://isaacrow.github.io/alqami6/catalogue/kufic-quran-leaves#work"
+      },
+      "bf:title": [
+        {
+          "@type": "bf:Title",
+          "bf:mainTitle": {
+            "@value": "القرآن الكريم — أوراق بالخط الكوفي على الرق",
+            "@language": "ar"
+          },
+          "bf:subtitle": {
+            "@value": "ينسب نسخها للإمام علي بن الحسين زين العابدين عليه السلام",
+            "@language": "ar"
+          }
+        },
+        {
+          "@type": "bf:ParallelTitle",
+          "bf:mainTitle": {
+            "@value": "The Holy Qur'an — Kufic leaves on parchment",
+            "@language": "en"
+          },
+          "bf:subtitle": {
+            "@value": "Attributed to Imam Ali ibn al-Husayn Zayn al-Abidin (peace be upon him)",
+            "@language": "en"
+          }
+        }
+      ],
+      "bf:responsibilityStatement": [
+        {
+          "@value": "الناسخ (نسبةً): الإمام علي بن الحسين زين العابدين عليه السلام (38–95 هـ)",
+          "@language": "ar"
+        },
+        {
+          "@value": "Scribe (attributed): Imam Ali ibn al-Husayn Zayn al-Abidin (38–95 AH)",
+          "@language": "en"
+        }
+      ],
+      "bf:media": {
+        "@id": "http://id.loc.gov/vocabulary/mediaTypes/n",
+        "rdfs:label": "unmediated"
+      },
+      "bf:carrier": {
+        "@id": "http://id.loc.gov/vocabulary/carriers/nc",
+        "rdfs:label": "volume"
+      },
+      "bf:dimensions": "26.5 × 37 سم • 40 ورقة (7 أسطر)",
+      "bf:identifiedBy": {
+        "@type": "bf:Local",
+        "rdf:value": "ALQ-QUR-012",
+        "bf:assigner": {
+          "@type": "bf:Agent",
+          "rdfs:label": "ALQAMI"
+        }
+      },
+      "bf:note": [
+        {
+          "@type": "bf:Note",
+          "bf:noteType": "material",
+          "rdfs:label": [
+            {
+              "@value": "رق غزال أصفر فاتح، حبر أسود وأحمر وماء الذهب، خط كوفي قديم",
+              "@language": "ar"
+            },
+            {
+              "@value": "Light yellow gazelle parchment; black and red ink and gold; early Kufic script",
+              "@language": "en"
+            }
+          ]
+        },
+        {
+          "@type": "bf:Note",
+          "bf:noteType": "condition",
+          "rdfs:label": [
+            {
+              "@value": "أوراق من ثلاثة مصاحف؛ في الورقة المعروضة ثقوب وتآكل في الحواف.",
+              "@language": "ar"
+            },
+            {
+              "@value": "Leaves from three manuscripts; the leaf shown has holes and worn edges.",
+              "@language": "en"
+            }
+          ]
+        },
+        {
+          "@type": "bf:Note",
+          "bf:noteType": "binding",
+          "rdfs:label": [
+            {
+              "@value": "جلد وكارتون أحمر مؤطر بالذهب، ذو زخرفة غائرة مذهبة",
+              "@language": "ar"
+            },
+            {
+              "@value": "Red leather and board, gold-framed, with blind-tooled gilt decoration",
+              "@language": "en"
+            }
+          ]
+        },
+        {
+          "@type": "bf:Note",
+          "bf:noteType": "decoration",
+          "rdfs:label": [
+            {
+              "@value": "فواصل آيات بماء الذهب، ودوائر مزخرفة في الهوامش للأحزاب ومواضع السجود",
+              "@language": "ar"
+            },
+            {
+              "@value": "Gold verse separators; decorated roundels in the margins for hizb divisions and prostrations (sajda)",
+              "@language": "en"
+            }
+          ]
+        },
+        {
+          "@type": "bf:Note",
+          "bf:noteType": "ownership marks",
+          "rdfs:label": [
+            {
+              "@value": "تملك السلطان فتح علي شاه القاجاري (ت 1250 هـ)؛ تملك الفياض الأقدس؛ بلاغ بتاريخ 20 رجب 1200 هـ",
+              "@language": "ar"
+            },
+            {
+              "@value": "Ownership notes of Fath Ali Shah Qajar (d. 1250 AH) and al-Fayyad al-Aqdas; a collation note dated 20 Rajab 1200 AH",
+              "@language": "en"
+            }
+          ]
+        }
+      ],
+      "bf:hasItem": {
+        "@id": "https://isaacrow.github.io/alqami6/catalogue/kufic-quran-leaves#item"
+      }
+    },
+    {
+      "@id": "https://isaacrow.github.io/alqami6/catalogue/kufic-quran-leaves#item",
+      "@type": "bf:Item",
+      "bf:itemOf": {
+        "@id": "https://isaacrow.github.io/alqami6/catalogue/kufic-quran-leaves#instance"
+      },
+      "bf:shelfMark": {
+        "@type": "bf:ShelfMark",
+        "rdfs:label": "MSS-QUR-KUF"
+      },
+      "bf:heldBy": {
+        "@type": "bf:Agent",
+        "rdfs:label": [
+          {
+            "@value": "مكتبة العتبة العباسية المقدسة، كربلاء",
+            "@language": "ar"
+          },
+          {
+            "@value": "Library of al-Abbas Holy Shrine, Karbala",
+            "@language": "en"
+          }
+        ]
+      },
+      "bf:electronicLocator": {
+        "@id": "https://isaacrow.github.io/alqami6/models/kufic-quran-leaf.glb"
+      },
+      "bf:note": {
+        "@type": "bf:Note",
+        "rdfs:label": [
+          {
+            "@value": "نموذج ثلاثي الأبعاد (glTF)",
+            "@language": "ar"
+          },
+          {
+            "@value": "3D model (glTF)",
+            "@language": "en"
+          }
+        ]
+      }
+    }
+  ]
+}

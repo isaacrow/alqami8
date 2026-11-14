@@ -31,6 +31,8 @@ export interface AlqamiArtifact {
   model: {
     glb: string;
     scale?: number;
+    /** A leaf or an open book: recognition renders it from the front only (its plain back looks like any paper). */
+    flat?: boolean;
     initialOrbit?: { theta: number; phi: number };
   };
   description: {
@@ -610,12 +612,12 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: '1650 CE [1061 AH]',
     },
     creator: {
-      ar: 'الميرداماد محمد باقر الحسيني الإسترآبادي',
-      en: 'Mir Damad (d. 1040 AH)',
+      ar: 'الميرداماد محمد باقر بن محمد الحسيني الإسترآبادي (ت 1041 هـ)',
+      en: 'Mir Damad, Muhammad Baqir ibn Muhammad al-Husayni al-Astarabadi (d. 1041 AH)',
     },
     institution: {
-      ar: 'مكتبة مجلس الشورى (4662) • علقمي',
-      en: 'Majlis Library Tehran (4662) • Alqami',
+      ar: 'مكتبة مجلس الشورى، طهران (4662) • مصورة في مكتبة العتبة العباسية المقدسة',
+      en: 'Majlis Library, Tehran (4662) • digital copy at the Library of al-Abbas Holy Shrine',
     },
     itemCode: 'MSS-QAB-1650',
     image: '/images/model-model.png',
@@ -624,19 +626,21 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       scale: 1.0,
     },
     description: {
-      ar: 'كتاب فلسفي كلامي للميرداماد يناقش حدوث العالم وقدمه ومسألة الدهر والزمان، النسخة مجدولة ومذهبة وغلافها جلد أحمر أصيل بنظام التعقيبات التاريخية.',
-      en: 'Theological and philosophical treatise by Mir Damad discussing cosmos origination, time and eternity (Dahr), in gold-ruled margins and red leather binding.',
+      ar: 'كتاب في الفلسفة الإسلامية للميرداماد في حدوث العالم والدهر والزمان. أوله: «الحمد لله الواحد الأحد الصمد المصمود مهيمن كل وجود وجاعل كل موجود...». ذكره الطهراني في الذريعة إلى تصانيف الشيعة (17: 32، رقم 183).',
+      en: 'A work of Islamic philosophy by Mir Damad on the origination of the world, perpetuity (dahr) and time. Listed in al-Dhari\'a ila Tasanif al-Shi\'a (vol. 17, p. 32, no. 183).',
     },
     details: {
-      dimensions: '26.0 × 17.5 سم (344 ورقة)',
+      dimensions: '344 ورقة (18 سطرًا)',
       material: {
-        ar: 'ورق قطني، حبر أسود، خط النستعليق، جلد أحمر',
-        en: 'Cotton paper, black ink, Nastaliq script, red leather',
+        ar: 'ورق، حبر أسود، خط النستعليق',
+        en: 'Paper, black ink, Nasta\'liq script',
       },
       condition: {
-        ar: 'نادرة وسليمة، مجدولة ومذهبة والغلاف جلد أحمر ممتاز',
-        en: 'Gold-ruled margins, intact original red leather binding',
+        ar: 'النسخة مجدولة ومرتبة بنظام التعقيبات، والورقة الأولى عليها زخرفة.',
+        en: 'Ruled, with catchwords; the first leaf is illuminated.',
       },
+      binding: { ar: 'جلد أحمر', en: 'Red leather' },
+      seals: { ar: 'في أولها مجموعة أختام', en: 'A group of seals at the beginning' },
       delivery: {
         ar: 'تغليف حراري مفرغ من الرطوبة مع بطاقة الأرشفة.',
         en: 'Hermetic humidity-monitored archival delivery.',
@@ -644,6 +648,125 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       assembly: {
         ar: 'جاهز للمعاينة ثلاثية الأبعاد في الغرفة.',
         en: 'Ready for spatial room exploration.',
+      },
+    },
+  },
+  {
+    id: 'ALQ-QUR-011',
+    slug: 'quran-1009ah-haydar-ali',
+    title: {
+      ar: 'القرآن الكريم — نسخة حيدر علي (1009 هـ)',
+      en: 'The Holy Qur\'an — copied by Haydar Ali (1009 AH)',
+    },
+    subtitle: {
+      ar: 'نُسخت في حائر الإمام الحسين عليه السلام',
+      en: 'Copied at the shrine of Imam al-Husayn (peace be upon him)',
+    },
+    category: 'manuscripts',
+    categoryLabel: {
+      ar: 'المخطوطات والنوادر',
+      en: 'Manuscripts',
+    },
+    period: {
+      ar: '1009 هـ / 1600 م',
+      en: '1009 AH / 1600 CE',
+    },
+    creator: {
+      ar: 'الناسخ: حيدر علي',
+      en: 'Scribe: Haydar Ali',
+    },
+    institution: {
+      ar: 'مكتبة مجلس الشورى، طهران (4175) • مصورة في مكتبة العتبة العباسية المقدسة',
+      en: 'Majlis Library, Tehran (4175) • digital copy at the Library of al-Abbas Holy Shrine',
+    },
+    itemCode: 'MSS-QUR-1009',
+    image: '/images/quran-1009ah-haydar-ali.jpg',
+    model: {
+      glb: '/models/quran-1009ah-haydar-ali.glb',
+      scale: 1.0,
+      flat: true,
+    },
+    description: {
+      ar: 'مصحف بخط النسخ في 294 ورقة، مجدول بعدة ألوان، والصفحتان الأولى والثانية مزخرفتان. في صدر كل سورة لوحة ذهبية، وفي الهوامش دوائر مزخرفة لبيان الأحزاب وبداية الأجزاء.',
+      en: 'A Qur\'an in Naskh script on 294 leaves, ruled in several colours, with the first two pages illuminated. Each sura opens with a gold panel; decorated roundels in the margins mark the hizb and juz\' divisions.',
+    },
+    details: {
+      dimensions: '294 ورقة (15 سطرًا)',
+      material: {
+        ar: 'ورق، حبر أسود، خط النسخ',
+        en: 'Paper, black ink, Naskh script',
+      },
+      condition: {
+        ar: 'لم تُذكر حالة النسخة في الفهرسة.',
+        en: 'Condition not stated in the catalogue record.',
+      },
+      binding: { ar: 'غلاف لاكي', en: 'Lacquer binding' },
+      decoration: {
+        ar: 'الصفحتان الأوليان مذهبتان مزخرفتان، ولوحة ذهبية في صدر كل سورة',
+        en: 'Illuminated opening double page; a gold panel at the head of each sura',
+      },
+    },
+  },
+  {
+    id: 'ALQ-QUR-012',
+    slug: 'kufic-quran-leaves',
+    title: {
+      ar: 'القرآن الكريم — أوراق بالخط الكوفي على الرق',
+      en: 'The Holy Qur\'an — Kufic leaves on parchment',
+    },
+    subtitle: {
+      ar: 'ينسب نسخها للإمام علي بن الحسين زين العابدين عليه السلام',
+      en: 'Attributed to Imam Ali ibn al-Husayn Zayn al-Abidin (peace be upon him)',
+    },
+    category: 'manuscripts',
+    categoryLabel: {
+      ar: 'المخطوطات والنوادر',
+      en: 'Manuscripts',
+    },
+    period: {
+      ar: '[200–299 هـ] / [800–899 م]',
+      en: '[200–299 AH] / [800–899 CE]',
+    },
+    creator: {
+      ar: 'الناسخ (نسبةً): الإمام علي بن الحسين زين العابدين عليه السلام (38–95 هـ)',
+      en: 'Scribe (attributed): Imam Ali ibn al-Husayn Zayn al-Abidin (38–95 AH)',
+    },
+    institution: {
+      ar: 'مكتبة العتبة العباسية المقدسة، كربلاء',
+      en: 'Library of al-Abbas Holy Shrine, Karbala',
+    },
+    itemCode: 'MSS-QUR-KUF',
+    image: '/images/kufic-quran-leaf.jpg',
+    model: {
+      glb: '/models/kufic-quran-leaf.glb',
+      scale: 1.0,
+      flat: true,
+    },
+    description: {
+      ar: 'أوراق متفرقة من ثلاثة مصاحف جُمعت في مجلد واحد، بالخط الكوفي القديم على الرق بحبر أسود مائل إلى القهوائي. أُدخلت النقاط الحمراء للإعراب لاحقًا، وفُصل بين الآيات بوردة أو ورقة منقوشة بماء الذهب. الورقة المعروضة آخر المجلد، وتنتهي بقوله تعالى: «مَا شَاءَ اللَّهُ لَا قُوَّةَ إِلَّا بِاللَّهِ إِن تَرَنِ» (الكهف 39).',
+      en: 'Scattered leaves from three Qur\'ans bound in one volume, in early Kufic script on parchment in black ink turning brown. The red vowel dots were added later; verses are separated by gold rosettes or leaves. The leaf shown is the last of the volume and ends at Surat al-Kahf 18:39.',
+    },
+    details: {
+      dimensions: '26.5 × 37 سم • 40 ورقة (7 أسطر)',
+      material: {
+        ar: 'رق غزال أصفر فاتح، حبر أسود وأحمر وماء الذهب، خط كوفي قديم',
+        en: 'Light yellow gazelle parchment; black and red ink and gold; early Kufic script',
+      },
+      condition: {
+        ar: 'أوراق من ثلاثة مصاحف؛ في الورقة المعروضة ثقوب وتآكل في الحواف.',
+        en: 'Leaves from three manuscripts; the leaf shown has holes and worn edges.',
+      },
+      binding: {
+        ar: 'جلد وكارتون أحمر مؤطر بالذهب، ذو زخرفة غائرة مذهبة',
+        en: 'Red leather and board, gold-framed, with blind-tooled gilt decoration',
+      },
+      decoration: {
+        ar: 'فواصل آيات بماء الذهب، ودوائر مزخرفة في الهوامش للأحزاب ومواضع السجود',
+        en: 'Gold verse separators; decorated roundels in the margins for hizb divisions and prostrations (sajda)',
+      },
+      seals: {
+        ar: 'تملك السلطان فتح علي شاه القاجاري (ت 1250 هـ)؛ تملك الفياض الأقدس؛ بلاغ بتاريخ 20 رجب 1200 هـ',
+        en: 'Ownership notes of Fath Ali Shah Qajar (d. 1250 AH) and al-Fayyad al-Aqdas; a collation note dated 20 Rajab 1200 AH',
       },
     },
   },
