@@ -569,12 +569,9 @@ export function App() {
   }, [openSingleOrFocusApp]);
 
   // Environment backdrop selection (shown when the camera view is off).
-  const environmentBackdrops: Record<EnvironmentId, string> = {
-    'living-room': assetUrl('reference/still-b5f564c5b0939789a9dee198fb7fd037.webp'),
-    'wood-studio': assetUrl('reference/large_2x (1).mp4'),
-    thorsmork: assetUrl('reference/control_center__e3iguusguvma_large.jpg'),
-    'sunset-clouds': assetUrl('reference/large_2x (2).mp4'),
-    'cafe-lounge': assetUrl('reference/oLK7KBr5ogcGwd2SxzuJCH.jpg'),
+  // Only the lounge uses a picture (the others are drawn); its old file under reference/ was never published.
+  const environmentBackdrops: Partial<Record<EnvironmentId, string>> = {
+    'cafe-lounge': assetUrl('images/custom_room_bg.png'),
   };
 
   const totalYaw = xrState.headRotation.yaw + cameraLook.yaw;

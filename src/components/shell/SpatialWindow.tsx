@@ -1,3 +1,4 @@
+import { ErrorBoundary } from './ErrorBoundary';
 import React, { useState, useRef, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { spatialSound } from '../../utils/spatialSound';
@@ -259,7 +260,9 @@ export const SpatialWindow: React.FC<SpatialWindowProps> = ({
         {alqamiMode && (
           <div className="absolute inset-0 pointer-events-none rounded-[inherit] bg-gradient-to-tr from-transparent via-white/5 to-amber-200/10" />
         )}
-        {children}
+        <ErrorBoundary area={title} onClose={onClose}>
+          {children}
+        </ErrorBoundary>
       </div>
 
       {/* Bottom Floating Ornament (e.g., Freeform/Notes Tool Palette at translateZ(28px)) */}

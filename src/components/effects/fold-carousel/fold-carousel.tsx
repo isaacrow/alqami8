@@ -116,7 +116,7 @@ export function FoldCarousel({
   };
 
   return (
-    <FoldCarouselContext value={{ ...engine, slides, fold, progress }}>
+    <FoldCarouselContext.Provider value={{ ...engine, slides, fold, progress }}>
       <div
         role="region"
         aria-roledescription="carousel"
@@ -136,7 +136,7 @@ export function FoldCarousel({
           </div>
         )}
       </div>
-    </FoldCarouselContext>
+    </FoldCarouselContext.Provider>
   );
 }
 
@@ -159,7 +159,8 @@ export function FoldCarouselFrame({
   // gets the same element.
   const stage = useRef<HTMLDivElement>(null);
   useImperativeHandle<HTMLDivElement | null, HTMLDivElement | null>(
-    ref,
+    // React 18 does not pass `ref` to function components as a prop; the cast only satisfies its older types.
+    ref as React.Ref<HTMLDivElement | null>,
     () => stage.current,
   );
 

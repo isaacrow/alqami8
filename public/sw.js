@@ -16,9 +16,29 @@ self.addEventListener('activate', (event) => {
     caches
       .keys()
       .then((names) => Promise.all(names.filter((n) => n.startsWith('alqami-') && !KEEP.has(n)).map((n) => caches.delete(n))))
+      .then(pruneOldBuilds)
       .then(() => self.clients.claim())
   );
 });
+
+// After a deploy: built files (assets/, hashed names) that the new build no longer has are deleted, so old versions
+// do not pile up. Saved models, pictures, data and Moon records stay. Skipped when offline.
+async function pruneOldBuilds() {
+  try {
+    const res = await fetch(new URL('offline-manifest.json', self.registration.scope).href, { cache: 'no-cache' });
+    if (!res.ok) return;
+    const { files } = await res.json();
+    const current = new Set(files.map((f) => f.path));
+    const cache = await caches.open(APP);
+    const base = new URL(self.registration.scope).pathname;
+    for (const request of await cache.keys()) {
+      const path = new URL(request.url).pathname.slice(base.length);
+      if (path.startsWith('assets/') && !current.has(path)) await cache.delete(request);
+    }
+  } catch {
+    // offline or no manifest: try again after the next deploy
+  }
+}
 
 const scope = new URL(self.registration.scope);
 

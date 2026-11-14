@@ -120,8 +120,7 @@ export const ChromaticWaveWallpaper: React.FC<ChromaticWaveWallpaperProps> = ({
       width = container.clientWidth || window.innerWidth;
       height = container.clientHeight || window.innerHeight;
 
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
+      // A full-screen quad: the orthographic camera needs no aspect, only the renderer's size changes.
 
       renderer.setSize(width, height);
       uniforms.resolution.value.set(width, height);

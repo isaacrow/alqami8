@@ -66,6 +66,10 @@ jobs:
       - name: Build cover markers
         run: node scripts/build-nft-targets.mjs || echo "Cover markers not updated; keeping the cached ones."
 
+      # The site does not deploy with type errors (they were 9, one a likely crash, before 2026-11-14).
+      - name: Type check
+        run: npx tsc --noEmit -p .
+
       - name: Build project
         run: npm run build
         env:

@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { ErrorBoundary } from './components/shell/ErrorBoundary';
 import './styles/visionos.css';
 
 // ?camera=<id>: this phone is the camera of ALQAMI on a PC (src/remoteCam); nothing else of the app is loaded.
@@ -14,7 +15,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <PhoneCameraPage hostId={cameraFor} />
       </Suspense>
     ) : (
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     )}
   </React.StrictMode>
 );

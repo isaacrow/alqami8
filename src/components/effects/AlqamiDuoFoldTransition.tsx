@@ -39,7 +39,7 @@ export const AlqamiDuoFoldTransition: React.FC<AlqamiDuoFoldProps> = ({
     if (isFolding && currentArtifact.id !== prevArtifactIdRef.current) {
       setAnimating(true);
       setShow3D(false);
-      spatialSound.playWindowUnfold?.();
+      spatialSound.playSnap();
 
       const timer = setTimeout(() => {
         setOutgoingArtifact(currentArtifact);
