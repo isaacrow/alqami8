@@ -1817,6 +1817,10 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
             onClick={() => {
               spatialSound.playPinchTap();
               setAirPenActive((p) => !p);
+              // One panel at a time: they share the same place above the toolbar.
+              setLayoutMenuOpen(false);
+              setImmersionOpen(false);
+              setCalibrateOpen(false);
             }}
             className={`world-hud-btn ${
               airPenActive
@@ -1844,6 +1848,7 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
               spatialSound.playPinchTap();
               setImmersionOpen((o) => !o);
               setCalibrateOpen(false);
+              setLayoutMenuOpen(false);
             }}
             className={`world-hud-btn ${immersionLevel > 0 ? 'bg-indigo-500/40 text-indigo-300 ring-1 ring-indigo-400' : 'hover:bg-white/15'}`}
             title="Digital Crown: Environment Immersion Blender"
@@ -1860,6 +1865,7 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
           <button onClick={() => {
             setCalibrateOpen((o) => !o);
             setImmersionOpen(false);
+            setLayoutMenuOpen(false);
           }} className="world-hud-btn" title="Calibrate lens FOV">
             <SlidersHorizontal className="h-4 w-4" />
           </button>
@@ -1886,7 +1892,8 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
         )}
 
         {/* 3D Spatial Air Pen Floating Palette */}
-        {airPenActive && (
+        {/* The pen's palette steps aside while another panel is open (they share one place). */}
+        {airPenActive && !layoutMenuOpen && !immersionOpen && !calibrateOpen && (
           <div
             className="absolute left-1/2 z-[61] -translate-x-1/2 rounded-full vision-glass px-3.5 py-1.5 flex items-center gap-2 border border-cyan-400/50 shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
             style={{ bottom: 'calc(max(14px, env(safe-area-inset-bottom)) + 56px)' }}
