@@ -1,3 +1,5 @@
+import { LipSync } from './lipSync';
+
 /**
  * A live spoken conversation with Gemini (the Live API over one WebSocket): the microphone streams in as 16 kHz PCM,
  * the server decides when the visitor has finished speaking, and the answer streams back as 24 kHz PCM that starts
@@ -165,6 +167,8 @@ export class LiveConversation {
   async start(openingCue?: string) {
     this.closedByUs = false;
     await this.ctx.resume();
+    // Mouth shapes from his voice as it plays (every voice goes through this.out); the face uses loudness if not.
+    if (!this.lips) void LipSync.attach(this.ctx, this.out).then((l) => (this.lips = l), (e) => console.warn('Lip sync off:', e));
     this.h.onState('connecting');
     await this.checkServer();
     this.h.onVoice?.(this.voice);
@@ -301,10 +305,19 @@ export class LiveConversation {
     return this.playing.size > 0 || this.nextTime > this.ctx.currentTime + 0.02;
   }
 
-  /** Jaw opening 0..1 from what is playing now. */
-  /** What is playing now: loudness for the jaw, and where its energy sits for the lip shape. */
-  features(buf: Float32Array<ArrayBuffer>, spectrum: Uint8Array<ArrayBuffer>): { level: number; bright: number } {
+  /** Lip sync read from the voice as it plays (HeadAudio); null until it starts, or if this browser cannot run it. */
+  private lips: LipSync | null = null;
+  private lipsAt = 0;
+
+  /**
+   * What is playing now: loudness for the jaw, where its energy sits for the lip shape, and (with HeadAudio) the
+   * mouth shape recognised from the voice.
+   */
+  features(buf: Float32Array<ArrayBuffer>, spectrum: Uint8Array<ArrayBuffer>): { level: number; bright: number; mouth?: { jaw: number; wide: number } } {
     const level = this.level(buf);
+    const now = performance.now();
+    const mouth = this.lips?.update(this.lipsAt ? now - this.lipsAt : 16);
+    this.lipsAt = now;
     this.analyser.getByteFrequencyData(spectrum);
     const hz = this.ctx.sampleRate / this.analyser.fftSize;
     let sum = 0;
@@ -313,7 +326,7 @@ export class LiveConversation {
       sum += spectrum[i];
       weighted += spectrum[i] * i * hz;
     }
-    return { level, bright: sum ? Math.min(1, weighted / sum / 3000) : 0.5 };
+    return { level, bright: sum ? Math.min(1, weighted / sum / 3000) : 0.5, ...(mouth ? { mouth: { jaw: mouth.jaw, wide: mouth.wide } } : {}) };
   }
 
   level(buf: Float32Array<ArrayBuffer>) {
@@ -479,3 +492,4 @@ export class LiveConversation {
     void this.ctx.close();
   }
 }
+

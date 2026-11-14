@@ -259,6 +259,8 @@ export interface VoiceFeatures {
   level: number;
   /** Where the sound's energy sits, 0 (dark: oo, o) .. 1 (bright: ee, s). */
   bright: number;
+  /** Mouth shape read from the voice by HeadAudio (lipSync.ts), when it runs: jaw 0..1, lips -1 round .. 1 wide. */
+  mouth?: { jaw: number; wide: number };
 }
 
 const approach = (from: number, to: number, rate: number, dt: number) => from + (to - from) * Math.min(1, dt * rate);
@@ -292,11 +294,14 @@ export class BustMotion {
     this.t += dt;
     const rig = this.rig;
     // Jaw follows the voice quickly when opening and a little slower when closing, as real speech looks.
-    this.jaw = approach(this.jaw, voice.level, voice.level > this.jaw ? 28 : 14, dt);
+    // With HeadAudio, the jaw follows the recognised mouth shapes (scaled a little by loudness); else loudness alone.
+    const jawTarget = voice.mouth ? voice.mouth.jaw * Math.min(1, 0.4 + voice.level * 1.5) : voice.level;
+    this.jaw = approach(this.jaw, jawTarget, jawTarget > this.jaw ? 28 : 14, dt);
     const talking = this.jaw > 0.05;
 
     // Lip shape from the sound: bright sounds spread the lips, dark sounds round them.
-    rig.wide = approach(rig.wide, talking ? THREE.MathUtils.clamp((voice.bright - 0.42) * 3, -1, 1) * Math.min(1, this.jaw * 2) : 0, 16, dt);
+    const wideTarget = voice.mouth ? voice.mouth.wide : talking ? THREE.MathUtils.clamp((voice.bright - 0.42) * 3, -1, 1) * Math.min(1, this.jaw * 2) : 0;
+    rig.wide = approach(rig.wide, wideTarget, 16, dt);
 
     // Brows rise on a stressed word (louder than his recent average) and on surprise.
     this.loudAvg = approach(this.loudAvg, voice.level, 0.8, dt);
