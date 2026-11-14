@@ -1082,3 +1082,11 @@ textarea,
     scroll-behavior: auto !important;
   }
 }
+
+/* .vision-glass sets position: relative; elements that are also .absolute or .fixed keep that. */
+.vision-glass.absolute {
+  position: absolute;
+}
+.vision-glass.fixed {
+  position: fixed;
+}
