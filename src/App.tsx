@@ -41,6 +41,7 @@ const AlqamiSpatialApp = lazy(() =>
   import('./components/apps/AlqamiSpatialApp').then((module) => ({ default: module.AlqamiSpatialApp }))
 );
 import { ChromaticWaveWallpaper } from './components/effects/ChromaticWaveWallpaper';
+import { PhoneCameraButton } from './remoteCam/PhoneCameraButton';
 
 const IkeaSpatialApp = lazy(() =>
   import('./components/apps/IkeaSpatialApp').then((module) => ({ default: module.IkeaSpatialApp }))
@@ -1028,6 +1029,8 @@ export function App() {
 
       {/* Quiet top controls: Single round Alqami Logo button matching img 5 (no text, no background), Home button, and Control Center */}
       <div className="visionos-shell-controls fixed top-3.5 left-1/2 -translate-x-1/2 z-[85] flex items-center gap-2 pointer-events-auto">
+        {/* On a computer: use a phone as the camera (and motion sensor) for AR and scanning. */}
+        {!isTouchPhone() && <PhoneCameraButton />}
         {/* Round Alqami Logo Button: Activates AR World Mode directly as requested */}
         <button
           onClick={() => {
