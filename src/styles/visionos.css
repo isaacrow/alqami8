@@ -839,6 +839,7 @@ textarea,
 .world-hud-btn {
   width: 32px;
   height: 32px;
+  flex-shrink: 0;
   border-radius: 9999px;
   display: flex;
   align-items: center;
@@ -1054,3 +1055,30 @@ textarea,
 }
 
 
+
+
+/* Fingers need 44 px targets (WCAG 2.2, Apple HIG); the AR toolbar scrolls sideways when they do not all fit. */
+@media (pointer: coarse) {
+  .world-hud-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 2px solid #ffd60a;
+  outline-offset: 2px;
+}
+
+/* For visitors who ask their phone for less motion: no spinning, sliding or pulsing. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
