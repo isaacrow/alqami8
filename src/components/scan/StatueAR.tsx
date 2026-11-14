@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Hand, Pin, X } from 'lucide-react';
+import { Hand, Pin, Sparkles, X } from 'lucide-react';
+import { loadSettings } from '../../character/liveVoice';
+import { AskAnswer, askAboutFrame } from '../../scan/askGemini';
 import { ALQAMI_ARTIFACTS } from '../../data/alqamiArtifacts';
+import { getCustomScannedObjects } from '../../utils/alqamiRdfStore';
 import { useMoonRecord } from '../../moon/useMoon';
 import { SightRecognizer, SightTarget } from '../../recognize/recognizer';
 import { HandGestures, HandGesture } from '../../scan/handGestures';
@@ -26,7 +29,8 @@ export interface StatueARProps {
   active: boolean;
   onOpen: (target: SightTarget) => void;
   onCandidates: (candidates: SightTarget[]) => void;
-  onStatus: (status: 'loading' | 'ready' | 'off') => void;
+  /** `reason` says why sight is off (shown to the visitor, so a failure on a phone can be reported). */
+  onStatus: (status: 'loading' | 'ready' | 'off', reason?: string) => void;
 }
 
 interface Tag {
@@ -65,6 +69,18 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
   const [gyroOn, setGyroOn] = useState(false);
   const [handsOn, setHandsOn] = useState(false);
   const [toast, setToast] = useState('');
+  const [ask, setAsk] = useState<{ state: 'busy' } | { state: 'done'; answer: AskAnswer } | { state: 'error' } | null>(null);
+
+  const askAI = async () => {
+    const v = video.current;
+    if (!v || !v.videoWidth) return;
+    setAsk({ state: 'busy' });
+    try {
+      setAsk({ state: 'done', answer: await askAboutFrame(v, loadSettings().geminiKey) });
+    } catch {
+      setAsk({ state: 'error' });
+    }
+  };
   const pin = useRef(new WorldPin());
   const hands = useRef<HandGestures | null>(null);
   const pointRequest = useRef<{ x: number; y: number } | null>(null);
@@ -112,13 +128,13 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
     let tick = 0;
     let cell = 0;
 
+    let errors = 0;
+    const why = (e: unknown) => (e instanceof Error ? e.message : String(e)).slice(0, 90);
     onStatus('loading');
-    recognizer.prepare().then(
-      () => !disposed && onStatus('ready'),
-      () => !disposed && onStatus('off')
-    );
-    // Faces of busts and portraits (never of visitors: nothing is stored, nobody is identified).
-    void import('@mediapipe/tasks-vision')
+    // Faces of busts and portraits (never of visitors: nothing is stored, nobody is identified). Loaded only after
+    // the sight model is ready, so the two downloads do not compete on a phone; if it fails, only faces are skipped.
+    const loadFaces = () =>
+      import('@mediapipe/tasks-vision')
       .then(async (vision) => {
         const files = await vision.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.1.1/wasm');
         faceDetector = await vision.FaceDetector.createFromOptions(files, {
@@ -127,7 +143,18 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
           minDetectionConfidence: 0.6,
         });
       })
-      .catch(() => {});
+      .catch((e) => console.warn('Bust faces off:', e));
+    recognizer.prepare().then(
+      () => {
+        if (disposed) return;
+        onStatus('ready');
+        void loadFaces();
+      },
+      (e) => {
+        console.warn('Recognition by sight unavailable:', e);
+        if (!disposed) onStatus('off', why(e));
+      }
+    );
 
     // A square crop of the video around a point (0..1); `side` is a share of the shorter side.
     const cropAt = (v: HTMLVideoElement, s: Spot) => {
@@ -155,7 +182,13 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
             kind = 'point';
             spot = { ...req, side: 0.45 };
           } else if (faceDetector && tick % 5 === 0) {
-            const face = faceDetector.detect(v).detections[0]?.boundingBox;
+            let face;
+            try {
+              face = faceDetector.detect(v).detections[0]?.boundingBox;
+            } catch (e) {
+              console.warn('Bust faces off:', e);
+              faceDetector = null;
+            }
             if (face) {
               kind = 'face';
               spot = {
@@ -188,12 +221,18 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
             if (kind === 'point') setOpen(best.key);
           } else if (kind === 'point') flash('؟');
           if (tagsRef.current.length) onCandidates([]);
+          if (errors) onStatus('ready');
+          errors = 0;
         }
-      } catch {
-        if (!disposed) onStatus('off');
-        return;
+      } catch (e) {
+        // One bad frame (or a slow phone) is not the end: try again; give up only after several failures in a row.
+        console.warn('Sight look failed:', e);
+        if (++errors >= 6) {
+          if (!disposed) onStatus('off', why(e));
+          return;
+        }
       }
-      if (!disposed) timer = window.setTimeout(loop, 200);
+      if (!disposed) timer = window.setTimeout(loop, errors ? 1000 : 200);
     };
     void loop();
 
@@ -286,7 +325,7 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
         ) : null
       )}
       {offScreen > 0 && (
-        <div className="absolute top-3 inset-x-0 flex justify-center">
+        <div className="absolute top-[calc(env(safe-area-inset-top)+68px)] inset-x-0 flex justify-center">
           <span className="px-3 py-1 rounded-full bg-black/60 text-white text-[11px]">
             {offScreen} خارج الإطار · {offScreen} out of view
           </span>
@@ -295,26 +334,67 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
       {pointer && <span className="absolute w-5 h-5 -ml-2.5 -mt-2.5 rounded-full border-2 border-[#FFD60A] bg-[#FFD60A]/30" style={{ left: pointer.x, top: pointer.y }} />}
       {toast && <span className="absolute top-1/3 inset-x-0 text-center text-4xl">{toast}</span>}
 
-      <div className="absolute bottom-3 end-3 flex flex-col gap-2 pointer-events-auto">
+      <div className="absolute top-[calc(env(safe-area-inset-top)+104px)] end-3 flex flex-col items-end gap-2 pointer-events-auto">
+        <button
+          onClick={askAI}
+          disabled={ask?.state === 'busy'}
+          className="w-11 h-11 rounded-full border flex items-center justify-center shadow-lg backdrop-blur-md active:scale-95 bg-black/55 border-white/25 text-white disabled:opacity-60"
+          title="ما هذا؟ · What is this? (AI)"
+          aria-label="What is this?"
+        >
+          <Sparkles className={`w-5 h-5 ${ask?.state === 'busy' ? 'animate-pulse text-violet-200' : ''}`} />
+        </button>
         {!gyroOn && (
           <button
             onClick={async () => setGyroOn(await pin.current.start())}
-            className="h-9 px-3 rounded-full bg-black/60 border border-white/25 text-white text-[11.5px] flex items-center gap-1.5"
-            title="Keep labels on the objects as the phone turns"
+            className="w-11 h-11 rounded-full border flex items-center justify-center shadow-lg backdrop-blur-md active:scale-95 bg-black/55 border-white/25 text-white"
+            title="ثبّت البطاقات · Keep labels on the objects as the phone turns"
+            aria-label="Pin labels"
           >
-            <Pin className="w-3.5 h-3.5" /> ثبّت البطاقات · Pin labels
+            <Pin className="w-5 h-5" />
           </button>
         )}
         <button
           onClick={toggleHands}
           aria-pressed={handsOn}
-          className={`h-9 px-3 rounded-full border text-[11.5px] flex items-center gap-1.5 ${handsOn ? 'bg-[#FFD60A] text-black border-[#FFD60A]' : 'bg-black/60 text-white border-white/25'}`}
+          className={`w-11 h-11 rounded-full border flex items-center justify-center shadow-lg backdrop-blur-md active:scale-95 ${handsOn ? 'bg-[#FFD60A] text-black border-[#FFD60A]' : 'bg-black/55 text-white border-white/25'}`}
+          title="بيدك · Use hands"
+          aria-label="Use hands"
         >
-          <Hand className="w-3.5 h-3.5" /> {handsOn ? 'الإيماءات تعمل · Hands on' : 'بيدك · Use hands'}
+          <Hand className="w-5 h-5" />
         </button>
       </div>
+      {ask && ask.state !== 'busy' && (
+        <div dir="rtl" className="absolute top-[calc(env(safe-area-inset-top)+68px)] inset-x-3 z-40 pointer-events-auto rounded-2xl bg-black/75 backdrop-blur-md border border-violet-300/40 text-white p-3 shadow-2xl">
+          <div className="flex items-start gap-2">
+            <p className="flex-1 text-[10.5px] text-violet-200">✨ تخمين الذكاء الاصطناعي، ليس من الفهرس · AI guess, not from the catalogue</p>
+            <button onClick={() => setAsk(null)} aria-label="Close" className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          {ask.state === 'error' ? (
+            <p className="mt-1 text-[12.5px]">تعذّر السؤال الآن · Could not ask right now</p>
+          ) : (
+            <>
+              <p className="mt-1 text-[14px] font-semibold">{ask.answer.name}</p>
+              {(ask.answer.period || ask.answer.culture) && <p className="text-[11.5px] text-white/70">{[ask.answer.period, ask.answer.culture].filter(Boolean).join(' · ')}</p>}
+              <p className="mt-1 text-[12px] text-white/85 leading-relaxed">{ask.answer.description}</p>
+              {ask.answer.records.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  <p className="text-[10.5px] text-white/60">ربما في الفهرس · Maybe in the catalogue</p>
+                  {ask.answer.records.map((r) => (
+                    <button key={r.id} dir="auto" onClick={() => onOpen({ kind: 'moon', recordId: r.id })} className="block w-full text-start truncate px-3 py-1.5 rounded-full bg-white/12 border border-white/20 text-[12px]">
+                      {r.title}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
       {handsOn && (
-        <p className="absolute bottom-14 start-3 end-28 text-[10.5px] text-white/80 bg-black/45 rounded-xl px-2.5 py-1.5">
+        <p className="absolute bottom-[calc(env(safe-area-inset-bottom)+150px)] inset-x-3 text-center text-[10.5px] text-white/80 bg-black/45 rounded-xl px-2.5 py-1.5">
           أشر إلى قطعة لتختارها، اقرص لفتح سجلّها، افتح كفّك لطيّ البطاقة · Point to choose, pinch to open, open palm to fold
         </p>
       )}
@@ -328,13 +408,17 @@ function useObjectFacts(target: SightTarget) {
   const moonId = target.kind === 'moon' ? target.recordId : artifact?.moonRecordId;
   const moon = useMoonRecord(moonId, 'ar');
   const card = moon?.state === 'ready' ? moon.data : null;
+  // A record the visitor added in the scanner ("Add record"), kept on this device.
+  const own = target.kind === 'artifact' && !artifact ? getCustomScannedObjects().find((o) => o.id === target.id)?.metadata : undefined;
   return {
     card,
-    title: card?.title ?? artifact?.title.ar ?? (target.kind === 'moon' ? target.recordId : target.id),
-    maker: card?.contributors.map((c) => c.label).join('، ') || artifact?.creator?.ar,
-    date: card?.date ?? artifact?.period?.ar,
-    material: card?.notes.find((n) => /material|مادة|حجر|برونز|خزف|ورق|stone|bronze|clay|ceramic/i.test(n)) ?? artifact?.details.material?.ar,
-    holder: card?.holder ?? artifact?.institution?.ar,
+    title: card?.title ?? artifact?.title.ar ?? own?.titleAr ?? (target.kind === 'moon' ? target.recordId : target.id),
+    maker: card?.contributors.map((c) => c.label).join('، ') || artifact?.creator?.ar || own?.creatorAr,
+    date: card?.date ?? artifact?.period?.ar ?? own?.date,
+    material: card?.notes.find((n) => /material|مادة|حجر|برونز|خزف|ورق|stone|bronze|clay|ceramic/i.test(n)) ?? artifact?.details.material?.ar ?? own?.materialsAr,
+    holder: card?.holder ?? artifact?.institution?.ar ?? (own ? own.publisherAr : undefined),
+    dimensions: own?.dimensions,
+    text: own?.transcriptionAr,
     front: artifact?.model.initialOrbit?.theta ?? 0,
   };
 }
@@ -402,6 +486,8 @@ const PinnedRecord: React.FC<{
           {f.date && <p>📅 {f.date}</p>}
           {f.material && <p className="truncate">🪨 {f.material}</p>}
           {f.holder && <p className="truncate">🏛 {f.holder}</p>}
+          {f.dimensions && <p className="truncate">📏 {f.dimensions}</p>}
+          {f.text && <p className="line-clamp-3 text-white/85">✎ {f.text}</p>}
           {side && (
             <p className="text-[#FFD60A]">
               👁 تنظر إلى {SIDE_NAMES[side].ar} · {SIDE_NAMES[side].en}

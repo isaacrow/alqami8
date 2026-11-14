@@ -1076,8 +1076,8 @@ export function App() {
         </button>
       </div>
 
-      {/* Creator Credit Badge: Placed neatly in the bottom-right corner */}
-      <div className="fixed bottom-3 right-4 z-[75] pointer-events-auto max-w-[85vw]">
+      {/* Creator Credit Badge: bottom-right corner; hidden in the AR world, where its toolbar sits at the bottom */}
+      <div className={`fixed bottom-3 right-4 z-[75] pointer-events-auto max-w-[85vw] ${xrState.spatialWorldActive ? 'hidden' : ''}`}>
         <div className="px-3.5 py-1 rounded-full bg-black/40 hover:bg-black/60 border border-white/10 shadow-lg backdrop-blur-xl flex items-center justify-center select-none text-[9px] sm:text-[10px] text-white/70 font-normal tracking-wide gap-1.5 text-center whitespace-nowrap">
           <span>designed & developed by isaac faleh</span>
           <span className="text-white/25">·</span>

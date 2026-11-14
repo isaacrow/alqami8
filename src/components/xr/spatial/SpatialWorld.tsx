@@ -1710,10 +1710,10 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
 
         {/* Spatial 360° Room Radar Mini-Map (awesome-arkit) */}
         <div
-          className="spatial-radar-widget absolute top-3.5 right-4 z-[65] w-20 h-20 rounded-full vision-glass border border-white/25 flex items-center justify-center pointer-events-auto shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+          className="spatial-radar-widget absolute top-[calc(env(safe-area-inset-top)+60px)] right-3 sm:top-3.5 sm:right-4 z-[65] w-14 h-14 sm:w-20 sm:h-20 rounded-full vision-glass border border-white/25 flex items-center justify-center pointer-events-auto shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
           title="Spatial 360° Room Radar: shows positions of all windows & objects"
         >
-          <div className="relative w-16 h-16 rounded-full border border-white/20 bg-black/30 overflow-hidden flex items-center justify-center">
+          <div className="relative w-11 h-11 sm:w-16 sm:h-16 rounded-full border border-white/20 bg-black/30 overflow-hidden flex items-center justify-center">
             {/* Compass North arrow */}
             <span
               className="absolute text-[8px] font-bold text-amber-300 font-mono"
@@ -1755,7 +1755,7 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
 
         {/* Head-locked HUD */}
         <div
-          className="spatial-world-hud absolute left-1/2 -translate-x-1/2 z-[60] flex items-center gap-1.5 rounded-full vision-ornament px-2 py-1.5 text-white"
+          className="spatial-world-hud absolute left-1/2 -translate-x-1/2 z-[60] flex items-center gap-1 sm:gap-1.5 max-w-[calc(100vw-16px)] overflow-x-auto [scrollbar-width:none] rounded-full vision-ornament px-1.5 sm:px-2 py-1.5 text-white"
           style={{ bottom: 'max(14px, env(safe-area-inset-bottom))' }}
         >
           {onOpenHome && (
@@ -1787,7 +1787,7 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
             }`}
             title="Switch Mode: Vision Pro Heavy Glass vs 6DoF Physical Room Tracking"
           >
-            <span>{trackingMode === 'vision-pro' ? '🥽 Vision Pro Solid' : '🌐 6DoF Room Track'}</span>
+            <span className="whitespace-nowrap">{trackingMode === 'vision-pro' ? '🥽' : '🌐'}<span className="hidden sm:inline"> {trackingMode === 'vision-pro' ? 'Vision Pro Solid' : '6DoF Room Track'}</span></span>
           </button>
           {onToggleHandTracking && (
             <button
@@ -1869,7 +1869,7 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
             }`}
           >
             <Compass className="h-3.5 w-3.5" />
-            {sensorState === 'live' ? 'World locked' : sensorState === 'none' ? 'Drag to look' : 'Starting…'}
+            <span className="hidden sm:inline whitespace-nowrap">{sensorState === 'live' ? 'World locked' : sensorState === 'none' ? 'Drag to look' : 'Starting…'}</span>
           </span>
           <button onClick={onExit} className="world-hud-btn" title="Exit Spatial World">
             <LogOut className="h-4 w-4" />
