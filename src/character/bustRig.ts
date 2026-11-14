@@ -33,6 +33,12 @@ export interface BustRegions {
   headHalfWidth: number;
   brows: [THREE.Vector2, THREE.Vector2];
   eyes: [EyeRegion, EyeRegion];
+  /**
+   * The right eye lies across a seam of the scan's texture, so sliding its own texture tears it. It shows the left
+   * eye's iris instead, mirrored: the texture UV at the left eye's centre and how it changes per model unit there
+   * ([du/dx, dv/dx, du/dy, dv/dy]), measured on the model.
+   */
+  leftEyeUv: { centre: THREE.Vector2; perUnit: [number, number, number, number] };
   /** Anything in front of this depth near the eyes (the glasses) is never repainted. */
   eyeMaxZ: number;
 }
@@ -51,6 +57,7 @@ export const JAWAHIRI_REGIONS: BustRegions = {
     { centre: new THREE.Vector2(-0.12, 0.39), radius: new THREE.Vector2(0.042, 0.028), lid: [211, 158, 132] },
     { centre: new THREE.Vector2(0.165, 0.385), radius: new THREE.Vector2(0.042, 0.028), lid: [199, 151, 120] },
   ],
+  leftEyeUv: { centre: new THREE.Vector2(0.1063, 0.3998), perUnit: [-0.0813, 0.1393, 0.1254, 0.0883] },
   eyeMaxZ: 0.47,
 };
 
@@ -197,9 +204,13 @@ float lid(vec2 c, vec2 r) {
   mat2 dUv = mat2(dFdx(vMapUv), dFdy(vMapUv));
   mat2 dPos = mat2(dFdx(vRest.xy), dFdy(vRest.xy));
   mat2 uvPerUnit = abs(determinant(dPos)) > 1e-14 ? dUv * inverse(dPos) : mat2(0.0);
-  float inEye = eyeMask(${v2(L.centre)}, ${v2(L.radius)}, 0.55) + eyeMask(${v2(R.centre)}, ${v2(R.radius)}, 0.55);
-  vec2 lookUv = vMapUv - inEye * (uvPerUnit * uGaze);
-  diffuseColor *= texture2D( map, lookUv );
+  float inLeft = eyeMask(${v2(L.centre)}, ${v2(L.radius)}, 0.55);
+  vec4 skin = texture2D( map, vMapUv - inLeft * (uvPerUnit * uGaze) );
+  // Right eye: the left eye's texture, mirrored left-right, moved with the gaze.
+  float inRight = eyeMask(${v2(R.centre)}, ${v2(R.radius)}, 0.4);
+  vec2 q = vRest.xy - uGaze - ${v2(R.centre)};
+  vec2 fromLeft = ${v2(r.leftEyeUv.centre)} + mat2(${r.leftEyeUv.perUnit.map(f).join(', ')}) * vec2(-q.x, q.y);
+  diffuseColor *= mix(skin, texture2D( map, fromLeft ), inRight);
 #endif
 float lidL = lid(${v2(L.centre)}, ${v2(L.radius)});
 float lidR = lid(${v2(R.centre)}, ${v2(R.radius)});

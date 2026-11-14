@@ -5,6 +5,10 @@
  * against 23% for MobileNetV4-small (scripts/recognition-bench.mjs). The model (about 24 MB, int8) is only loaded
  * while a scanner is open and released when it closes, because iPhone Safari kills tabs that hold too much memory.
  *
+ * DINOv3-S/16 was compared on 2026-11-14 (scripts/model-bench.mjs, 132 rendered views from unseen angles): 99% vs 98%
+ * answered, both with no wrong answer, the same side accuracy and speed, so DINOv2 stays (no index rebuild, no new
+ * download for visitors).
+ *
  * The image preparation here must match scripts/build-recognition-index.mjs exactly: the picture resized to
  * 224 x 224 without cropping, ImageNet normalisation, and the CLS token. On scanner-like views (the object inside
  * the guide square) the CLS token beat the mean of the patch tokens: 74% vs 58% right first (recognition-bench.mjs).
