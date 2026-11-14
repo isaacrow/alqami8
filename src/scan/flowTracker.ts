@@ -121,10 +121,13 @@ export class FlowTracker {
     return Float32Array.from(out);
   }
 
-  /** Lucas-Kanade from `a` to `b` for one point, coarse to fine; null when it fails to settle. */
-  private flow(a: Level[], b: Level[], x: number, y: number): [number, number] | null {
-    let dx = 0;
-    let dy = 0;
+  /**
+   * Lucas-Kanade from `a` to `b` for one point, coarse to fine; null when it fails to settle. `gx`, `gy`: a first guess
+   * of the shift (level-0 pixels), e.g. from the gyroscope, so a quick turn starts the search near the answer.
+   */
+  private flow(a: Level[], b: Level[], x: number, y: number, gx = 0, gy = 0): [number, number] | null {
+    let dx = gx / (1 << (LEVELS - 1));
+    let dy = gy / (1 << (LEVELS - 1));
     for (let k = LEVELS - 1; k >= 0; k--) {
       const s = 1 / (1 << k);
       const px = x * s;
@@ -198,8 +201,11 @@ export class FlowTracker {
     return o && !o.lost ? o.box : null;
   }
 
-  /** One camera frame: moves every tracked object's points and box. */
-  update(video: HTMLVideoElement) {
+  /**
+   * One camera frame: moves every tracked object's points and box. `prior`: how far the picture moved since the last
+   * frame as the gyroscope sees it (fractions of the frame's width and height), used as the search's starting guess.
+   */
+  update(video: HTMLVideoElement, prior?: { x: number; y: number }) {
     if (!this.objects.size) return;
     const cur = this.grab(video);
     if (!cur) return;
@@ -208,6 +214,8 @@ export class FlowTracker {
     if (!prev || prev[0].w !== cur[0].w || prev[0].h !== cur[0].h) return;
     const W = cur[0].w;
     const H = cur[0].h;
+    const gx = prior ? prior.x * W : 0;
+    const gy = prior ? prior.y * H : 0;
     for (const o of this.objects.values()) {
       if (o.lost) continue;
       const moved: number[] = [];
@@ -215,7 +223,7 @@ export class FlowTracker {
       for (let i = 0; i < o.n; i++) {
         const x = o.pts[i * 2];
         const y = o.pts[i * 2 + 1];
-        const d = this.flow(prev, cur, x, y);
+        const d = this.flow(prev, cur, x, y, gx, gy);
         if (!d) continue;
         const nx = x + d[0];
         const ny = y + d[1];

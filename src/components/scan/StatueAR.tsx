@@ -12,6 +12,7 @@ import { HandGestures, HandGesture } from '../../scan/handGestures';
 import { SIDE_NAMES, sideNotes, sideOf } from '../../scan/sides';
 import { Direction, WorldPin } from '../../scan/worldPin';
 import { FlowTracker } from '../../scan/flowTracker';
+import { LabelLayout } from '../../scan/labelLayout';
 
 /**
  * Scan mode in a gallery: every catalogued object or statue in view gets its record floating on it.
@@ -88,6 +89,9 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
   // Follows each recognised object in the picture while the visitor walks (optical flow); the gyroscope pin is the
   // fallback when the object is lost, until the next recognition re-seeds it.
   const tracker = useRef(new FlowTracker());
+  const layout = useRef(new LabelLayout());
+  // The room direction of the screen's centre at the last tracked frame (for the gyroscope's head start).
+  const lastCentre = useRef<Direction | null>(null);
   const hands = useRef<HandGestures | null>(null);
   const pointRequest = useRef<{ x: number; y: number } | null>(null);
 
@@ -275,10 +279,27 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
   useEffect(() => {
     if (!active) return;
     let raf = 0;
+    // How far the picture moved since the last frame by the gyroscope (fractions of the video's width and height):
+    // where the last frame's centre is on screen now, in video terms. Null without a gyroscope.
+    const gyroShift = (v: HTMLVideoElement): { x: number; y: number } | undefined => {
+      const el = box.current;
+      if (!el || !pin.current.tracking || !v.videoWidth) return undefined;
+      const W = el.clientWidth;
+      const H = el.clientHeight;
+      const prev = lastCentre.current;
+      lastCentre.current = pin.current.directionAt(0.5, 0.5, W, H);
+      if (!prev) return undefined;
+      const p = pin.current.project(prev, W, H);
+      if (!p) return undefined;
+      const s = Math.max(W / v.videoWidth, H / v.videoHeight);
+      const x = (p.x - W / 2) / (v.videoWidth * s);
+      const y = (p.y - H / 2) / (v.videoHeight * s);
+      return Math.abs(x) < 0.4 && Math.abs(y) < 0.4 ? { x, y } : undefined;
+    };
     const frame = () => {
       const v = video.current;
       if (tagsRef.current.length) {
-        if (v) tracker.current.update(v);
+        if (v) tracker.current.update(v, gyroShift(v));
         // Keep each tag's room direction current from the tracker, so the gyroscope takes over from the latest spot.
         const el = box.current;
         if (el)
@@ -350,6 +371,12 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
     return { tag: t, at: W ? pin.current.project(t.direction, W, H) : null };
   });
   const offScreen = placed.filter((p) => !p.at || !p.at.onScreen).length;
+  // Labels of the tags (not the open card) spread so none covers another.
+  const labels = layout.current.place(
+    placed.filter((p) => p.at?.onScreen && p.tag.key !== open).map((p) => ({ key: p.tag.key, x: p.at!.x, y: p.at!.y })),
+    W,
+    H
+  );
 
   return (
     <div ref={box} className="absolute inset-0 pointer-events-none">
@@ -358,7 +385,7 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
           tag.key === open ? (
             <PinnedRecord key={tag.key} target={tag.target} angle={tag.angle} at={at} box={box} onOpen={() => onOpen(tag.target)} onClose={() => setOpen(null)} />
           ) : (
-            <TagChip key={tag.key} target={tag.target} angle={tag.angle} at={at} onTap={() => setOpen(tag.key)} />
+            <TagChip key={tag.key} target={tag.target} angle={tag.angle} at={at} label={labels.get(tag.key) ?? { x: at.x, y: at.y - 46 }} onTap={() => setOpen(tag.key)} />
           )
         ) : null
       )}
@@ -467,20 +494,26 @@ function useObjectFacts(target: SightTarget) {
 }
 
 /** A small tag floating on an object: its name and the side in view. */
-const TagChip: React.FC<{ target: SightTarget; angle: number | null; at: { x: number; y: number }; onTap: () => void }> = ({ target, angle, at, onTap }) => {
+const TagChip: React.FC<{ target: SightTarget; angle: number | null; at: { x: number; y: number }; label: { x: number; y: number }; onTap: () => void }> = ({
+  target,
+  angle,
+  at,
+  label,
+  onTap,
+}) => {
   const f = useObjectFacts(target);
   const side = angle != null ? sideOf(angle, f.front) : null;
   return (
     <>
       <svg className="absolute inset-0 w-full h-full overflow-visible">
-        <line x1={at.x} y1={at.y} x2={at.x} y2={at.y - 46} stroke="#FFD60A" strokeWidth="1.5" />
+        <line x1={at.x} y1={at.y} x2={label.x} y2={label.y} stroke="#FFD60A" strokeWidth="1.5" />
         <circle cx={at.x} cy={at.y} r="5" fill="#FFD60A" stroke="white" strokeWidth="2" />
       </svg>
       <button
         dir="rtl"
         onClick={onTap}
         className="absolute pointer-events-auto -translate-x-1/2 -translate-y-full max-w-[180px] rounded-xl bg-black/65 backdrop-blur-md border border-white/25 px-2.5 py-1.5 text-start text-white shadow-xl"
-        style={{ left: at.x, top: at.y - 46 }}
+        style={{ left: label.x, top: label.y }}
       >
         <span className="block text-[12.5px] font-semibold leading-tight truncate">{f.title}</span>
         <span className="block text-[10.5px] text-white/70 truncate">
