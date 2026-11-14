@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Camera, Check, Download, Trash2 } from 'lucide-react';
+import { Camera, Check, Download, RotateCw, Square, Trash2 } from 'lucide-react';
 import { ALQAMI_ARTIFACTS } from '../../data/alqamiArtifacts';
 import { useMoonSearch } from '../../moon/useMoon';
 import { Embedder } from '../../recognize/embedder';
@@ -23,6 +23,10 @@ const SHOTS = [
   'القطعة كاملة · The whole object',
 ];
 const MIN_SHOTS = 5;
+// Walking around: a view is kept only when it looks new (below this similarity to every view kept so far).
+const NEW_VIEW = 0.92;
+const FULL_CIRCLE = 16;
+const MAX_SHOTS = 28;
 
 export interface TeachTarget {
   key: string;
@@ -58,6 +62,9 @@ export const TeachPanel: React.FC<{ videoRef: React.RefObject<HTMLVideoElement |
   const [taught, setTaught] = useState<EnrolledObject[]>([]);
   const [saved, setSaved] = useState<string | null>(null);
   const embedder = useRef<Embedder | null>(null);
+  const raw = useRef<Float32Array[]>([]);
+  const [walking, setWalking] = useState(false);
+  const walkingRef = useRef(false);
   const search = useMoonSearch(query.trim(), 'ar', 6);
 
   useEffect(() => {
@@ -70,28 +77,58 @@ export const TeachPanel: React.FC<{ videoRef: React.RefObject<HTMLVideoElement |
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const take = async () => {
+  // One view of the object in the centre square; with `onlyNew`, kept only if it is a side not seen yet.
+  const capture = async (onlyNew: boolean) => {
     const video = videoRef.current;
-    if (!video || !embedder.current || busy) return;
+    if (!video || !embedder.current) return false;
+    const canvas = captureSquare(video);
+    if (!canvas) return false;
+    const view = await embedder.current.embed(canvas);
+    if (!view) return false;
+    if (onlyNew && raw.current.some((v) => v.reduce((s, x, i) => s + x * view[i], 0) > NEW_VIEW)) return false;
+    const photo = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/jpeg', 0.85));
+    if (!photo) return false;
+    raw.current.push(view);
+    setShots((s) => [...s, { photo, view: encodeView(view), thumb: URL.createObjectURL(photo) }]);
+    return true;
+  };
+
+  const take = async () => {
+    if (busy) return;
     setBusy(true);
     try {
-      const canvas = captureSquare(video);
-      if (!canvas) return;
-      const view = await embedder.current.embed(canvas);
-      const photo = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/jpeg', 0.85));
-      if (view && photo) setShots((s) => [...s, { photo, view: encodeView(view), thumb: URL.createObjectURL(photo) }]);
+      await capture(false);
     } finally {
       setBusy(false);
     }
   };
 
+  // 360°: walk slowly around the object; every new side is captured by itself until the circle is full.
+  const walk = async () => {
+    if (walkingRef.current) {
+      walkingRef.current = false;
+      setWalking(false);
+      return;
+    }
+    walkingRef.current = true;
+    setWalking(true);
+    while (walkingRef.current && raw.current.length < MAX_SHOTS) {
+      await capture(true).catch(() => false);
+      await new Promise((r) => setTimeout(r, 350));
+    }
+    walkingRef.current = false;
+    setWalking(false);
+  };
+
   const save = async () => {
     if (!target || shots.length < MIN_SHOTS) return;
+    walkingRef.current = false;
     setBusy(true);
     await saveEnrolled({ key: target.key, title: target.title, views: shots.map((s) => s.view), photos: shots.map((s) => s.photo), savedAt: new Date().toISOString() });
     setTaught(await listEnrolled());
     setSaved(target.title);
     shots.forEach((s) => URL.revokeObjectURL(s.thumb));
+    raw.current = [];
     setShots([]);
     setTarget(null);
     setBusy(false);
@@ -165,6 +202,28 @@ export const TeachPanel: React.FC<{ videoRef: React.RefObject<HTMLVideoElement |
               تغيير · Change
             </button>
           </div>
+          <button
+            onClick={walk}
+            className={`w-full flex items-center gap-3 p-2.5 rounded-2xl border text-start transition active:scale-[0.99] ${walking ? 'bg-sky-300/20 border-sky-300/60' : 'bg-white/10 border-white/20'}`}
+          >
+            <span className="relative w-12 h-12 shrink-0">
+              <svg viewBox="0 0 48 48" className="w-12 h-12 -rotate-90">
+                <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="5" />
+                <circle cx="24" cy="24" r="20" fill="none" stroke="#7dd3fc" strokeWidth="5" strokeLinecap="round" strokeDasharray={`${Math.min(1, shots.length / FULL_CIRCLE) * 125.7} 125.7`} />
+              </svg>
+              <span className="absolute inset-0 flex items-center justify-center">{walking ? <Square className="w-4 h-4 fill-current" /> : <RotateCw className="w-5 h-5" />}</span>
+            </span>
+            <span className="flex-1 min-w-0">
+              <span className="block text-[13px] font-semibold">
+                {walking ? 'امشِ حولها ببطء… · Walk slowly around it…' : 'التقاط ٣٦٠° · 360° capture'}
+              </span>
+              <span className="block text-[11px] text-white/65">
+                {shots.length >= FULL_CIRCLE
+                  ? 'اكتملت الدائرة — احفظ · Circle complete — save'
+                  : `${shots.length}/${FULL_CIRCLE} جوانب · sides — اجعلها داخل المربع · keep it in the square`}
+              </span>
+            </span>
+          </button>
           <p className="text-[12px] text-white/80">
             {shots.length < SHOTS.length ? `الصورة ${shots.length + 1}/${SHOTS.length}: ${SHOTS[shots.length]}` : 'يكفي هذا · That is plenty'} — داخل المربع الأخضر، في ضوء المكان.
           </p>

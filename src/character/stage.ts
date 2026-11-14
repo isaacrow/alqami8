@@ -165,10 +165,8 @@ export class Stage {
       this.motion.update(dt, voice, Boolean(look) || this.mode === 'ar');
     }
     if (this.cloud && this.view === '4d') {
-      this.cloud.update(dt, voice.level);
-      // The capture cannot bend, so the whole figure turns a little towards the visitor.
-      const target = look ? THREE.MathUtils.clamp((look.x - 0.5) * 0.6, -0.3, 0.3) : 0;
-      this.cloud.object.rotation.y += (target - this.cloud.object.rotation.y) * Math.min(1, dt * 3);
+      // He looks at the visitor (in AR, at the phone), breathes, nods and talks like the bust.
+      this.cloud.update(dt, voice, look ?? (this.mode === 'ar' ? { x: 0.5, y: 0.45 } : null));
     }
     this.renderer.render(this.scene, this.camera);
   }
@@ -176,6 +174,7 @@ export class Stage {
   /** A short nod, when he notices a gesture. */
   nod() {
     this.motion?.nod();
+    this.cloud?.nod();
   }
 
   dispose() {
