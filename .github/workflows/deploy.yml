@@ -74,7 +74,10 @@ jobs:
         run: npm run build
         env:
           # Set once from a terminal: node scripts/set-gemini-key.mjs (the Jawahiri character talks with it).
-          VITE_GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # The key keeper (worker/token-worker.js; docs/security-token-worker.md). Once the TOKEN_URL variable is set,
+          # the Gemini key is no longer built into the site: visitors get short-lived tokens instead.
+          VITE_TOKEN_URL: ${{ vars.TOKEN_URL }}
+          VITE_GEMINI_KEY: ${{ vars.TOKEN_URL == '' && secrets.GEMINI_API_KEY || '' }}
           # His cloned-voice server (the owner's PC behind a tunnel); set by start-voice on that PC. Empty = Gemini voice.
           VITE_VOICE_SERVER: ${{ vars.VOICE_SERVER_URL }}
 

@@ -179,8 +179,35 @@ export class LiveConversation {
     this.connect(openingCue);
   }
 
+  /**
+   * The Live socket's address. With the key keeper (VITE_TOKEN_URL) and no key typed by the visitor, a short-lived
+   * token (one session, 30 min, locked to this model) is fetched for each connection, so the site's key never reaches
+   * the browser; tokens go to the "constrained" endpoint. Otherwise the key is used as before.
+   */
+  private async socketUrl(): Promise<string> {
+    const keeper = (import.meta.env.VITE_TOKEN_URL as string | undefined)?.replace(/\/+$/, '');
+    const own = this.settings.geminiKey && this.settings.geminiKey !== (import.meta.env.VITE_GEMINI_KEY || '');
+    if (keeper && !own) {
+      const res = await fetch(`${keeper}/token`);
+      if (!res.ok) throw new Error(`Key keeper ${res.status}`);
+      const { token } = (await res.json()) as { token: string };
+      return `${LIVE_URL}Constrained?access_token=${encodeURIComponent(token)}`;
+    }
+    return `${LIVE_URL}?key=${encodeURIComponent(this.settings.geminiKey)}`;
+  }
+
   private connect(openingCue?: string) {
-    const ws = new WebSocket(`${LIVE_URL}?key=${encodeURIComponent(this.settings.geminiKey)}`);
+    void this.socketUrl().then(
+      (url) => this.open(url, openingCue),
+      (e) => {
+        console.warn('Live connection:', e);
+        this.h.onState('error');
+      }
+    );
+  }
+
+  private open(url: string, openingCue?: string) {
+    const ws = new WebSocket(url);
     this.ws = ws;
     ws.onopen = () => {
       ws.send(

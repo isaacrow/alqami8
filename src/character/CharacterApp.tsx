@@ -507,6 +507,9 @@ const AboutSheet: React.FC<{ lang: Lang; onClose: () => void }> = ({ lang, onClo
             'This is an AI recreation built from his biography and poetry, and it can be wrong. The 3D bust was made from photographs; the voice is not his own unless stated.'
           )}
         </p>
+        <a href="privacy.html" className="inline-block text-[12px] text-[#FFD60A] underline">
+          {t('الخصوصية والذكاء الاصطناعي: ما يغادر هاتفك', 'Privacy and AI: what leaves your phone')}
+        </a>
       </div>
     </Sheet>
   );

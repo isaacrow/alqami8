@@ -403,7 +403,12 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
       {ask && ask.state !== 'busy' && (
         <div dir="rtl" className="absolute top-[calc(env(safe-area-inset-top)+68px)] inset-x-3 z-40 pointer-events-auto rounded-2xl bg-black/75 backdrop-blur-md border border-violet-300/40 text-white p-3 shadow-2xl">
           <div className="flex items-start gap-2">
-            <p className="flex-1 text-[10.5px] text-violet-200">✨ تخمين الذكاء الاصطناعي، ليس من الفهرس · AI guess, not from the catalogue</p>
+            <p className="flex-1 text-[10.5px] text-violet-200">
+              ✨ تخمين الذكاء الاصطناعي، ليس من الفهرس · AI guess, not from the catalogue ·{' '}
+              <a href="privacy.html" className="underline">
+                الخصوصية · Privacy
+              </a>
+            </p>
             <button onClick={() => setAsk(null)} aria-label="Close" className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center shrink-0">
               <X className="w-3.5 h-3.5" />
             </button>
