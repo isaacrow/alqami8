@@ -39,6 +39,11 @@ export interface AlqamiArtifact {
     ar: string;
     en: string;
   };
+  /**
+   * Pins on the parts of a page (from alqami3's scan mode): points from 0 to 1 on the scan in enrol/artifact__<id>/
+   * scan.jpg, which is also the page's tracking marker. Shown on the page in the camera once it is recognised.
+   */
+  pagePins?: Array<{ x: number; y: number; title: { ar: string; en: string }; text?: { ar: string; en: string } }>;
   /** The published Moon record this object is catalogued as (mooon.site); Moon is then the source of its details. */
   moonRecordId?: string;
   details: {
@@ -620,6 +625,13 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Majlis Library, Tehran (4662) • digital copy at the Library of al-Abbas Holy Shrine',
     },
     itemCode: 'MSS-QAB-1650',
+    pagePins: [
+      { x: 0.72, y: 0.22, title: { ar: "الترويسة المذهبة", en: "Illuminated headpiece" }, text: { ar: "ترويسة مزخرفة بالذهب واللازورد في رأس الصفحة الأولى؛ وفي الفهرسة: الورقة الأولى عليها زخرفة.", en: "A headpiece in gold and blue at the head of the first page; the record notes that the first leaf is illuminated." } },
+      { x: 0.72, y: 0.42, title: { ar: "البسملة", en: "The basmala" }, text: { ar: "«بسم الله الرحمن الرحيم» في خرطوشة سحابية مذهبة.", en: "The basmala in a gilded cloud-band cartouche." } },
+      { x: 0.67, y: 0.53, title: { ar: "أول النص", en: "Opening words" }, text: { ar: "«الحمد لله الواحد الأحد الصمد المصمود مهيمن كل وجود وجاعل كل موجود...»", en: "The incipit: praise of God, the One, the Eternal, Guardian of all being." } },
+      { x: 0.32, y: 0.38, title: { ar: "صفحة من المتن", en: "A page of the text" }, text: { ar: "متن الكتاب بخط النستعليق، 18 سطرًا في الصفحة، في جدول مسطّر.", en: "The text in Nastaʿlīq, 18 lines to the page, within ruled borders." } },
+      { x: 0.88, y: 0.82, title: { ar: "ختم مكتبة مجلس الشورى", en: "Majlis Library stamp" }, text: { ar: "ختم مكتبة مجلس الشورى في طهران، حيث تحفظ النسخة برقم 4662.", en: "Stamp of the Majlis Library, Tehran, which holds this copy as no. 4662." } },
+    ],
     image: '/images/model-model.png',
     model: {
       glb: '/models/model.glb',
@@ -680,6 +692,13 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Majlis Library, Tehran (4175) • digital copy at the Library of al-Abbas Holy Shrine',
     },
     itemCode: 'MSS-QUR-1009',
+    pagePins: [
+      { x: 0.72, y: 0.47, title: { ar: "سورة الفاتحة", en: "Surat al-Fatiha" }, text: { ar: "فاتحة الكتاب في الصفحة اليمنى، بخط النسخ على أرضية مذهبة.", en: "The Opening sura on the right-hand page, in Naskh on a gilded ground." } },
+      { x: 0.33, y: 0.48, title: { ar: "أول سورة البقرة", en: "Opening of Surat al-Baqara" }, text: { ar: "«الم ۝ ذلك الكتاب لا ريب فيه هدى للمتقين...»", en: "The first verses of al-Baqara on the left-hand page." } },
+      { x: 0.72, y: 0.3, title: { ar: "لوحة ذهبية", en: "Gold sura panel" }, text: { ar: "في صدر كل سورة لوحة ذهبية (من الفهرسة).", en: "Each sura opens with a gold panel (from the record)." } },
+      { x: 0.85, y: 0.62, title: { ar: "الإطار المزخرف", en: "Illuminated border" }, text: { ar: "الصفحتان الأولى والثانية مزخرفتان، والنسخة مجدولة بعدة ألوان.", en: "The first two pages are illuminated, and the copy is ruled in several colours." } },
+      { x: 0.915, y: 0.07, title: { ar: "ختم مكتبة مجلس الشورى", en: "Majlis Library stamp" }, text: { ar: "ختم مكتبة مجلس الشورى في طهران، حيث تحفظ النسخة برقم 4175.", en: "Stamp of the Majlis Library, Tehran, which holds this copy as no. 4175." } },
+    ],
     image: '/images/quran-1009ah-haydar-ali.jpg',
     model: {
       glb: '/models/quran-1009ah-haydar-ali.glb',
@@ -736,6 +755,12 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Library of al-Abbas Holy Shrine, Karbala',
     },
     itemCode: 'MSS-QUR-KUF',
+    pagePins: [
+      { x: 0.72, y: 0.385, title: { ar: "فاصلة آية مذهبة", en: "Gold verse separator" }, text: { ar: "فُصل بين الآيات بوردة أو ورقة منقوشة بماء الذهب.", en: "Verses are separated by a rosette or leaf in gold." } },
+      { x: 0.42, y: 0.17, title: { ar: "نقاط الإعراب الحمراء", en: "Red vowel dots" }, text: { ar: "النقاط الحمراء للإعراب أُدخلت لاحقًا، بعد تاريخ الكتابة.", en: "The red dots marking the vowels were added later than the writing." } },
+      { x: 0.5, y: 0.73, title: { ar: "آخر المجلد", en: "End of the volume" }, text: { ar: "«...مَا شَاءَ اللَّهُ لَا قُوَّةَ إِلَّا بِاللَّهِ إِن تَرَنِ» (الكهف 39).", en: "The volume ends at Surat al-Kahf 18:39." } },
+      { x: 0.36, y: 0.13, title: { ar: "ثقوب في الرق", en: "Holes in the parchment" }, text: { ar: "ثقوب وتآكل في الحواف من القِدم.", en: "Holes and worn edges from age." } },
+    ],
     image: '/images/kufic-quran-leaf.jpg',
     model: {
       glb: '/models/kufic-quran-leaf.glb',

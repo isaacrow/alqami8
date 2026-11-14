@@ -5,11 +5,16 @@
 // workflow restores public/nft/ from its cache, this script makes only what is new or whose cover changed (up to
 // MAX_NEW per run), and the nightly run fills in the rest. The app downloads one marker, for the record in view.
 //
+// Manuscript pages too: each enrol/artifact__<id>/scan.jpg becomes the marker "artifact:<id>", so the page can be
+// followed in the camera and its parts pinned (src/pin/PagePins.tsx, with the pins in alqamiArtifacts.ts).
+//
 //   node scripts/build-nft-targets.mjs
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { readdirSync } from 'node:fs';
+import sharp from 'sharp';
 import { tmpdir } from 'node:os';
 
 const MOON_API = 'https://gfbagczwhvxxstbfrfhu.supabase.co/functions/v1/make-server-49c0e13c';
@@ -37,10 +42,22 @@ for (let offset = 0; ; offset += 200) {
 const work = join(tmpdir(), 'alqami-nft');
 mkdirSync(work, { recursive: true });
 let made = 0, kept = 0, failed = 0;
-for (const id of records) {
-  const img = await fetch(`${COVERS}/${encodeURIComponent(id)}.jpg`);
-  if (!img.ok) continue;
-  const buf = Buffer.from(await img.arrayBuffer());
+// Page scans of built-in objects (a marker works best at about 1000 px across).
+const pages = existsSync('enrol')
+  ? readdirSync('enrol')
+      .filter((d) => d.startsWith('artifact__') && existsSync(join('enrol', d, 'scan.jpg')))
+      .map((d) => ({ id: d.replace('__', ':'), file: join('enrol', d, 'scan.jpg') }))
+  : [];
+// Pages first, so the per-run limit never leaves them out.
+const sources = [...pages, ...records.map((id) => ({ id }))];
+for (const { id, file: page } of sources) {
+  let buf;
+  if (page) buf = await sharp(page).resize(1000, 1000, { fit: 'inside' }).jpeg({ quality: 90 }).toBuffer();
+  else {
+    const img = await fetch(`${COVERS}/${encodeURIComponent(id)}.jpg`);
+    if (!img.ok) continue;
+    buf = Buffer.from(await img.arrayBuffer());
+  }
   const hash = createHash('sha1').update(buf).digest('hex').slice(0, 16);
   const file = fileOf(id);
   const present = ['iset', 'fset', 'fset3'].every((ext) => existsSync(join(out, `${file}.${ext}`)));
@@ -73,7 +90,7 @@ for (const id of records) {
 
 // Records withdrawn from Moon lose their markers.
 for (const id of Object.keys(manifest)) {
-  if (!records.includes(id)) {
+  if (!sources.some((x) => x.id === id)) {
     for (const ext of ['iset', 'fset', 'fset3']) rmSync(join(out, `${manifest[id].file}.${ext}`), { force: true });
     delete manifest[id];
   }

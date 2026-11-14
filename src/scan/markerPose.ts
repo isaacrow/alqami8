@@ -45,7 +45,7 @@ export function markerPose(corners: Array<[number, number]>, width: number, heig
 }
 
 /** 3×3 homography (row-major) mapping src → dst from 4 point pairs (DLT with h33 = 1). */
-function homography(src: Array<[number, number]>, dst: Array<[number, number]>): number[] | null {
+export function homography(src: Array<[number, number]>, dst: Array<[number, number]>): number[] | null {
   const A: number[][] = [];
   const b: number[] = [];
   for (let i = 0; i < 4; i++) {
