@@ -9,6 +9,7 @@ import { SightRecognizer, SightTarget } from '../../recognize/recognizer';
 import { HandGestures, HandGesture } from '../../scan/handGestures';
 import { SIDE_NAMES, sideNotes, sideOf } from '../../scan/sides';
 import { Direction, WorldPin } from '../../scan/worldPin';
+import { FlowTracker } from '../../scan/flowTracker';
 
 /**
  * Scan mode in a gallery: every catalogued object or statue in view gets its record floating on it.
@@ -82,6 +83,9 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
     }
   };
   const pin = useRef(new WorldPin());
+  // Follows each recognised object in the picture while the visitor walks (optical flow); the gyroscope pin is the
+  // fallback when the object is lost, until the next recognition re-seeds it.
+  const tracker = useRef(new FlowTracker());
   const hands = useRef<HandGestures | null>(null);
   const pointRequest = useRef<{ x: number; y: number } | null>(null);
 
@@ -101,10 +105,22 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
     return { x: nx * v.videoWidth * s - (v.videoWidth * s - W) / 2, y: ny * v.videoHeight * s - (v.videoHeight * s - H) / 2 };
   };
 
-  const pinTag = (key: string, target: SightTarget, angle: number | null, at: { x: number; y: number }) => {
+  const pinTag = (key: string, target: SightTarget, angle: number | null, at: Spot, force = false) => {
     const el = box.current;
+    const v = video.current;
     if (!el) return;
+    // Already followed in the picture: keep the tracked position (more exact than the looked-at square); only the
+    // side in view and the time it was last seen change.
+    if (!force && tracker.current.box(key)) {
+      setTags((prev) => prev.map((t) => (t.key === key ? { ...t, angle: angle ?? t.angle, seen: Date.now() } : t)));
+      return;
+    }
     const p = videoToBox(at.x, at.y);
+    // Follow the middle of what was looked at (the object, less the background around it).
+    if (v?.videoWidth) {
+      const half = (Math.min(v.videoWidth, v.videoHeight) * at.side * 0.32);
+      tracker.current.seed(key, v, { x: at.x, y: at.y, hw: half / v.videoWidth, hh: half / v.videoHeight });
+    }
     const direction = pin.current.directionAt(p.x / el.clientWidth, p.y / el.clientHeight, el.clientWidth, el.clientHeight);
     setTags((prev) => {
       const others = prev.filter((t) => t.key !== key);
@@ -217,7 +233,7 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
             else cellHits.delete(cell);
           } else if (clear) {
             // The visitor pointed here, or a bust's face: a clear answer counts at once.
-            pinTag(best.key, best.target, best.angle, spot);
+            pinTag(best.key, best.target, best.angle, spot, kind === 'point');
             if (kind === 'point') setOpen(best.key);
           } else if (kind === 'point') flash('؟');
           if (tagsRef.current.length) onCandidates([]);
@@ -243,6 +259,7 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
       disposed = true;
       window.clearTimeout(timer);
       pin.current.stop();
+      tracker.current.clear();
       faceDetector?.close();
       void recognizer.dispose();
       setTags([]);
@@ -257,8 +274,20 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
     if (!active) return;
     let raf = 0;
     const frame = () => {
-      if (tagsRef.current.length) setFrame((n) => n + 1);
       const v = video.current;
+      if (tagsRef.current.length) {
+        if (v) tracker.current.update(v);
+        // Keep each tag's room direction current from the tracker, so the gyroscope takes over from the latest spot.
+        const el = box.current;
+        if (el)
+          for (const t of tagsRef.current) {
+            const b = tracker.current.box(t.key);
+            if (!b) continue;
+            const p = videoToBox(b.x, b.y);
+            t.direction = pin.current.directionAt(p.x / el.clientWidth, p.y / el.clientHeight, el.clientWidth, el.clientHeight);
+          }
+        setFrame((n) => n + 1);
+      }
       if (hands.current && v) {
         hands.current.update(v);
         setPointer(hands.current.pointer ? videoToBox(hands.current.pointer.x, hands.current.pointer.y) : null);
@@ -310,7 +339,14 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
   const el = box.current;
   const W = el?.clientWidth ?? 0;
   const H = el?.clientHeight ?? 0;
-  const placed = tags.map((t) => ({ tag: t, at: W ? pin.current.project(t.direction, W, H) : null }));
+  const placed = tags.map((t) => {
+    const b = tracker.current.box(t.key);
+    if (b && W) {
+      const p = videoToBox(b.x, b.y);
+      return { tag: t, at: { x: p.x, y: p.y, onScreen: p.x >= -20 && p.x <= W + 20 && p.y >= -20 && p.y <= H + 20 } };
+    }
+    return { tag: t, at: W ? pin.current.project(t.direction, W, H) : null };
+  });
   const offScreen = placed.filter((p) => !p.at || !p.at.onScreen).length;
 
   return (
