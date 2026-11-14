@@ -35,6 +35,12 @@ export interface StatueARProps {
   onCandidates: (candidates: SightTarget[]) => void;
   /** `reason` says why sight is off (shown to the visitor, so a failure on a phone can be reported). */
   onStatus: (status: 'loading' | 'ready' | 'off', reason?: string) => void;
+  /**
+   * Simple mode (phones): no tool buttons; when one object is found, its record opens on it by itself (its card
+   * floats on the object with a line to it); several objects each get a label. `hint` shows until something is found.
+   */
+  simple?: boolean;
+  hint?: string;
 }
 
 interface Tag {
@@ -60,12 +66,14 @@ const SWEEP: Spot[] = [
   { x: 0.7, y: 0.78, side: 0.55 },
 ];
 
-export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCandidates, onStatus }) => {
+export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCandidates, onStatus, simple = false, hint }) => {
   const box = useRef<HTMLDivElement>(null);
   const [tags, setTags] = useState<Tag[]>([]);
   const tagsRef = useRef<Tag[]>([]);
   tagsRef.current = tags;
   const [open, setOpen] = useState<string | null>(null);
+  // Simple mode: records the visitor closed do not open by themselves again.
+  const closed = useRef(new Set<string>());
   const openRef = useRef<string | null>(null);
   openRef.current = open;
   const [, setFrame] = useState(0);
@@ -371,9 +379,16 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
     return { tag: t, at: W ? pin.current.project(t.direction, W, H) : null };
   });
   const offScreen = placed.filter((p) => !p.at || !p.at.onScreen).length;
+  // Simple mode: the only object in view shows its record on it without a tap.
+  const inView = placed.filter((p) => p.at?.onScreen);
+  const shown = open ?? (simple && inView.length === 1 && !closed.current.has(inView[0].tag.key) ? inView[0].tag.key : null);
+  const close = (key: string) => {
+    closed.current.add(key);
+    setOpen(null);
+  };
   // Labels of the tags (not the open card) spread so none covers another.
   const labels = layout.current.place(
-    placed.filter((p) => p.at?.onScreen && p.tag.key !== open).map((p) => ({ key: p.tag.key, x: p.at!.x, y: p.at!.y })),
+    placed.filter((p) => p.at?.onScreen && p.tag.key !== shown).map((p) => ({ key: p.tag.key, x: p.at!.x, y: p.at!.y })),
     W,
     H
   );
@@ -382,8 +397,8 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
     <div ref={box} className="absolute inset-0 pointer-events-none">
       {placed.map(({ tag, at }) =>
         at && at.onScreen ? (
-          tag.key === open ? (
-            <PinnedRecord key={tag.key} target={tag.target} angle={tag.angle} at={at} box={box} onOpen={() => onOpen(tag.target)} onClose={() => setOpen(null)} />
+          tag.key === shown ? (
+            <PinnedRecord key={tag.key} target={tag.target} angle={tag.angle} at={at} box={box} onOpen={() => onOpen(tag.target)} onClose={() => close(tag.key)} />
           ) : (
             <TagChip key={tag.key} target={tag.target} angle={tag.angle} at={at} label={labels.get(tag.key) ?? { x: at.x, y: at.y - 46 }} onTap={() => setOpen(tag.key)} />
           )
@@ -396,10 +411,15 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
           </span>
         </div>
       )}
+      {simple && hint && !inView.length && (
+        <div className="absolute bottom-[calc(env(safe-area-inset-bottom)+28px)] inset-x-0 flex justify-center">
+          <span className="px-4 py-2 rounded-full bg-black/55 backdrop-blur-md text-white/90 text-[12.5px]">{hint}</span>
+        </div>
+      )}
       {pointer && <span className="absolute w-5 h-5 -ml-2.5 -mt-2.5 rounded-full border-2 border-[#FFD60A] bg-[#FFD60A]/30" style={{ left: pointer.x, top: pointer.y }} />}
       {toast && <span className="absolute top-1/3 inset-x-0 text-center text-4xl">{toast}</span>}
 
-      <div className="absolute top-[calc(env(safe-area-inset-top)+104px)] end-3 flex flex-col items-end gap-2 pointer-events-auto">
+      <div className={`absolute top-[calc(env(safe-area-inset-top)+104px)] end-3 flex-col items-end gap-2 pointer-events-auto ${simple ? 'hidden' : 'flex'}`}>
         <button
           onClick={askAI}
           disabled={ask?.state === 'busy'}
