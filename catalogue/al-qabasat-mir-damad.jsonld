@@ -57,11 +57,11 @@
         "@type": "bf:Summary",
         "rdfs:label": [
           {
-            "@value": "كتاب فلسفي كلامي للميرداماد يناقش حدوث العالم وقدمه ومسألة الدهر والزمان، النسخة مجدولة ومذهبة وغلافها جلد أحمر أصيل بنظام التعقيبات التاريخية.",
+            "@value": "كتاب في الفلسفة الإسلامية للميرداماد في حدوث العالم والدهر والزمان. أوله: «الحمد لله الواحد الأحد الصمد المصمود مهيمن كل وجود وجاعل كل موجود...». ذكره الطهراني في الذريعة إلى تصانيف الشيعة (17: 32، رقم 183).",
             "@language": "ar"
           },
           {
-            "@value": "Theological and philosophical treatise by Mir Damad discussing cosmos origination, time and eternity (Dahr), in gold-ruled margins and red leather binding.",
+            "@value": "A work of Islamic philosophy by Mir Damad on the origination of the world, perpetuity (dahr) and time. Listed in al-Dhari'a ila Tasanif al-Shi'a (vol. 17, p. 32, no. 183).",
             "@language": "en"
           }
         ]
@@ -105,11 +105,11 @@
       ],
       "bf:responsibilityStatement": [
         {
-          "@value": "الميرداماد محمد باقر الحسيني الإسترآبادي",
+          "@value": "الميرداماد محمد باقر بن محمد الحسيني الإسترآبادي (ت 1041 هـ)",
           "@language": "ar"
         },
         {
-          "@value": "Mir Damad (d. 1040 AH)",
+          "@value": "Mir Damad, Muhammad Baqir ibn Muhammad al-Husayni al-Astarabadi (d. 1041 AH)",
           "@language": "en"
         }
       ],
@@ -121,7 +121,7 @@
         "@id": "http://id.loc.gov/vocabulary/carriers/nc",
         "rdfs:label": "volume"
       },
-      "bf:dimensions": "26.0 × 17.5 سم (344 ورقة)",
+      "bf:dimensions": "344 ورقة (18 سطرًا)",
       "bf:identifiedBy": {
         "@type": "bf:Local",
         "rdf:value": "ALQ-MS-003",
@@ -136,11 +136,11 @@
           "bf:noteType": "material",
           "rdfs:label": [
             {
-              "@value": "ورق قطني، حبر أسود، خط النستعليق، جلد أحمر",
+              "@value": "ورق، حبر أسود، خط النستعليق",
               "@language": "ar"
             },
             {
-              "@value": "Cotton paper, black ink, Nastaliq script, red leather",
+              "@value": "Paper, black ink, Nasta'liq script",
               "@language": "en"
             }
           ]
@@ -150,11 +150,39 @@
           "bf:noteType": "condition",
           "rdfs:label": [
             {
-              "@value": "نادرة وسليمة، مجدولة ومذهبة والغلاف جلد أحمر ممتاز",
+              "@value": "النسخة مجدولة ومرتبة بنظام التعقيبات، والورقة الأولى عليها زخرفة.",
               "@language": "ar"
             },
             {
-              "@value": "Gold-ruled margins, intact original red leather binding",
+              "@value": "Ruled, with catchwords; the first leaf is illuminated.",
+              "@language": "en"
+            }
+          ]
+        },
+        {
+          "@type": "bf:Note",
+          "bf:noteType": "binding",
+          "rdfs:label": [
+            {
+              "@value": "جلد أحمر",
+              "@language": "ar"
+            },
+            {
+              "@value": "Red leather",
+              "@language": "en"
+            }
+          ]
+        },
+        {
+          "@type": "bf:Note",
+          "bf:noteType": "ownership marks",
+          "rdfs:label": [
+            {
+              "@value": "في أولها مجموعة أختام",
+              "@language": "ar"
+            },
+            {
+              "@value": "A group of seals at the beginning",
               "@language": "en"
             }
           ]
@@ -178,11 +206,11 @@
         "@type": "bf:Agent",
         "rdfs:label": [
           {
-            "@value": "مكتبة مجلس الشورى (4662) • علقمي",
+            "@value": "مكتبة مجلس الشورى، طهران (4662) • مصورة في مكتبة العتبة العباسية المقدسة",
             "@language": "ar"
           },
           {
-            "@value": "Majlis Library Tehran (4662) • Alqami",
+            "@value": "Majlis Library, Tehran (4662) • digital copy at the Library of al-Abbas Holy Shrine",
             "@language": "en"
           }
         ]

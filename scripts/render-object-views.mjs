@@ -36,7 +36,7 @@ function builtInObjects() {
   ids.forEach((m, i) => {
     const block = src.slice(m.index, ids[i + 1]?.index ?? src.length);
     const glb = /\bglb: '([^']+)'/.exec(block)?.[1];
-    if (glb) out.push({ key: `artifact:${m[1]}`, url: glb.replace(/^\.?\//, '/') });
+    if (glb) out.push({ key: `artifact:${m[1]}`, url: glb.replace(/^\.?\//, '/'), flat: /\bflat: true/.test(block) });
   });
   return out;
 }
@@ -156,7 +156,9 @@ let done = 0;
 for (const t of targets) {
   const url = t.url.startsWith('/') ? `http://localhost:${port}${t.url}` : t.url;
   try {
-    const views = await page.evaluate(([u, az, el]) => window.renderViews(u, az, el), [url, AZIMUTHS, ELEVATIONS]);
+    // A leaf or an open book only from the front (within 60° of it): its plain back looks like any paper.
+    const azimuths = t.flat ? AZIMUTHS.filter((a) => Math.min(a % 360, 360 - (a % 360)) <= 60) : AZIMUTHS;
+    const views = await page.evaluate(([u, az, el]) => window.renderViews(u, az, el), [url, azimuths, ELEVATIONS]);
     const dir = join(OUT, t.key.replace(':', '__'));
     mkdirSync(dir, { recursive: true });
     for (const v of views) writeFileSync(join(dir, `az${String(v.az).padStart(3, '0')}_el${String(v.el).padStart(2, '0')}.jpg`), Buffer.from(v.data.split(',')[1], 'base64'));
