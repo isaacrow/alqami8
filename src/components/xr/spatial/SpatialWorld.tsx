@@ -566,7 +566,7 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
 
     // Warm fireplace living-room panoramic backdrop (Image 4)
     const roomTexLoader = new THREE.TextureLoader();
-    roomTexLoader.load(assetUrl('images/custom_room_bg.png'), (tex) => {
+    roomTexLoader.load(assetUrl('images/custom_room_bg.webp'), (tex) => {
       tex.colorSpace = THREE.SRGBColorSpace;
       const roomGeo = new THREE.SphereGeometry(12000, 48, 32);
       const roomMat = new THREE.MeshBasicMaterial({

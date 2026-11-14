@@ -55,7 +55,9 @@ const offlineManifest: Plugin = {
         const path = rel ? `${rel}/${entry.name}` : entry.name;
         if (entry.isDirectory()) {
           if (path !== 'mobile' && path !== 'records') await walk(resolve(dir, entry.name), path);
-        } else if (!path.endsWith('.map') && path !== 'offline-manifest.json' && path !== 'CNAME') {
+          // ort-wasm*.wasm (2 x ~27 MB) are only used by bench.html's lip-model test: recognition loads its ONNX engine
+          // through Transformers.js (from jsDelivr, kept in its own cache), so "Save for offline" leaves them out.
+        } else if (!path.endsWith('.map') && !/\/ort-wasm[^/]*\.wasm$/.test(path) && path !== 'offline-manifest.json' && path !== 'CNAME') {
           files.push({ path, bytes: (await stat(resolve(dir, entry.name))).size });
         }
       }

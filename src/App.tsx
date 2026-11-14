@@ -40,7 +40,8 @@ const RealARXREngine = lazy(() =>
 const AlqamiSpatialApp = lazy(() =>
   import('./components/apps/AlqamiSpatialApp').then((module) => ({ default: module.AlqamiSpatialApp }))
 );
-import { ChromaticWaveWallpaper } from './components/effects/ChromaticWaveWallpaper';
+// three.js only when the wave wallpaper is chosen, not on the first screen.
+const ChromaticWaveWallpaper = lazy(() => import('./components/effects/ChromaticWaveWallpaper').then((m) => ({ default: m.ChromaticWaveWallpaper })));
 import { PhoneCameraButton } from './remoteCam/PhoneCameraButton';
 
 const IkeaSpatialApp = lazy(() =>
@@ -327,7 +328,7 @@ export function App() {
   });
 
   useEffect(() => {
-    const bgUrl = assetUrl('images/custom_room_bg.png');
+    const bgUrl = assetUrl('images/custom_room_bg.webp');
     document.body.style.backgroundImage = `url("${bgUrl}")`;
     document.body.style.backgroundRepeat = 'no-repeat';
     document.body.style.backgroundPosition = 'center center';
@@ -571,7 +572,7 @@ export function App() {
   // Environment backdrop selection (shown when the camera view is off).
   // Only the lounge uses a picture (the others are drawn); its old file under reference/ was never published.
   const environmentBackdrops: Partial<Record<EnvironmentId, string>> = {
-    'cafe-lounge': assetUrl('images/custom_room_bg.png'),
+    'cafe-lounge': assetUrl('images/custom_room_bg.webp'),
   };
 
   const totalYaw = xrState.headRotation.yaw + cameraLook.yaw;
@@ -900,7 +901,7 @@ export function App() {
           {currentEnv === 'living-room' && (
             <img
               data-room-bg="true"
-              src={assetUrl('images/custom_room_bg.png')}
+              src={assetUrl('images/custom_room_bg.webp')}
               alt="Warm Living Room with Fireplace"
               className="w-full h-full object-cover brightness-[0.92]"
             />
@@ -946,7 +947,9 @@ export function App() {
           )}
           {currentEnv === 'chromatic-wave' && (
             <div data-room-bg="true" className="w-full h-full relative overflow-hidden">
-              <ChromaticWaveWallpaper />
+              <Suspense fallback={null}>
+                <ChromaticWaveWallpaper />
+              </Suspense>
             </div>
           )}
 

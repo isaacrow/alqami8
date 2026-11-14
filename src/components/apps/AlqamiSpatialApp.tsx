@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -26,7 +26,15 @@ import { AlqamiArtifact } from '../../data/alqamiArtifacts';
 import { AlqamiArtifact3DCanvas } from '../three/AlqamiArtifact3DCanvas';
 import { AlqamiDuoFoldTransition } from '../effects/AlqamiDuoFoldTransition';
 import { AlqamiDuoFoldShowcase } from '../effects/AlqamiDuoFoldShowcase';
-import { AlqamiARKitObjectScanner } from './AlqamiARKitObjectScanner';
+// The scanner (recognition, image tracking) loads only when it is opened.
+/** While the scanner's code arrives: the camera screen's black, with a quiet note (never a blank flash). */
+const ScannerLoading: React.FC = () => (
+  <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center text-white/75 text-[13px]" role="status">
+    <span className="w-5 h-5 me-2 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+    يفتح الماسح… · Opening the scanner…
+  </div>
+);
+const AlqamiARKitObjectScanner = lazy(() => import('./AlqamiARKitObjectScanner').then((m) => ({ default: m.AlqamiARKitObjectScanner })));
 import { spatialSound } from '../../utils/spatialSound';
 import { assetUrl } from '../../utils/assetUrl';
 import { MoonRecordPanel } from '../moon/MoonRecordCard';
@@ -487,7 +495,9 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
         </div>
       )}
 
-      {/* Apple ARKit 3D Object Scanner & RDF Recall Studio */}
+      {/* The scanner: recognition, codes, Teach, Add record */}
+      {isScanModalOpen && (
+      <Suspense fallback={<ScannerLoading />}>
       <AlqamiARKitObjectScanner
         isOpen={isScanModalOpen}
         onClose={() => setIsScanModalOpen(false)}
@@ -502,6 +512,8 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
           transitionToView('detail');
         }}
       />
+      </Suspense>
+      )}
 
       {moonSheetId && <MoonRecordSheet recordId={moonSheetId} lang={lang} onClose={() => setMoonSheetId(null)} />}
 
