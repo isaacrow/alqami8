@@ -20,7 +20,10 @@ import {
   LayoutGrid,
   QrCode,
   Copy,
+  Smartphone,
+  ScanLine,
 } from 'lucide-react';
+import { activePhone } from '../../remoteCam/phoneCamera';
 import QRCode from 'qrcode';
 import { AlqamiArtifact } from '../../data/alqamiArtifacts';
 import { AlqamiArtifact3DCanvas } from '../three/AlqamiArtifact3DCanvas';
@@ -197,6 +200,14 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   const [isClosingPopOut, setIsClosingPopOut] = useState(false);
   const [isDissolvingForAR, setIsDissolvingForAR] = useState(false);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+  // A phone paired as the PC's camera (📱 in the top controls): the object page can show the 3D object on it.
+  const [phoneOn, setPhoneOn] = useState(() => Boolean(activePhone?.connected));
+  const [sentToPhone, setSentToPhone] = useState(false);
+  useEffect(() => {
+    const on = (e: Event) => setPhoneOn(Boolean((e as CustomEvent<{ connected: boolean }>).detail?.connected));
+    window.addEventListener('alqami:phone', on);
+    return () => window.removeEventListener('alqami:phone', on);
+  }, []);
   const [quantity, setQuantity] = useState(1);
   const [liked, setLiked] = useState<Record<string, boolean>>(() => ({
     'ALQ-TAB-004': true,
@@ -1128,6 +1139,37 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                 >
                   <QrCode className="w-5 h-5 text-amber-300" />
                 </button>
+
+                {/* With a phone paired as the camera: show this object on it (3D and AR), or scan with it. */}
+                {phoneOn && (
+                  <>
+                    <button
+                      onClick={() => {
+                        spatialSound.playPinchTap();
+                        if (activePhone?.show(currentArtifact.model.glb, isAr ? currentArtifact.title.ar : currentArtifact.title.en)) {
+                          setSentToPhone(true);
+                          window.setTimeout(() => setSentToPhone(false), 1800);
+                        }
+                      }}
+                      className="vision-btn h-10 px-3 rounded-full bg-emerald-400 text-black text-[12.5px] font-semibold flex items-center gap-1.5 shadow-md active:scale-95 whitespace-nowrap"
+                      title={isAr ? 'اعرض هذه القطعة على الهاتف المتصل' : 'Show this object on the paired phone'}
+                    >
+                      <Smartphone className="w-4 h-4" />
+                      {sentToPhone ? (isAr ? 'أُرسلت ✓' : 'Sent ✓') : isAr ? 'على الهاتف' : 'On phone'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        spatialSound.playPinchTap();
+                        setIsScanModalOpen(true);
+                      }}
+                      className="vision-btn w-10 h-10 rounded-full bg-emerald-400/25 border border-emerald-300/60 text-emerald-200 flex items-center justify-center shadow-md active:scale-95"
+                      title={isAr ? 'امسح بكاميرا الهاتف — تظهر هنا مباشرة' : 'Scan with the phone camera, shown live here'}
+                      aria-label="Scan with phone"
+                    >
+                      <ScanLine className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
               </div>
 
               <div className="flex items-center gap-2">

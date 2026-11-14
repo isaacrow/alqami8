@@ -41,6 +41,9 @@ import { StatueAR } from '../scan/StatueAR';
 import { publishedRecords } from '../../moon/moonObjects';
 import { setScannerOpen } from '../../utils/scannerState';
 import { TeachPanel, TeachTarget } from '../scan/TeachPanel';
+import { askAboutFrame } from '../../scan/askGemini';
+import { loadSettings } from '../../character/liveVoice';
+import type { MoonRecord } from '../../moon/moonApi';
 import { CoverPose, CoverTracker } from '../../pin/coverTracker';
 import { PinnedCard } from '../../pin/PinnedCard';
 
@@ -66,6 +69,30 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   // Detection state
   const referenceObjects = getAllReferenceObjects();
   const [teachPreset, setTeachPreset] = useState<TeachTarget | null>(null);
+  // One-step cataloguing: one photo, the AI fills the record, the curator checks it.
+  const [autoFill, setAutoFill] = useState<{ state: 'idle' | 'busy' | 'done' | 'error'; found: MoonRecord[] }>({ state: 'idle', found: [] });
+  const fillFromPhoto = async () => {
+    const v = videoRef.current;
+    if (!v?.videoWidth) return;
+    setAutoFill({ state: 'busy', found: [] });
+    try {
+      const a = await askAboutFrame(v, loadSettings().geminiKey, 'ar');
+      setCustomForm((p) => ({
+        ...p,
+        scanName: a.nameEn || a.name || p.scanName,
+        titleAr: a.name || p.titleAr,
+        titleEn: a.nameEn || p.titleEn,
+        creatorAr: a.maker || a.culture || p.creatorAr,
+        date: a.period || p.date,
+        materialsAr: a.material || p.materialsAr,
+        dimensions: a.dimensions || p.dimensions,
+        transcriptionAr: a.description || p.transcriptionAr,
+      }));
+      setAutoFill({ state: 'done', found: a.records });
+    } catch {
+      setAutoFill({ state: 'error', found: [] });
+    }
+  };
   const [selectedTargetIndex, setSelectedTargetIndex] = useState(0);
   const [activeRdfTab, setActiveRdfTab] = useState<'summary' | 'transcription' | 'turtle' | 'bibframe'>('summary');
   const [scanMessage, setScanMessage] = useState('وجّه الكاميرا نحو ملصق QR أو باركود الكتاب · Point at a QR label or a book barcode');
@@ -754,10 +781,40 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
             dir="rtl"
             className="p-4 rounded-2xl vision-glass border border-white/25 bg-[#0e1628]/95 space-y-3 max-h-[38vh] overflow-y-auto custom-scrollbar"
           >
-            <div className="flex items-center justify-between border-b border-white/10 pb-2">
-              <h4 className="text-xs font-bold text-amber-300">إضافة سجل بيانات (RDF / Turtle)</h4>
-              <span className="text-[10px] text-white/50">Metadata only • No 3D reconstruction</span>
-            </div>
+            {/* Step 1: one photo, the AI fills the record. Step 2: check. Step 3: save, then walk around it (360°). */}
+            <button
+              onClick={fillFromPhoto}
+              disabled={autoFill.state === 'busy'}
+              className="w-full flex items-center gap-3 p-3 rounded-2xl bg-[#FFD60A] text-black text-start active:scale-[0.99] disabled:opacity-70"
+            >
+              <span className="w-11 h-11 rounded-full bg-black/10 flex items-center justify-center text-[22px] shrink-0">{autoFill.state === 'busy' ? '…' : '📸'}</span>
+              <span className="flex-1">
+                <span className="block text-[14px] font-bold">{autoFill.state === 'busy' ? 'يقرأ القطعة… · Reading the object…' : 'صوّرها واملأ السجل تلقائياً'}</span>
+                <span className="block text-[11px] opacity-75">اجعل القطعة في المربع ثم اضغط · Frame it, tap: the AI fills the fields, you check them</span>
+              </span>
+            </button>
+            {autoFill.state === 'done' && (
+              <p className="text-[11px] text-emerald-300">✓ مُلئ بالذكاء الاصطناعي — راجع الحقول ثم احفظ · Filled by AI: check, then save</p>
+            )}
+            {autoFill.state === 'error' && <p className="text-[11px] text-rose-300">تعذّر الملء التلقائي · Could not fill automatically: fill by hand</p>}
+            {autoFill.found.length > 0 && (
+              <div className="p-2.5 rounded-xl bg-white/8 border border-white/15 space-y-1.5">
+                <p className="text-[11px] text-white/70">موجودة في الفهرس؟ علّمها مباشرة · Already in the catalogue? Teach it instead:</p>
+                {autoFill.found.map((r) => (
+                  <button
+                    key={r.id}
+                    dir="auto"
+                    onClick={() => {
+                      setTeachPreset({ key: `moon:${r.id}`, title: r.title });
+                      setActiveMode('teach');
+                    }}
+                    className="block w-full text-start truncate px-3 py-1.5 rounded-full bg-white/12 text-[12px]"
+                  >
+                    {r.title}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
               <div>

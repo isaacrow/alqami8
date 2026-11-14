@@ -21,12 +21,20 @@ type Orientation = { t: 'o'; a: number | null; b: number | null; g: number | nul
 type Motion = { t: 'm'; r: [number, number, number] | null; ag: [number, number, number] | null; i: number };
 
 /** The PC side: waits for a phone, then lends its camera and sensors to the page. */
+/** The PC's connection, for other parts of the app ("View on phone"); events tell them when a phone (dis)connects. */
+export let activePhone: PhoneCameraHost | null = null;
+const announce = () => window.dispatchEvent(new CustomEvent('alqami:phone', { detail: { connected: Boolean(activePhone?.connected) } }));
+
+/** What the PC can ask the phone to show. */
+export type PhoneCommand = { t: 'show'; model: string; title: string } | { t: 'hide' };
+
 export class PhoneCameraHost {
   private peer: PeerT | null = null;
   private stream: MediaStream | null = null;
   private original = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
   private call: MediaConnection | null = null;
   private conn: DataConnection | null = null;
+  private cmd: DataConnection | null = null;
 
   constructor(private onStatus: (s: HostStatus) => void) {}
 
@@ -48,6 +56,8 @@ export class PhoneCameraHost {
       call.on('stream', (s) => {
         this.stream = s;
         this.install();
+        activePhone = this;
+        announce();
         const track = s.getVideoTracks()[0];
         const set = track?.getSettings();
         this.onStatus({ state: 'connected', label: set?.width ? `${set.width}×${set.height}` : 'camera' });
@@ -55,6 +65,12 @@ export class PhoneCameraHost {
       call.on('close', () => this.lost());
     });
     peer.on('connection', (conn) => {
+      // Two channels from the phone: sensors (fast, may drop a reading) and commands (reliable).
+      if (conn.label === 'cmd') {
+        this.cmd?.close();
+        this.cmd = conn;
+        return;
+      }
       this.conn?.close();
       this.conn = conn;
       conn.on('data', (d) => this.replay(d as Orientation | Motion));
@@ -92,8 +108,17 @@ export class PhoneCameraHost {
     }
   }
 
+  /** Show a 3D object on the phone (it opens over the camera page, with AR in the visitor's room). */
+  show(model: string, title: string) {
+    if (!this.cmd?.open) return false;
+    this.cmd.send({ t: 'show', model: new URL(model, location.href).href, title } satisfies PhoneCommand);
+    return true;
+  }
+
   private lost() {
     this.stream = null;
+    if (activePhone === this) activePhone = null;
+    announce();
     navigator.mediaDevices.getUserMedia = this.original;
     if (this.peer && !this.peer.destroyed) this.onStatus({ state: 'waiting', url: `${appUrl()}?camera=${this.peer.id}` });
   }
@@ -101,6 +126,9 @@ export class PhoneCameraHost {
   stop() {
     navigator.mediaDevices.getUserMedia = this.original;
     this.stream = null;
+    if (activePhone === this) activePhone = null;
+    announce();
+    this.cmd?.close();
     this.call?.close();
     this.conn?.close();
     this.peer?.destroy();
@@ -109,7 +137,12 @@ export class PhoneCameraHost {
 }
 
 /** The phone side: sends its back camera and its motion to the PC with this ID. Call from a tap (iPhone asks). */
-export async function sendPhoneCamera(hostId: string, video: HTMLVideoElement, onStatus: (s: string) => void): Promise<() => void> {
+export async function sendPhoneCamera(
+  hostId: string,
+  video: HTMLVideoElement,
+  onStatus: (s: string) => void,
+  onCommand: (c: PhoneCommand) => void = () => undefined
+): Promise<() => void> {
   const { requestMotionPermission } = await import('../components/xr/spatial/motionPermission');
   const motionOk = await requestMotionPermission().catch(() => false);
   const stream = await navigator.mediaDevices.getUserMedia({
@@ -134,6 +167,8 @@ export async function sendPhoneCamera(hostId: string, video: HTMLVideoElement, o
     onStatus('يتصل… · Connecting…');
     const call = peer.call(hostId, stream);
     const conn = peer.connect(hostId, { reliable: false, serialization: 'json' });
+    const cmd = peer.connect(hostId, { reliable: true, serialization: 'json', label: 'cmd' });
+    cmd.on('data', (d) => onCommand(d as PhoneCommand));
     call.on('close', () => onStatus('انقطع الاتصال · Disconnected'));
     conn.on('open', () => {
       onStatus(motionOk ? 'متصل — الكاميرا والحركة تُرسلان · Connected: camera and motion' : 'متصل — الكاميرا فقط · Connected: camera only');
