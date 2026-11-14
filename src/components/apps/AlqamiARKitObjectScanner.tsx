@@ -38,6 +38,8 @@ import { CodeReader } from '../../scan/codeReader';
 import { resolveCode } from '../../scan/resolveCode';
 import { SightTarget } from '../../recognize/recognizer';
 import { StatueAR } from '../scan/StatueAR';
+import { QrModelAR } from '../scan/QrModelAR';
+import { listEnrolled } from '../../recognize/localEnrol';
 import { publishedRecords } from '../../moon/moonObjects';
 import { setScannerOpen } from '../../utils/scannerState';
 import { TeachPanel, TeachTarget } from '../scan/TeachPanel';
@@ -98,6 +100,12 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   const [scanMessage, setScanMessage] = useState('وجّه الكاميرا نحو ملصق QR أو باركود الكتاب · Point at a QR label or a book barcode');
   const [copiedRdf, setCopiedRdf] = useState(false);
   const [isLockedOnObject, setIsLockedOnObject] = useState(false);
+  // The QR label that was recognised: its object's 3D model then stands on it (marker AR, QrModelAR).
+  const [lockedCode, setLockedCode] = useState<string | null>(null);
+  // With a 3D model on the QR, the card starts as a slim bar so the model stays in view; a tap opens the details.
+  const [cardOpen, setCardOpen] = useState(false);
+  useEffect(() => setCardOpen(false), [lockedCode]);
+  const [qrModel, setQrModel] = useState<string | null>(null);
 
   // A recognised Moon record whose cover has a tracking marker is pinned beside the cover; otherwise (or if the cover
   // is not found within PIN_WAIT_MS) its full card opens as before.
@@ -182,6 +190,27 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   const streamRef = useRef<MediaStream | null>(null);
 
   const activeTarget = referenceObjects[selectedTargetIndex] || referenceObjects[0];
+  // The 3D model to stand on a recognised QR: the object's own 3D scan, else its catalogue model.
+  useEffect(() => {
+    if (!lockedCode) return setQrModel(null);
+    let url: string | null = null;
+    let live = true;
+    void listEnrolled().then((all) => {
+      if (!live) return;
+      const own = all.find((o) => o.key === `artifact:${activeTarget.id}`)?.mesh;
+      if (own) {
+        url = URL.createObjectURL(own);
+        return setQrModel(url);
+      }
+      const glb = ALQAMI_ARTIFACTS.find((a) => a.id === activeTarget.id)?.model.glb ?? (activeTarget.glb || undefined);
+      setQrModel(glb ? new URL(glb.replace(/^\//, ''), new URL(import.meta.env.BASE_URL || './', location.href)).href : null);
+    });
+    return () => {
+      live = false;
+      if (url) URL.revokeObjectURL(url);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lockedCode, activeTarget.id]);
 
   const downloadCatalogLabel = async () => {
     const dataUrl = await QRCode.toDataURL(`ALQAMI:${activeTarget.id}`, {
@@ -229,6 +258,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
             if (targetIndex >= 0) {
               setSelectedTargetIndex(targetIndex);
               setIsLockedOnObject(true);
+              setLockedCode(code.text);
               setScanMessage('تم التعرّف على رمز القطعة · Object label recognised');
             } else {
               setScanMessage(`رمز غير موجود في السجل · Not in the catalogue: ${target.id.slice(0, 48)}`);
@@ -272,6 +302,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
     if (targetIndex >= 0) {
       setSelectedTargetIndex(targetIndex);
       setIsLockedOnObject(true);
+      setLockedCode(null);
     }
   };
   const onMoonRecordRef = useRef(onMoonRecord);
@@ -532,16 +563,50 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
         {/* 3D rendering is reserved for the catalog preview; camera recognition uses QR data. */}
 
         {/* Catalog metadata card. Touch selection is used on phones instead of hover. */}
-        {activeMode === 'detect' && isLockedOnObject && (
+        {/* The recognised QR label's object, in 3D, standing on the code. */}
+        {activeMode === 'detect' && isLockedOnObject && lockedCode && qrModel && <QrModelAR video={videoRef} model={qrModel} code={lockedCode} />}
+
+        {/* With a 3D model on the QR: a slim bar with the title; tap for the full card. */}
+        {activeMode === 'detect' && isLockedOnObject && lockedCode && !cardOpen && (
           <div
             dir="rtl"
-            style={{
-              transform: 'translate(-50%, -60%)',
-            }}
-            className="absolute top-1/2 left-1/2 z-30 w-[min(480px,92vw)] p-4 sm:p-5 rounded-[26px] vision-glass border border-emerald-400/60 bg-[#0a1324]/90 shadow-[0_20px_50px_rgba(0,0,0,0.85)] space-y-3.5 animate-in zoom-in-95 duration-200 pointer-events-auto"
+            className="absolute inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-30 flex items-center gap-2 p-2 ps-3 rounded-full vision-glass border border-emerald-400/60 bg-[#0a1324]/90 pointer-events-auto sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[480px]"
+          >
+            <button onClick={() => setCardOpen(true)} className="flex-1 min-w-0 text-start">
+              <span className="block text-[14px] font-bold text-white truncate">{activeTarget.metadata.titleAr}</span>
+              <span className="block text-[11px] text-white/65 truncate">{activeTarget.metadata.titleEn} · اضغط للتفاصيل · tap for details</span>
+            </button>
+            <button
+              onClick={() => {
+                setIsLockedOnObject(false);
+                setLockedCode(null);
+              }}
+              aria-label="إغلاق · Close"
+              className="w-10 h-10 shrink-0 rounded-full bg-white/10 flex items-center justify-center"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* The object's card: a sheet at the bottom on phones (the object and its 3D model stay visible above). */}
+        {activeMode === 'detect' && isLockedOnObject && (!lockedCode || cardOpen) && (
+          <div
+            dir="rtl"
+            className="absolute inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-30 max-h-[44vh] overflow-y-auto custom-scrollbar sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[480px] p-4 sm:p-5 rounded-[26px] vision-glass border border-emerald-400/60 bg-[#0a1324]/90 shadow-[0_20px_50px_rgba(0,0,0,0.85)] space-y-3.5 animate-in zoom-in-95 duration-200 pointer-events-auto"
           >
             {/* Pre-entered catalog metadata */}
             <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+              <button
+                onClick={() => {
+                  setIsLockedOnObject(false);
+                  setLockedCode(null);
+                }}
+                aria-label="إغلاق · Close"
+                className="order-last w-9 h-9 shrink-0 rounded-full bg-white/10 flex items-center justify-center"
+              >
+                <X className="w-4 h-4" />
+              </button>
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full bg-emerald-400/20 border border-emerald-400 flex items-center justify-center text-emerald-300">
                   <CheckCircle2 className="w-4 h-4" />
@@ -743,6 +808,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
                     spatialSound.playPinchTap?.();
                     setSelectedTargetIndex(idx);
                     setIsLockedOnObject(true);
+                    setLockedCode(null);
                     setScanMessage('معاينة من الفهرس — وجّه الكاميرا نحو رمز هذه القطعة للتعرّف عليها');
                   }}
                   className={`px-3 py-1.5 rounded-2xl flex items-center gap-2 text-xs transition cursor-pointer whitespace-nowrap ${

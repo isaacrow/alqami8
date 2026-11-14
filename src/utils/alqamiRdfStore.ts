@@ -204,10 +204,12 @@ export function getArtifactRdfMetadata(idOrSlug: string): RdfParsedMetadata {
   const mapping = ARTIFACT_RDF_MAPPING[idOrSlug];
   const artifact = ALQAMI_ARTIFACTS.find((a) => a.id === idOrSlug || a.slug === idOrSlug) || ALQAMI_ARTIFACTS[0];
 
-  const ttlFileName = mapping?.ttlFile || 'nahj_al_balagha.ttl';
+  // Without its own RDF file an object uses its own catalogue data (it used to borrow Nahj al-Balagha's file, so other
+  // objects showed its English title and URI).
+  const ttlFileName = mapping?.ttlFile;
   const rdfFileName = mapping?.rdfFile;
 
-  const rawTtl = backendRdf[ttlFileName] || '';
+  const rawTtl = (ttlFileName && (backendRdf as Record<string, string>)[ttlFileName]) || '';
   const rawRdf = rdfFileName ? backendRdf[rdfFileName] : undefined;
 
   // Extract URI
