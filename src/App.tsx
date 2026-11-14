@@ -336,6 +336,11 @@ export function App() {
     document.body.style.backgroundColor = '#08080a';
   }, []);
 
+  // The page's language follows the app's (screen readers, hyphenation, the Arabic typeface).
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   useEffect(() => {
     const handleLangEvent = (e: Event) => {
       const customEvent = e as CustomEvent<{ lang: 'ar' | 'en' }>;
@@ -1154,6 +1159,7 @@ export function App() {
 
       {/* Home View 13-App Honeycomb Launcher (images.jpg) */}
       <HomeViewLauncher
+        lang={lang}
         isOpen={homeOpen}
         onLaunchApp={(id) => openSingleOrFocusApp(id, false)}
         onOpenControlCenter={() => {

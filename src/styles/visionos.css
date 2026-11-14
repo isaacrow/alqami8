@@ -41,7 +41,20 @@ body {
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+  /* IBM Plex Sans Arabic covers only Arabic letters (its files declare unicode-range); Latin uses the system font. */
+  font-family: "IBM Plex Sans Arabic", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+}
+
+/* Arabic reads better with more space between lines than Latin; only for running text, not buttons or pills. */
+[dir="rtl"] p,
+:lang(ar) p {
+  line-height: 1.7;
+}
+
+/* Letter-spacing breaks the joining of Arabic letters (WebKit bug), so never space Arabic text. */
+[dir="rtl"],
+:lang(ar) [dir="rtl"] {
+  letter-spacing: normal;
 }
 
 /* Exact VisionOS Card Hover Elevation & Glow (Matching Image 2) */

@@ -13,11 +13,33 @@ import { AppId } from '../../types/spatial';
 import { spatialSound } from '../../utils/spatialSound';
 
 interface HomeViewLauncherProps {
+  lang?: 'ar' | 'en';
   isOpen: boolean;
   onLaunchApp: (id: AppId) => void;
   onOpenControlCenter: () => void;
   onToggleEnvironments: () => void;
 }
+
+// Arabic names for the launcher, by the English name (two entries share an id).
+const ARABIC_NAMES: Record<string, string> = {
+  '100 Tools Hub': 'مركز الأدوات',
+  Siri: 'المساعد',
+  'Photos & Memories': 'الصور والذكريات',
+  'Air Canvas': 'الرسم في الهواء',
+  'Planet Earth': 'كوكب الأرض',
+  'ARKit 3D Scanner & RDF': 'الماسح',
+  'Image Playground': 'ملعب الصور',
+  Safari: 'المتصفح',
+  Notes: 'الملاحظات',
+  'Alqami Heritage': 'تراث علقمي',
+  '3D Studio & PBR': 'استوديو ثلاثي الأبعاد',
+  'الجواهري · Talk': 'حاور الجواهري',
+  Spotlight: 'البحث',
+  Messages: 'الرسائل',
+  'AR Anchors': 'مراسي الواقع المعزز',
+  'Mac Virtual Display': 'شاشة افتراضية',
+  'Quick Look': 'معاينة سريعة',
+};
 
 interface HomeAppItem {
   id: AppId;
@@ -33,6 +55,7 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({
   onLaunchApp,
   onOpenControlCenter,
   onToggleEnvironments,
+  lang = 'ar',
 }) => {
   if (!isOpen) return null;
   const now = new Date();
@@ -215,7 +238,7 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({
             </div>
           </div>
           <span className="text-[12px] font-medium text-white/95 drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)] tracking-tight">
-            {item.name}
+            {lang === 'ar' ? ARABIC_NAMES[item.name] ?? item.name : item.name}
           </span>
         </button>
       ))}
