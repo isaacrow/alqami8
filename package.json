@@ -11,6 +11,7 @@
     "set-key": "node scripts/set-gemini-key.mjs"
   },
   "dependencies": {
+    "@fontsource/ibm-plex-sans-arabic": "^5.3.0",
     "@huggingface/transformers": "4.3.1",
     "@mediapipe/tasks-vision": "^1.1.1",
     "@webarkit/jsartoolkit-nft": "1.14.0",

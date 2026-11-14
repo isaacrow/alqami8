@@ -2,6 +2,10 @@ import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ErrorBoundary } from './components/shell/ErrorBoundary';
+import '@fontsource/ibm-plex-sans-arabic/arabic-400.css';
+import '@fontsource/ibm-plex-sans-arabic/arabic-500.css';
+import '@fontsource/ibm-plex-sans-arabic/arabic-600.css';
+import '@fontsource/ibm-plex-sans-arabic/arabic-700.css';
 import './styles/visionos.css';
 
 // ?camera=<id>: this phone is the camera of ALQAMI on a PC (src/remoteCam); nothing else of the app is loaded.
