@@ -1,32 +1,37 @@
 /**
  * Lip sync from the voice itself: HeadAudio (MIT, met4citizen/HeadAudio, vendored in public/vendor/headaudio, 34 kB)
  * listens to the audio that plays and recognises mouth shapes (15 Oculus visemes) in real time, in the browser.
- * They are turned into the two things the bust's face rig moves: how open the jaw is, and how wide (ee, s) or round
- * (oo, o) the lips are. Its model was trained on English speech; Arabic vowels map onto the same shapes.
+ * Each is turned into a full mouth shape for the bust's face rig: how open the jaw is, how spread (ee, s) or round
+ * (oo, o) the lips are, whether the upper teeth show, the lips press (m, b, p), the lower lip tucks under the teeth
+ * (f, v) or the tongue rises (t, d, n, l, th), and the shapes are blended by how strongly each is heard. Its model
+ * was trained on English speech; Arabic sounds map onto the same shapes (ب م → PP, ف → FF, ث ذ ظ → TH, ت د ط ض ن ل →
+ * DD/nn, س ص ز → SS, ش ج → CH, و ُ → U/O, ي ِ → I, ا َ → aa).
  */
+import type { MouthShape } from './bustRig';
 type HeadAudioNode = AudioNode & {
   loadModel(url: string): Promise<void>;
   update(dtMs: number): void;
   onvalue: ((key: string, value: number) => void) | null;
 };
 
-// Per viseme: [jaw 0..1, lips -1 round .. 1 wide].
-const SHAPES: Record<string, [number, number]> = {
-  viseme_aa: [1.0, 0.2],
-  viseme_E: [0.55, 0.6],
-  viseme_I: [0.3, 0.95],
-  viseme_O: [0.65, -0.75],
-  viseme_U: [0.3, -1.0],
-  viseme_PP: [0.0, 0.0],
-  viseme_SS: [0.18, 0.75],
-  viseme_TH: [0.25, 0.3],
-  viseme_DD: [0.3, 0.2],
-  viseme_FF: [0.12, 0.3],
-  viseme_kk: [0.35, 0.1],
-  viseme_nn: [0.25, 0.15],
-  viseme_RR: [0.3, -0.45],
-  viseme_CH: [0.25, 0.4],
-  viseme_sil: [0.0, 0.0],
+// Per viseme: [jaw, wide (-1 round .. 1 spread), round, upper teeth, press, tuck, tongue].
+type Shape = [number, number, number, number, number, number, number];
+const SHAPES: Record<string, Shape> = {
+  viseme_aa: [1.0, 0.25, 0, 0.35, 0, 0, 0],
+  viseme_E: [0.55, 0.6, 0, 0.3, 0, 0, 0.1],
+  viseme_I: [0.3, 0.95, 0, 0.35, 0, 0, 0.2],
+  viseme_O: [0.65, -0.4, 0.75, 0.1, 0, 0, 0],
+  viseme_U: [0.3, -0.6, 1.0, 0, 0, 0, 0],
+  viseme_PP: [0.0, 0.0, 0, 0, 1.0, 0, 0],
+  viseme_SS: [0.15, 0.7, 0, 0.6, 0, 0, 0.3],
+  viseme_TH: [0.25, 0.3, 0, 0.4, 0, 0, 1.0],
+  viseme_DD: [0.3, 0.25, 0, 0.3, 0, 0, 0.8],
+  viseme_FF: [0.12, 0.3, 0, 0.5, 0, 1.0, 0],
+  viseme_kk: [0.35, 0.1, 0, 0.2, 0, 0, 0.2],
+  viseme_nn: [0.25, 0.15, 0, 0.25, 0, 0, 0.7],
+  viseme_RR: [0.3, -0.2, 0.45, 0.2, 0, 0, 0.4],
+  viseme_CH: [0.25, 0.1, 0.55, 0.45, 0, 0, 0.3],
+  viseme_sil: [0.0, 0.0, 0, 0, 0, 0, 0],
 };
 
 export class LipSync {
@@ -60,24 +65,35 @@ export class LipSync {
     return new LipSync(node);
   }
 
-  /** Call every frame: the jaw opening and lip shape now. */
-  update(dtMs: number): { jaw: number; wide: number; speaking: boolean } {
+  /** Call every frame: the mouth shape now. */
+  update(dtMs: number): MouthShape & { speaking: boolean } {
     this.node.update(dtMs);
     let total = 0;
-    let jaw = 0;
-    let wide = 0;
+    const acc = [0, 0, 0, 0, 0, 0, 0];
     for (const [k, v] of Object.entries(this.values)) {
       const s = SHAPES[k];
       if (!s || v <= 0) continue;
       total += v;
-      jaw += s[0] * v;
-      wide += s[1] * v;
+      for (let i = 0; i < 7; i++) acc[i] += s[i] * v;
     }
     const sil = this.values.viseme_sil ?? 0;
     if (!total) return { jaw: 0, wide: 0, speaking: false };
-    // Each viseme peaks at about 0.65 (HeadAudio's visemeMaxs): divide by it for the full range.
+    // Each viseme peaks at about 0.65 (HeadAudio's visemeMaxs): divide by it for the full range. The jaw scales with
+    // how strongly the sounds are heard; the shape channels are a weighted mean of the shapes heard.
     const strength = Math.min(1, total / 0.65);
-    return { jaw: Math.min(1, jaw / 0.65), wide: Math.max(-1, Math.min(1, wide / total)) * strength, speaking: total - sil > 0.05 };
+    const mean = (i: number) => (acc[i] / total) * strength;
+    const clamp = (x: number, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, x));
+    return {
+      jaw: clamp(acc[0] / 0.5),
+      wide: clamp((acc[1] / total) * 1.3, -1, 1) * Math.sqrt(strength),
+      round: clamp(mean(2)),
+      upper: clamp(mean(3)),
+      // A press or a tuck must win outright to show: a blend half-closes the lips, which reads as mumbling.
+      press: clamp((mean(4) - 0.25) / 0.6),
+      tuck: clamp((mean(5) - 0.25) / 0.6),
+      tongue: clamp(mean(6)),
+      speaking: total - sil > 0.05,
+    };
   }
 
   dispose() {

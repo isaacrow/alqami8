@@ -1,4 +1,5 @@
 import { LipSync } from './lipSync';
+import type { MouthShape, VoiceFeatures } from './bustRig';
 
 /**
  * A live spoken conversation with Gemini (the Live API over one WebSocket): the microphone streams in as 16 kHz PCM,
@@ -58,6 +59,51 @@ export function saveSettings(s: VoiceSettings) {
   } catch {
     /* private mode: the settings last for this visit only */
   }
+}
+
+/**
+ * How his voice reaches the speaker: a little warmth in the low end, less mud, clearer consonants, softer harsh highs,
+ * gentle compression so quiet words carry, and a faint small-room sound so he sounds present rather than piped in.
+ * The sound is also delayed by 0.1 s: the mouth-shape reader (HeadAudio) runs behind the audio by about that much,
+ * and in real speech the lips move a moment before the sound arrives, so the delay brings lips and voice together.
+ */
+export const VOICE_DELAY_S = 0.1;
+function voiceChain(ctx: AudioContext, input: AudioNode): AudioNode {
+  const filter = (type: BiquadFilterType, freq: number, gain = 0, q = 0.8) => {
+    const b = ctx.createBiquadFilter();
+    b.type = type;
+    b.frequency.value = freq;
+    b.gain.value = gain;
+    b.Q.value = q;
+    return b;
+  };
+  const chain = [filter('highpass', 75), filter('lowshelf', 220, 3), filter('peaking', 420, -1.5, 1), filter('peaking', 3000, 1.5, 0.9), filter('highshelf', 9000, -2.5)];
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -22;
+  comp.knee.value = 12;
+  comp.ratio.value = 3;
+  comp.attack.value = 0.005;
+  comp.release.value = 0.2;
+  const delay = ctx.createDelay(1);
+  delay.delayTime.value = VOICE_DELAY_S;
+  let node: AudioNode = input;
+  for (const b of chain) node = node.connect(b);
+  node = node.connect(comp).connect(delay);
+  // A short room: 0.8 s of decaying noise, mixed in quietly.
+  const len = Math.round(ctx.sampleRate * 0.8);
+  const ir = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let c = 0; c < 2; c++) {
+    const d = ir.getChannelData(c);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2);
+  }
+  const room = ctx.createConvolver();
+  room.buffer = ir;
+  const wet = ctx.createGain();
+  wet.gain.value = 0.09;
+  const mix = ctx.createGain();
+  node.connect(mix);
+  node.connect(room).connect(wet).connect(mix);
+  return mix;
 }
 
 export type LiveState = 'idle' | 'connecting' | 'listening' | 'speaking' | 'error' | 'closed';
@@ -138,8 +184,9 @@ export class LiveConversation {
     this.out = this.ctx.createGain();
     this.analyser = this.ctx.createAnalyser();
     this.analyser.fftSize = 512;
+    // The face reads the voice here, before the delay below (analysis only, not to the speaker).
     this.out.connect(this.analyser);
-    this.analyser.connect(this.ctx.destination);
+    voiceChain(this.ctx, this.out).connect(this.ctx.destination);
     this.eleven = settings.elevenKey && settings.elevenVoiceId ? { key: settings.elevenKey, voice: settings.elevenVoiceId } : null;
     this.server = settings.voiceServer ? settings.voiceServer.replace(/\/+$/, '') : null;
   }
@@ -302,7 +349,8 @@ export class LiveConversation {
   }
 
   isSpeaking() {
-    return this.playing.size > 0 || this.nextTime > this.ctx.currentTime + 0.02;
+    // The speaker plays VOICE_DELAY_S behind the queue.
+    return this.playing.size > 0 || this.nextTime + VOICE_DELAY_S > this.ctx.currentTime + 0.02;
   }
 
   /** Lip sync read from the voice as it plays (HeadAudio); null until it starts, or if this browser cannot run it. */
@@ -313,7 +361,7 @@ export class LiveConversation {
    * What is playing now: loudness for the jaw, where its energy sits for the lip shape, and (with HeadAudio) the
    * mouth shape recognised from the voice.
    */
-  features(buf: Float32Array<ArrayBuffer>, spectrum: Uint8Array<ArrayBuffer>): { level: number; bright: number; mouth?: { jaw: number; wide: number } } {
+  features(buf: Float32Array<ArrayBuffer>, spectrum: Uint8Array<ArrayBuffer>): VoiceFeatures {
     const level = this.level(buf);
     const now = performance.now();
     const mouth = this.lips?.update(this.lipsAt ? now - this.lipsAt : 16);
@@ -326,7 +374,9 @@ export class LiveConversation {
       sum += spectrum[i];
       weighted += spectrum[i] * i * hz;
     }
-    return { level, bright: sum ? Math.min(1, weighted / sum / 3000) : 0.5, ...(mouth ? { mouth: { jaw: mouth.jaw, wide: mouth.wide } } : {}) };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { speaking, ...shape } = mouth ?? { speaking: false };
+    return { level, bright: sum ? Math.min(1, weighted / sum / 3000) : 0.5, ...(mouth ? { mouth: shape as MouthShape } : {}) };
   }
 
   level(buf: Float32Array<ArrayBuffer>) {
@@ -354,6 +404,22 @@ export class LiveConversation {
       this.playing.delete(src);
       if (!this.playing.size) this.h.onState('listening');
     };
+  }
+
+  /** Plays a recorded clip through his voice (tests): the same sound chain and the same lip sync as a live answer. */
+  async playClip(url: string) {
+    await this.ctx.resume();
+    if (!this.lips) this.lips = await LipSync.attach(this.ctx, this.out).catch(() => null);
+    const buffer = await this.ctx.decodeAudioData(await (await fetch(url)).arrayBuffer());
+    const src = this.ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(this.out);
+    const at = this.ctx.currentTime + 0.05;
+    src.start(at);
+    this.nextTime = at + buffer.duration;
+    this.playing.add(src);
+    src.onended = () => this.playing.delete(src);
+    return buffer.duration;
   }
 
   /** Stops his voice at once (the visitor interrupted him, or tapped stop). */
