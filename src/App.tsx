@@ -20,7 +20,9 @@ import {
   ListChecks,
   Table,
   PenTool,
+  ScanLine,
 } from 'lucide-react';
+import { ScannerLoading } from './components/scan/ScannerLoading';
 import { AppId, EnvironmentId, WindowState } from './types/spatial';
 import type { XRHardwareState } from './components/xr/RealARXREngine';
 import { assetUrl } from './utils/assetUrl';
@@ -1035,6 +1037,19 @@ export function App() {
       {/* Quiet top controls: Single round Alqami Logo button matching img 5 (no text, no background), Home button, and Control Center */}
       <div className="visionos-shell-controls fixed top-3.5 left-1/2 -translate-x-1/2 z-[85] flex items-center gap-2 pointer-events-auto">
         {/* On a computer: use a phone as the camera (and motion sensor) for AR and scanning. */}
+        {/* Scan, one tap from anywhere (also before the museum window has loaded). */}
+        <button
+          onClick={() => {
+            spatialSound.playPinchTap();
+            setIsArkitScannerOpen(true);
+          }}
+          className="vision-btn h-8 px-3 rounded-full bg-[#FFD60A] text-black text-[12.5px] font-semibold flex items-center gap-1.5 transition active:scale-95"
+          title={lang === 'ar' ? 'امسح قطعة أو كتاباً' : 'Scan an object or a book'}
+          aria-label="Scan"
+        >
+          <ScanLine className="w-3.5 h-3.5" />
+          {lang === 'ar' ? 'امسح' : 'Scan'}
+        </button>
         {!isTouchPhone() && <PhoneCameraButton />}
         {/* Round Alqami Logo Button: Activates AR World Mode directly as requested */}
         <button
@@ -1215,7 +1230,7 @@ export function App() {
 
       {/* Apple ARKit 3D Object Scanner & RDF Recall Fullscreen Studio */}
       {isArkitScannerOpen && (
-        <Suspense fallback={null}>
+        <Suspense fallback={<ScannerLoading />}>
           <AlqamiARKitObjectScanner
             isOpen={isArkitScannerOpen}
             onClose={() => setIsArkitScannerOpen(false)}
