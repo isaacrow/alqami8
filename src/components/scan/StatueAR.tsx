@@ -4,6 +4,8 @@ import { loadSettings } from '../../character/liveVoice';
 import { AskAnswer, askAboutFrame } from '../../scan/askGemini';
 import { ALQAMI_ARTIFACTS } from '../../data/alqamiArtifacts';
 import { getCustomScannedObjects } from '../../utils/alqamiRdfStore';
+import { listEnrolled } from '../../recognize/localEnrol';
+import { ModelOverlay } from '../three/ModelOverlay';
 import { useMoonRecord } from '../../moon/useMoon';
 import { SightRecognizer, SightTarget } from '../../recognize/recognizer';
 import { HandGestures, HandGesture } from '../../scan/handGestures';
@@ -499,6 +501,30 @@ const PinnedRecord: React.FC<{
   onClose: () => void;
 }> = ({ target, angle, at, box, onOpen, onClose }) => {
   const f = useObjectFacts(target);
+  // The object's own 3D scan (taught from a GLB), else its catalogue model: shown in 3D and AR.
+  const [mesh, setMesh] = useState<string | null>(null);
+  const [show3d, setShow3d] = useState(false);
+  const key = target.kind === 'moon' ? `moon:${target.recordId}` : `artifact:${target.id}`;
+  useEffect(() => {
+    let url: string | null = null;
+    let live = true;
+    void listEnrolled().then((all) => {
+      if (!live) return;
+      const own = all.find((o) => o.key === key)?.mesh;
+      if (own) {
+        url = URL.createObjectURL(own);
+        setMesh(url);
+        return;
+      }
+      const glb = target.kind === 'artifact' ? ALQAMI_ARTIFACTS.find((a) => a.id === target.id)?.model.glb : undefined;
+      if (glb) setMesh(new URL(glb.replace(/^\//, ''), new URL(import.meta.env.BASE_URL || './', location.href)).href);
+    });
+    return () => {
+      live = false;
+      if (url) URL.revokeObjectURL(url);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
   const side = angle != null ? sideOf(angle, f.front) : null;
   const notes = angle != null && f.card ? sideNotes(f.card.notes, angle, f.front) : [];
 
@@ -540,9 +566,17 @@ const PinnedRecord: React.FC<{
             </p>
           ))}
         </div>
-        <button onClick={onOpen} className="mt-2 w-full h-8 rounded-full bg-[#FFD60A] text-black text-[12px] font-semibold">
-          السجلّ الكامل · Full record
-        </button>
+        <div className="mt-2 flex gap-2">
+          <button onClick={onOpen} className="flex-1 h-9 rounded-full bg-[#FFD60A] text-black text-[12px] font-semibold">
+            السجلّ الكامل · Full record
+          </button>
+          {mesh && (
+            <button onClick={() => setShow3d(true)} className="h-9 px-3 rounded-full bg-white/15 border border-white/25 text-[12px] font-semibold">
+              ثلاثي الأبعاد · 3D / AR
+            </button>
+          )}
+        </div>
+        {show3d && mesh && <ModelOverlay model={mesh} title={f.title} onClose={() => setShow3d(false)} />}
       </div>
     </>
   );
