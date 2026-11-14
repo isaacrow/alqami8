@@ -6,6 +6,7 @@ import { ALQAMI_ARTIFACTS } from '../../data/alqamiArtifacts';
 import { getCustomScannedObjects } from '../../utils/alqamiRdfStore';
 import { listEnrolled } from '../../recognize/localEnrol';
 import { ModelOverlay } from '../three/ModelOverlay';
+import { HologramAR, HologramPin, pinsFor } from './HologramAR';
 import { useMoonRecord } from '../../moon/useMoon';
 import { SightRecognizer, SightTarget } from '../../recognize/recognizer';
 import { HandGestures, HandGesture } from '../../scan/handGestures';
@@ -580,6 +581,14 @@ const PinnedRecord: React.FC<{
   }, [key]);
   const side = angle != null ? sideOf(angle, f.front) : null;
   const notes = angle != null && f.card ? sideNotes(f.card.notes, angle, f.front) : [];
+  // A 3D object's hologram beside it (alqami3's scan mode): its model, turned to the side in view, with its parts
+  // pinned. Not for leaves and open books (flat), whose record card is enough.
+  const builtIn = target.kind === 'artifact' ? ALQAMI_ARTIFACTS.find((a) => a.id === target.id) : undefined;
+  const [pins, setPins] = useState<HologramPin[]>([]);
+  useEffect(() => {
+    if (builtIn) void pinsFor(builtIn.id).then(setPins);
+  }, [builtIn]);
+  const hologram = mesh && !builtIn?.model.flat;
 
   const W = box.current?.clientWidth ?? 360;
   const cardW = Math.min(260, W - 24);
@@ -588,6 +597,7 @@ const PinnedRecord: React.FC<{
 
   return (
     <>
+      {hologram && !show3d && <HologramAR model={mesh} at={at} angle={angle} pins={pins} />}
       <svg className="absolute inset-0 w-full h-full overflow-visible">
         <line x1={at.x} y1={at.y} x2={Math.max(left + 16, Math.min(left + cardW - 16, at.x))} y2={top + 120} stroke="#FFD60A" strokeWidth="1.5" />
         <circle cx={at.x} cy={at.y} r="6" fill="#FFD60A" stroke="white" strokeWidth="2" />
