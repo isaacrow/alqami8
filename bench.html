@@ -27,7 +27,17 @@
       <label style="margin-left:12px"><input type="checkbox" id="gpu" /> WebGPU</label>
       <table id="results" hidden></table>
       <div id="log"></div>
+      <h1 style="margin-top:32px">Phone bench (Plan 3)</h1>
+      <p>Decides what ALQAMI uses on this phone. Tap each one and send a screenshot of the table.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <button id="bench-recognition">Recognition: WASM vs WebGPU</button>
+        <button id="bench-tracker">Walking tracker</button>
+        <button id="bench-lips">Lip model (192 MB, Wi-Fi)</button>
+      </div>
+      <table id="results2" hidden></table>
+      <div id="log2" style="white-space:pre-wrap;font:12px/1.5 ui-monospace,monospace;color:var(--muted);margin-top:14px"></div>
     </main>
     <script type="module" src="/src/bench/sightBench.ts"></script>
+    <script type="module" src="/src/bench/phoneBench.ts"></script>
   </body>
 </html>

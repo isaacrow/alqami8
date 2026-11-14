@@ -10,6 +10,8 @@ export interface EnrolledObject {
   title: string;
   /** Unit-length embeddings, base64 int8 (as in the recognition index). */
   views: string[];
+  /** The model the views were made with ("dinov2s" or "dinov2s-fp16"); missing = "dinov2s". */
+  model?: string;
   photos: Blob[];
   savedAt: string;
 }
@@ -48,7 +50,9 @@ export async function listEnrolled(): Promise<EnrolledObject[]> {
 export async function saveEnrolled(entry: EnrolledObject): Promise<void> {
   const existing = await run<EnrolledObject>('readonly', (s) => s.get(entry.key));
   const merged = existing
-    ? { ...entry, views: [...existing.views, ...entry.views], photos: [...existing.photos, ...entry.photos] }
+    ? (existing.model ?? 'dinov2s') === (entry.model ?? 'dinov2s')
+      ? { ...entry, views: [...existing.views, ...entry.views], photos: [...existing.photos, ...entry.photos] }
+      : { ...entry, photos: [...existing.photos, ...entry.photos] }
     : entry;
   await run('readwrite', (s) => s.put(merged));
 }

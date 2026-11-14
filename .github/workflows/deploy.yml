@@ -50,7 +50,9 @@ jobs:
       # Rebuilds public/data/recognition-dinov2s.json from Moon's covers, enrol/ and renders/. If Moon cannot be reached,
       # the committed index is kept and the site still deploys.
       - name: Build recognition index
-        run: node scripts/build-recognition-index.mjs || echo "Recognition index not rebuilt; keeping the committed one."
+        run: |
+          node scripts/build-recognition-index.mjs || echo "Recognition index not rebuilt; keeping the committed one."
+          INDEX_DTYPE=fp16 node scripts/build-recognition-index.mjs || echo "WebGPU index not rebuilt; keeping the committed one."
 
       # Image-tracking markers for Moon covers (pinned cards). Each takes ~10 s, so they are kept in the cache and
       # each run makes only new ones (up to 60); the nightly run fills in the rest. A failure keeps what is cached.

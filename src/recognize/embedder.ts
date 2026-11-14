@@ -29,7 +29,11 @@ export class Embedder {
   private canvas = document.createElement('canvas');
   private ctx = this.canvas.getContext('2d', { willReadFrequently: true });
 
-  constructor(private device: 'wasm' | 'webgpu' = 'wasm') {
+  /** WASM uses the int8 model (what the index is built with); WebGPU the half-precision one, unless told otherwise. */
+  constructor(
+    private device: 'wasm' | 'webgpu' = 'wasm',
+    private dtype: 'q8' | 'fp16' | 'fp32' = device === 'webgpu' ? 'fp16' : 'q8'
+  ) {
     this.canvas.width = SIZE;
     this.canvas.height = SIZE;
   }
@@ -40,7 +44,7 @@ export class Embedder {
     this.loading ??= (async () => {
       const lib = await import('@huggingface/transformers');
       lib.env.allowLocalModels = false;
-      this.model = await lib.AutoModel.from_pretrained(EMBED_MODEL, { dtype: 'q8', device: this.device });
+      this.model = await lib.AutoModel.from_pretrained(EMBED_MODEL, { dtype: this.dtype, device: this.device });
       this.lib = lib;
     })();
     return this.loading;

@@ -3,6 +3,7 @@ import { Camera, Check, Download, RotateCw, Square, Trash2 } from 'lucide-react'
 import { ALQAMI_ARTIFACTS } from '../../data/alqamiArtifacts';
 import { useMoonSearch } from '../../moon/useMoon';
 import { Embedder } from '../../recognize/embedder';
+import { sightBackend } from '../../recognize/backend';
 import { encodeView } from '../../recognize/recognitionIndex';
 import { EnrolledObject, enrolmentZip, listEnrolled, removeEnrolled, saveEnrolled } from '../../recognize/localEnrol';
 import { getCustomScannedObjects } from '../../utils/alqamiRdfStore';
@@ -62,13 +63,18 @@ export const TeachPanel: React.FC<{ videoRef: React.RefObject<HTMLVideoElement |
   const [taught, setTaught] = useState<EnrolledObject[]>([]);
   const [saved, setSaved] = useState<string | null>(null);
   const embedder = useRef<Embedder | null>(null);
+  // Views are made with the same model recognition uses on this phone, and saved with its name.
+  const model = useRef('dinov2s');
   const raw = useRef<Float32Array[]>([]);
   const [walking, setWalking] = useState(false);
   const walkingRef = useRef(false);
   const search = useMoonSearch(query.trim(), 'ar', 6);
 
   useEffect(() => {
-    embedder.current = new Embedder();
+    void sightBackend().then((b) => {
+      model.current = b.key;
+      embedder.current = new Embedder(b.device, b.dtype);
+    });
     void listEnrolled().then(setTaught);
     return () => {
       void embedder.current?.dispose();
@@ -124,7 +130,7 @@ export const TeachPanel: React.FC<{ videoRef: React.RefObject<HTMLVideoElement |
     if (!target || shots.length < MIN_SHOTS) return;
     walkingRef.current = false;
     setBusy(true);
-    await saveEnrolled({ key: target.key, title: target.title, views: shots.map((s) => s.view), photos: shots.map((s) => s.photo), savedAt: new Date().toISOString() });
+    await saveEnrolled({ key: target.key, title: target.title, model: model.current, views: shots.map((s) => s.view), photos: shots.map((s) => s.photo), savedAt: new Date().toISOString() });
     setTaught(await listEnrolled());
     setSaved(target.title);
     shots.forEach((s) => URL.revokeObjectURL(s.thumb));

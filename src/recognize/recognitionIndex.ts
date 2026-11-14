@@ -7,6 +7,7 @@ import { IndexEntry } from './decide';
  */
 export interface RecognitionIndexFile {
   model: string;
+  selftest?: { image: string; view: string };
   dim: number;
   builtAt: string;
   entries: Array<{ key: string; threshold: number; views: string[]; angles?: Array<number | null> }>;
@@ -33,7 +34,14 @@ export function encodeView(v: ArrayLike<number>): string {
   return btoa(s);
 }
 
-export async function loadRecognitionIndex(model: string): Promise<{ file: RecognitionIndexFile; entries: IndexEntry[] }> {
+/**
+ * `reembed` turns a taught object's photos into views for this model, for objects taught while the phone ran the other
+ * model (WebGPU fp16 vs WASM int8); without it those objects are skipped.
+ */
+export async function loadRecognitionIndex(
+  model: string,
+  reembed?: (photos: Blob[]) => Promise<string[]>
+): Promise<{ file: RecognitionIndexFile; entries: IndexEntry[] }> {
   const base = import.meta.env.BASE_URL || './';
   const res = await fetch(`${base}data/recognition-${model}.json`, { cache: 'no-cache' });
   if (!res.ok) throw new Error(`Recognition index missing (${res.status})`);
@@ -43,7 +51,13 @@ export async function loadRecognitionIndex(model: string): Promise<{ file: Recog
   // Objects taught on this phone count at once, with the same score floor as the server-built entries.
   const floor = file.entries[0]?.threshold ?? 0.76;
   for (const taught of await listEnrolled().catch(() => [])) {
-    const views = taught.views.map(decodeView);
+    let raw = taught.views;
+    if ((taught.model ?? 'dinov2s') !== model) {
+      if (!reembed) continue;
+      raw = await reembed(taught.photos).catch(() => []);
+      if (!raw.length) continue;
+    }
+    const views = raw.map(decodeView);
     const same = entries.find((e) => e.key === taught.key);
     if (same) {
       same.views.push(...views);

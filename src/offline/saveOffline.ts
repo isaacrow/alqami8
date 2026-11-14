@@ -77,9 +77,13 @@ export async function saveForOffline(onProgress: (p: OfflineProgress) => void): 
     tick(60_000, 'records');
   });
 
-  const embedder = new Embedder();
+  // The model this phone recognises with (WebGPU fp16 after its self-test, else WASM int8), and its index.
+  const { sightBackend } = await import('../recognize/backend');
+  const b = await sightBackend();
+  const embedder = new Embedder(b.device, b.dtype);
   await embedder.load();
   await embedder.dispose();
+  await fetch(`${import.meta.env.BASE_URL || './'}data/recognition-${b.key}.json`).catch(() => undefined);
   tick(24e6, 'model');
 
   const saved = { at: new Date().toISOString(), bytes: appBytes + 30e6, records: records.length };
