@@ -75,7 +75,7 @@ self.addEventListener('fetch', (event) => {
       event.respondWith(networkFirst(request, APP).catch(() => caches.match(new URL('./', scope).href)));
     } else if (path.startsWith('data/') || path === 'nft/index.json' || path === 'offline-manifest.json' || path === 'sw.js') {
       event.respondWith(networkFirst(request, APP));
-    } else if (/^(assets|models|draco|images|icons|nft|js)\//.test(path)) {
+    } else if (/^(assets|models|draco|images|icons|nft|js|vendor|characters)\//.test(path)) {
       event.respondWith(cacheFirst(request, APP));
     }
     return;
