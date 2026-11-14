@@ -87,6 +87,10 @@ async function ask(env, body) {
           type: 'OBJECT',
           properties: {
             name: { type: 'STRING' },
+            nameEn: { type: 'STRING' },
+            maker: { type: 'STRING' },
+            material: { type: 'STRING' },
+            dimensions: { type: 'STRING' },
             description: { type: 'STRING' },
             period: { type: 'STRING' },
             culture: { type: 'STRING' },

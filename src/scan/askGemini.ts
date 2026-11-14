@@ -8,6 +8,11 @@ import { searchRecords, MoonRecord } from '../moon/moonApi';
  */
 export interface AskAnswer {
   name: string;
+  /** For cataloguing: the name in English, maker, material, estimated size (any may be missing). */
+  nameEn?: string;
+  maker?: string;
+  material?: string;
+  dimensions?: string;
   description: string;
   period?: string;
   culture?: string;
@@ -79,6 +84,10 @@ export async function askAboutFrame(video: HTMLVideoElement, key: string, lang: 
         type: 'OBJECT',
         properties: {
           name: { type: 'STRING' },
+          nameEn: { type: 'STRING', description: 'The name in English.' },
+          maker: { type: 'STRING', description: 'Maker, workshop or school, if known.' },
+          material: { type: 'STRING' },
+          dimensions: { type: 'STRING', description: 'Estimated size, if it can be judged.' },
           description: { type: 'STRING', description: 'Two or three sentences.' },
           period: { type: 'STRING' },
           culture: { type: 'STRING' },
@@ -102,7 +111,7 @@ export async function askAboutFrame(video: HTMLVideoElement, key: string, lang: 
   return withRecords(JSON.parse(text));
 }
 
-type Guess = { name: string; description: string; period?: string; culture?: string; searchTerms?: string[] };
+type Guess = { name: string; nameEn?: string; maker?: string; material?: string; dimensions?: string; description: string; period?: string; culture?: string; searchTerms?: string[] };
 
 /** Moon, searched with the AI's words: records found by more terms rank first. */
 async function withRecords(a: Guess): Promise<AskAnswer> {
@@ -118,5 +127,5 @@ async function withRecords(a: Guess): Promise<AskAnswer> {
     }
   }
   const records = [...hits.values()].sort((x, y) => y.n - x.n).map((h) => h.record).slice(0, 3);
-  return { name: a.name, description: a.description, period: a.period, culture: a.culture, records };
+  return { name: a.name, nameEn: a.nameEn, maker: a.maker, material: a.material, dimensions: a.dimensions, description: a.description, period: a.period, culture: a.culture, records };
 }
