@@ -5,6 +5,7 @@ import { useMoonSearch } from '../../moon/useMoon';
 import { Embedder } from '../../recognize/embedder';
 import { encodeView } from '../../recognize/recognitionIndex';
 import { EnrolledObject, enrolmentZip, listEnrolled, removeEnrolled, saveEnrolled } from '../../recognize/localEnrol';
+import { getCustomScannedObjects } from '../../utils/alqamiRdfStore';
 
 /**
  * "Teach ALQAMI": photograph an object from the sides visitors will see and link it to its Moon record (or a built-in
@@ -23,10 +24,11 @@ const SHOTS = [
 ];
 const MIN_SHOTS = 5;
 
-interface Target {
+export interface TeachTarget {
   key: string;
   title: string;
 }
+type Target = TeachTarget;
 
 // The centre square of the frame, as recognition sees it (Embedder crops 80% of the short side), saved at 640 px.
 function captureSquare(video: HTMLVideoElement): HTMLCanvasElement | null {
@@ -39,9 +41,18 @@ function captureSquare(video: HTMLVideoElement): HTMLCanvasElement | null {
   return c;
 }
 
-export const TeachPanel: React.FC<{ videoRef: React.RefObject<HTMLVideoElement | null>; onTaught?: () => void }> = ({ videoRef, onTaught }) => {
+export const TeachPanel: React.FC<{ videoRef: React.RefObject<HTMLVideoElement | null>; onTaught?: () => void; preset?: TeachTarget | null }> = ({
+  videoRef,
+  onTaught,
+  preset,
+}) => {
   const [query, setQuery] = useState('');
-  const [target, setTarget] = useState<Target | null>(null);
+  // A record just added in "Add record" comes here already chosen: only the photos are left to take.
+  const [target, setTarget] = useState<Target | null>(preset ?? null);
+  useEffect(() => {
+    if (preset) setTarget(preset);
+  }, [preset]);
+  const ownRecords = getCustomScannedObjects();
   const [shots, setShots] = useState<Array<{ photo: Blob; view: string; thumb: string }>>([]);
   const [busy, setBusy] = useState(false);
   const [taught, setTaught] = useState<EnrolledObject[]>([]);
@@ -123,6 +134,18 @@ export const TeachPanel: React.FC<{ videoRef: React.RefObject<HTMLVideoElement |
                 </button>
               ))}
           </div>
+          {ownRecords.length > 0 && (
+            <>
+              <p className="text-[11px] text-white/50">أو سجلّ أضفته · or a record you added</p>
+              <div className="flex flex-wrap gap-1.5">
+                {ownRecords.map((o) => (
+                  <button key={o.id} dir="auto" onClick={() => setTarget({ key: `artifact:${o.id}`, title: o.metadata.titleAr || o.scanName })} className={`${chip} bg-amber-300/15 border-amber-300/40 hover:bg-amber-300/25`}>
+                    {o.metadata.titleAr || o.scanName}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
           <p className="text-[11px] text-white/50">أو قطعة من ALQAMI · or one of ALQAMI's objects</p>
           <div className="flex flex-wrap gap-1.5">
             {ALQAMI_ARTIFACTS.map((a) => (

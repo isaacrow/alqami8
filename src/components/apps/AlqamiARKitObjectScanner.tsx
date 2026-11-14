@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import QRCode from 'qrcode';
 import { assetUrl } from '../../utils/assetUrl';
 import {
@@ -39,7 +40,7 @@ import { SightTarget } from '../../recognize/recognizer';
 import { StatueAR } from '../scan/StatueAR';
 import { publishedRecords } from '../../moon/moonObjects';
 import { setScannerOpen } from '../../utils/scannerState';
-import { TeachPanel } from '../scan/TeachPanel';
+import { TeachPanel, TeachTarget } from '../scan/TeachPanel';
 import { CoverPose, CoverTracker } from '../../pin/coverTracker';
 import { PinnedCard } from '../../pin/PinnedCard';
 
@@ -64,6 +65,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
 
   // Detection state
   const referenceObjects = getAllReferenceObjects();
+  const [teachPreset, setTeachPreset] = useState<TeachTarget | null>(null);
   const [selectedTargetIndex, setSelectedTargetIndex] = useState(0);
   const [activeRdfTab, setActiveRdfTab] = useState<'summary' | 'transcription' | 'turtle' | 'bibframe'>('summary');
   const [scanMessage, setScanMessage] = useState('وجّه الكاميرا نحو ملصق QR أو باركود الكتاب · Point at a QR label or a book barcode');
@@ -227,7 +229,12 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   // Recognition by sight, beside the code reader: DINOv2 compares the centre of the frame with the nightly index
   // of Moon covers and enrolled objects. A steady match opens it; when unsure, up to three candidates are offered.
   const [sightCandidates, setSightCandidates] = useState<Array<{ target: SightTarget; title: string }>>([]);
-  const [sightReady, setSightReady] = useState<'loading' | 'ready' | 'off'>('loading');
+  const [sightReady, setSightReadyState] = useState<'loading' | 'ready' | 'off'>('loading');
+  const [sightError, setSightError] = useState('');
+  const setSightReady = useCallback((status: 'loading' | 'ready' | 'off', reason?: string) => {
+    setSightReadyState(status);
+    setSightError(status === 'off' ? reason ?? '' : '');
+  }, []);
   const openSightTarget = (target: SightTarget) => {
     setSightCandidates([]);
     if (target.kind === 'moon') {
@@ -376,6 +383,8 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
     };
 
     saveCustomScannedObject(newObj);
+    // Next: photograph it from its sides, so the camera recognises this very object and shows this record on it.
+    setTeachPreset({ key: `artifact:${customId}`, title: newObj.metadata.titleAr });
     setSelectedTargetIndex(getAllReferenceObjects().findIndex((item) => item.id === newObj.id));
 
     // Store metadata only; this browser flow does not reconstruct a 3D mesh.
@@ -391,82 +400,53 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
     spatialSound.playAlqamiChime();
     window.setTimeout(() => {
       setSavedSuccessToast(false);
-      setActiveMode('detect');
+      setActiveMode('teach');
     }, 1800);
   };
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-[88] bg-black/92 backdrop-blur-2xl flex flex-col justify-between p-3 sm:p-5 select-none animate-in fade-in duration-200">
-      {/* ── TOP HEADER / MODE SWITCHER ── */}
-      <div className="flex items-center justify-between z-20 gap-3">
-      {/* Camera QR scanner status */}
-        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full vision-glass border border-emerald-400/40 text-xs font-semibold text-emerald-300 shadow-[0_0_20px_rgba(52,211,153,0.35)]">
-          <Scan className="w-4 h-4 animate-pulse text-emerald-300" />
-          <span>مسح رمز القطعة وبياناتها • Camera QR scanner</span>
-        </div>
-
-        {/* Mode Selector Toggle: Detect vs Scan */}
-        <div className="flex items-center gap-1 p-1 rounded-full vision-glass border border-white/20 bg-black/40">
-          <button
-            onClick={() => {
-              spatialSound.playPinchTap?.();
-              setActiveMode('detect');
-            }}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
-              activeMode === 'detect'
-                ? 'bg-emerald-400 text-black shadow-md font-bold'
-                : 'text-white/80 hover:text-white'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>مسح رمز الفهرس (Scan catalog code)</span>
-          </button>
-
-          <button
-            onClick={() => {
-              spatialSound.playPinchTap?.();
-              setActiveMode('teach');
-            }}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
-              activeMode === 'teach'
-                ? 'bg-sky-300 text-black shadow-md font-bold'
-                : 'text-white/80 hover:text-white'
-            }`}
-          >
-            <Camera className="w-3.5 h-3.5" />
-            <span>علّم ALQAMI (Teach an object)</span>
-          </button>
-
-          <button
-            onClick={() => {
-              spatialSound.playPinchTap?.();
-              setActiveMode('scan');
-            }}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
-              activeMode === 'scan'
-                ? 'bg-amber-400 text-black shadow-md font-bold'
-                : 'text-white/80 hover:text-white'
-            }`}
-          >
-            <Box className="w-3.5 h-3.5" />
-            <span>إضافة سجل بيانات (Add metadata record)</span>
-          </button>
-        </div>
-
-        {/* Close Button */}
+  // Rendered on the page itself (a portal): inside a spatial window, whose CSS transform would trap "fixed", the
+  // scanner was squeezed into the window. Full screen, the camera fills the phone and the controls sit over it.
+  return createPortal(
+    <div className="fixed inset-0 z-[200] bg-black flex flex-col justify-between select-none animate-in fade-in duration-200">
+      {/* ── TOP BAR: close, and the three modes as one short segmented control ── */}
+      <div className="relative z-40 flex items-center gap-2 px-3 pt-[calc(env(safe-area-inset-top)+10px)] pb-2 bg-gradient-to-b from-black/70 to-transparent">
         <button
           onClick={onClose}
-          className="w-9 h-9 rounded-full vision-glass border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition cursor-pointer active:scale-95"
+          className="w-10 h-10 shrink-0 rounded-full bg-black/55 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-95"
           title="Close Scanner"
+          aria-label="Close"
         >
-          <X className="w-4 h-4" />
+          <X className="w-5 h-5" />
         </button>
+        <div dir="rtl" className="flex-1 min-w-0 flex items-center p-1 rounded-full bg-black/55 backdrop-blur-md border border-white/15">
+          {[
+    { id: 'detect' as const, ar: 'تعرّف', en: 'Recognise', Icon: ShieldCheck, on: 'bg-emerald-400 text-black' },
+    { id: 'teach' as const, ar: 'علّم', en: 'Teach', Icon: Camera, on: 'bg-sky-300 text-black' },
+    { id: 'scan' as const, ar: 'أضف سجلاً', en: 'Add record', Icon: Box, on: 'bg-amber-400 text-black' },
+  ].map(({ id, ar, en, Icon, on }) => (
+            <button
+              key={id}
+              onClick={() => {
+                spatialSound.playPinchTap?.();
+                setActiveMode(id);
+              }}
+              aria-pressed={activeMode === id}
+              className={`flex-1 min-w-0 h-9 px-2 rounded-full text-[12.5px] font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 ${
+                activeMode === id ? on : 'text-white/80'
+              }`}
+              title={en}
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              <span className="truncate">{ar}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
         {/* Live camera view and QR metadata overlay */}
-      <div className="relative flex-1 my-2 rounded-[28px] overflow-hidden border border-white/20 bg-black/60 flex items-center justify-center">
+      <div className="absolute inset-0 overflow-hidden bg-black flex items-center justify-center">
         {/* Real camera video */}
         <video
           ref={videoRef}
@@ -490,13 +470,13 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
 
         {activeMode === 'detect' && (
           <>
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full vision-glass border border-white/20 bg-black/65 text-white text-xs text-center max-w-[92%] pointer-events-none">
+            <div className="absolute top-[calc(env(safe-area-inset-top)+64px)] left-1/2 -translate-x-1/2 z-30 px-3.5 py-1.5 rounded-full bg-black/55 backdrop-blur-md border border-white/15 text-white text-[11.5px] text-center max-w-[80%] truncate pointer-events-none">
               {scanMessage}
             </div>
             <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
-              <div className="w-60 h-60 max-w-[70vw] max-h-[70vw] border-2 border-emerald-300/80 rounded-2xl shadow-[0_0_28px_rgba(52,211,153,0.3)]" />
+              <div className="w-60 h-60 max-w-[62vw] max-h-[62vw] rounded-3xl border border-white/45 [mask:linear-gradient(#000_0_0)_content-box_exclude,linear-gradient(#000_0_0)] opacity-70" />
             </div>
-            <div className="absolute bottom-4 inset-x-3 z-30 flex flex-col items-center gap-2 pointer-events-none">
+            <div className="absolute bottom-[calc(env(safe-area-inset-bottom)+76px)] inset-x-3 z-30 flex flex-col items-center gap-2 pointer-events-none">
               {sightCandidates.length > 0 && (
                 <div className="pointer-events-auto max-w-full px-3 py-2.5 rounded-2xl vision-glass border border-white/20 bg-black/70 text-white space-y-2">
                   <p className="text-[11.5px] text-white/70 text-center">هل هو أحد هذه؟ · Is it one of these?</p>
@@ -519,7 +499,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
                   ? 'تجهيز التعرّف بالنظر… · Preparing recognition by sight…'
                   : sightReady === 'ready'
                     ? 'التعرّف بالنظر يعمل · Recognition by sight on'
-                    : 'الرموز فقط (التعرّف بالنظر غير متاح) · Codes only (sight unavailable)'}
+                    : `الرموز فقط · Codes only${sightError ? ` (${sightError})` : ''}`}
               </span>
             </div>
           </>
@@ -719,13 +699,10 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
       </div>
 
       {/* ── BOTTOM DOCK CONTROLS ── */}
-      <div className="z-20 pt-1">
+      <div className="relative z-40 px-3 pt-6 pb-[calc(env(safe-area-inset-bottom)+10px)] bg-gradient-to-t from-black/75 to-transparent">
         {/* Detect Mode: Quick Switcher for Detectable Artifacts */}
         {activeMode === 'detect' && (
           <div className="flex items-center justify-between gap-3 overflow-x-auto py-1 custom-scrollbar">
-            <span className="text-xs font-bold text-white/80 whitespace-nowrap pl-1">
-              السجلات المتاحة للمعاينة (Catalog records):
-            </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={downloadCatalogLabel}
@@ -766,7 +743,17 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
           </div>
         )}
 
-        {activeMode === 'teach' && <TeachPanel videoRef={videoRef} />}
+        {activeMode === 'teach' && (
+          <TeachPanel
+            videoRef={videoRef}
+            preset={teachPreset}
+            onTaught={() => {
+              setTeachPreset(null);
+              setScanMessage('تعلّمها ALQAMI — وجّه الكاميرا إليها · Learned — point the camera at it');
+              setActiveMode('detect');
+            }}
+          />
+        )}
 
         {/* Scan Mode Step 4: Metadata Form */}
         {activeMode === 'scan' && (
@@ -877,6 +864,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
           <span>تم حفظ سجل البيانات وملف JSON!</span>
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 };
