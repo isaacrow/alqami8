@@ -25,7 +25,8 @@ const test = load('renders-test');
 const dot = (a, b) => a.reduce((s, x, i) => s + x * b[i], 0);
 
 for (const name of process.argv.slice(2)) {
-  const model = await AutoModel.from_pretrained(name, { dtype: 'q8' });
+  const [repo, dtype = 'q8'] = name.split('@');
+  const model = await AutoModel.from_pretrained(repo, { dtype });
   const embed = async (buf) => {
     const { data } = await sharp(buf).removeAlpha().resize(SIZE, SIZE, { fit: 'fill' }).raw().toBuffer({ resolveWithObject: true });
     const px = new Float32Array(3 * SIZE * SIZE);

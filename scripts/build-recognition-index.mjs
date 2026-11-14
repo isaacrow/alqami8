@@ -19,7 +19,10 @@ const MOON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmYmFnY3p3aHZ4eHN0YmZyZmh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3ODg4OTksImV4cCI6MjA4NjM2NDg5OX0.Hrib4UwwVvCu0o7K51UAICoSmd2J-0XlkLegdkIqLJk';
 const COVERS = 'https://gfbagczwhvxxstbfrfhu.supabase.co/storage/v1/object/public/covers';
 const MODEL = 'Xenova/dinov2-small';
-const KEY = 'dinov2s';
+// INDEX_DTYPE=fp16 builds the index for phones with WebGPU (the same model at half precision: as accurate, and much
+// faster there); the default int8 index is for the WASM fallback. Each must match the model the browser runs.
+const DTYPE = process.env.INDEX_DTYPE || 'q8';
+const KEY = DTYPE === 'q8' ? 'dinov2s' : `dinov2s-${DTYPE}`;
 const VARIATIONS = 2;
 // Views as the scanner sees them: the object inside the guide square, with surroundings around it.
 const IN_FRAME = 4;
@@ -32,7 +35,7 @@ const SIZE = 224;
 const MEAN = [0.485, 0.456, 0.406];
 const STD = [0.229, 0.224, 0.225];
 
-const model = await AutoModel.from_pretrained(MODEL, { dtype: 'q8' });
+const model = await AutoModel.from_pretrained(MODEL, { dtype: DTYPE });
 
 async function embed(buf) {
   const { data } = await sharp(buf).rotate().removeAlpha().resize(SIZE, SIZE, { fit: 'fill' }).raw().toBuffer({ resolveWithObject: true });
@@ -156,6 +159,9 @@ const file = {
   model: KEY,
   dim: entries[0]?.views[0].length ?? 0,
   builtAt: new Date().toISOString(),
+  // A fixed picture and its embedding: the browser embeds the same picture and uses this index only if it agrees
+  // (some phones' GPUs compute wrong results at half precision).
+  selftest: { image: 'data/sight-selftest.jpg', view: encode(await embed(readFileSync(join(process.cwd(), 'public', 'data', 'sight-selftest.jpg')))) },
   entries: entries.map((e) => ({
     key: e.key,
     threshold: Number(e.threshold.toFixed(3)),
