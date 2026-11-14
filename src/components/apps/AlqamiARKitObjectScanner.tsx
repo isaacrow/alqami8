@@ -338,7 +338,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
     spatialSound.playPinchTap?.();
   };
 
-  // Save a custom catalog record and download its JSON metadata.
+  // Save a custom catalog record on this phone, then photograph it all around (Teach).
   const handleSaveScannedObject = () => {
     const newTtl = generateCustomTurtle({
       titleAr: customForm.titleAr || customForm.scanName,
@@ -387,14 +387,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
     setTeachPreset({ key: `artifact:${customId}`, title: newObj.metadata.titleAr });
     setSelectedTargetIndex(getAllReferenceObjects().findIndex((item) => item.id === newObj.id));
 
-    // Store metadata only; this browser flow does not reconstruct a 3D mesh.
-    const recordBlob = new Blob([JSON.stringify(newObj, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(recordBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${customForm.scanName.replace(/[^\p{L}\p{N}-]+/gu, '_')}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    // Kept on this phone (no file is downloaded); the next step photographs it all around.
 
     setSavedSuccessToast(true);
     spatialSound.playAlqamiChime();
@@ -850,7 +843,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
                 className="px-5 py-2 rounded-full bg-emerald-400 hover:bg-emerald-300 text-black font-bold text-xs shadow-md flex items-center gap-1.5 cursor-pointer active:scale-95 transition"
               >
                 <Download className="w-4 h-4" />
-                <span>حفظ سجل البيانات وملف JSON (Save record)</span>
+                <span>احفظ ثم صوّرها ٣٦٠° · Save, then 360° photos</span>
               </button>
             </div>
           </div>
@@ -861,7 +854,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
       {savedSuccessToast && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 px-6 py-4 rounded-2xl vision-glass border border-emerald-400 bg-black/90 text-emerald-300 font-bold text-sm shadow-2xl flex items-center gap-2 animate-in zoom-in-95">
           <CheckCircle2 className="w-5 h-5" />
-          <span>تم حفظ سجل البيانات وملف JSON!</span>
+          <span>تم الحفظ — الآن صوّرها من كل الجوانب</span>
         </div>
       )}
     </div>,
