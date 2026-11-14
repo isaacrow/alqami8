@@ -139,6 +139,11 @@ vec3 rig(vec3 p) {
     const rig: BustRig = {
       jaw: 0,
       wide: 0,
+      round: 0,
+      upper: 0,
+      press: 0,
+      tuck: 0,
+      tongue: 0,
       smile: 0,
       brow: 0,
       blink: 0,

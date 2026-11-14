@@ -84,8 +84,8 @@ export const CharacterApp: React.FC = () => {
     const level = new Float32Array(512);
     const spectrum = new Uint8Array(256);
     const quiet = { level: 0, bright: 0.5 };
-    // ?debug: lets a test drive the voice level and gaze (window.__debug = { voice, look }).
-    const debug = new URLSearchParams(location.search).has('debug') ? ((window as any).__debug = { stage: s, voice: null, bright: null, look: null }) : null;
+    // ?debug: lets a test drive the voice level, a mouth shape and the gaze (window.__debug = { voice, bright, mouth, look }).
+    const debug = new URLSearchParams(location.search).has('debug') ? ((window as any).__debug = { stage: s, voice: null, bright: null, mouth: null, look: null, say: (url: string) => { live.current ??= new LiveConversation(loadSettings(), '', { onState: () => {}, onHisWords: () => {}, onVisitorWords: () => {} }); return live.current.playClip(url); } }) : null;
     let last = performance.now();
     let raf = 0;
     const loop = (now: number) => {
@@ -98,7 +98,8 @@ export const CharacterApp: React.FC = () => {
         look = seen.face ?? seen.hand;
         if (seen.pinchDelta) s.bodyYaw += seen.pinchDelta.x * 5;
       }
-      const voice = debug?.voice != null ? { level: debug.voice, bright: debug.bright ?? 0.5 } : live.current?.features(level, spectrum) ?? quiet;
+      const voice = debug?.voice != null ? { level: debug.voice, bright: debug.bright ?? 0.5, ...(debug.mouth ? { mouth: debug.mouth } : {}) } : live.current?.features(level, spectrum) ?? quiet;
+      if (debug) (debug as { last?: unknown }).last = voice;
       s.frame(dt, voice, debug?.look ?? look);
       raf = requestAnimationFrame(loop);
     };
