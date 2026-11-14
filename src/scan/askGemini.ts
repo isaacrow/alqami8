@@ -49,7 +49,20 @@ function frameJpeg(video: HTMLVideoElement): string {
   return c.toDataURL('image/jpeg', 0.82).split(',')[1];
 }
 
+/** ALQAMI's key keeper (worker/token-worker.js): when set, the site's Gemini key stays on the server. */
+const TOKEN_URL = (import.meta.env.VITE_TOKEN_URL as string | undefined)?.replace(/\/+$/, '') || '';
+
 export async function askAboutFrame(video: HTMLVideoElement, key: string, lang: 'ar' | 'en' = 'ar'): Promise<AskAnswer> {
+  // Through the key keeper (no key in the browser), unless the visitor typed their own key.
+  if (TOKEN_URL && !key) {
+    const res = await fetch(`${TOKEN_URL}/ask`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: frameJpeg(video), lang }),
+    });
+    if (!res.ok) throw new Error(`Key keeper ${res.status}`);
+    return withRecords(await res.json());
+  }
   if (!key) throw new Error('No Gemini key');
   const model = await pickModel(key);
   const prompt =
@@ -86,7 +99,13 @@ export async function askAboutFrame(video: HTMLVideoElement, key: string, lang: 
   }
   const data = await res.json();
   const text: string = data.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? '').join('') ?? '';
-  const a = JSON.parse(text) as { name: string; description: string; period?: string; culture?: string; searchTerms?: string[] };
+  return withRecords(JSON.parse(text));
+}
+
+type Guess = { name: string; description: string; period?: string; culture?: string; searchTerms?: string[] };
+
+/** Moon, searched with the AI's words: records found by more terms rank first. */
+async function withRecords(a: Guess): Promise<AskAnswer> {
 
   // Moon, with each search term; records found by more terms rank first.
   const hits = new Map<string, { record: MoonRecord; n: number }>();
