@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Camera, Check, Download, RotateCw, Square, Trash2 } from 'lucide-react';
+import { Box, Camera, Check, Download, RotateCw, Square, Trash2 } from 'lucide-react';
 import { ALQAMI_ARTIFACTS } from '../../data/alqamiArtifacts';
 import { useMoonSearch } from '../../moon/useMoon';
 import { Embedder } from '../../recognize/embedder';
@@ -66,14 +66,17 @@ export const TeachPanel: React.FC<{ videoRef: React.RefObject<HTMLVideoElement |
   // Views are made with the same model recognition uses on this phone, and saved with its name.
   const model = useRef('dinov2s');
   const raw = useRef<Float32Array[]>([]);
+  // The model this phone recognises with is chosen once (a self-test may still be running when Teach opens).
+  const ready = useRef<Promise<Embedder> | null>(null);
   const [walking, setWalking] = useState(false);
   const walkingRef = useRef(false);
   const search = useMoonSearch(query.trim(), 'ar', 6);
 
   useEffect(() => {
-    void sightBackend().then((b) => {
+    ready.current = sightBackend().then((b) => {
       model.current = b.key;
       embedder.current = new Embedder(b.device, b.dtype);
+      return embedder.current;
     });
     void listEnrolled().then(setTaught);
     return () => {
@@ -139,6 +142,52 @@ export const TeachPanel: React.FC<{ videoRef: React.RefObject<HTMLVideoElement |
     setTarget(null);
     setBusy(false);
     onTaught?.();
+  };
+
+  // A 3D scan as the clue: rendered from 36 angles on this phone, each view learnt with its angle; saved at once.
+  const meshInput = useRef<HTMLInputElement>(null);
+  const [meshState, setMeshState] = useState<{ step: 'idle' | 'render' | 'learn' | 'error'; progress: number; message?: string }>({ step: 'idle', progress: 0 });
+  const learnMesh = async (file: File) => {
+    if (!target) return;
+    walkingRef.current = false;
+    setBusy(true);
+    try {
+      setMeshState({ step: 'render', progress: 0 });
+      const embed = embedder.current ?? (await ready.current);
+      if (!embed) throw new Error('model');
+      const { renderMeshViews } = await import('../../recognize/meshViews');
+      const views = await renderMeshViews(file, (p) => setMeshState({ step: 'render', progress: p }));
+      const encoded: string[] = [];
+      const photos: Blob[] = [];
+      for (let i = 0; i < views.length; i++) {
+        const v = await embed.embed(views[i].canvas);
+        const photo = await new Promise<Blob | null>((r) => views[i].canvas.toBlob(r, 'image/jpeg', 0.8));
+        if (v && photo) {
+          encoded.push(encodeView(v));
+          photos.push(photo);
+        }
+        setMeshState({ step: 'learn', progress: (i + 1) / views.length });
+      }
+      const angles = views.map((v) => v.azimuth).slice(0, photos.length);
+      await saveEnrolled({ key: target.key, title: target.title, model: model.current, views: encoded, photos, angles, mesh: file, meshName: file.name, savedAt: new Date().toISOString() });
+      setTaught(await listEnrolled());
+      setSaved(target.title);
+      setTarget(null);
+      setMeshState({ step: 'idle', progress: 0 });
+      onTaught?.();
+    } catch (e) {
+      const m = (e as Error).message;
+      setMeshState({
+        step: 'error',
+        progress: 0,
+        message:
+          m === 'usdz-binary'
+            ? 'هذا الملف USDZ ثنائي: صدّره بصيغة GLB من التطبيق · This USDZ is binary: export it as GLB from the app'
+            : 'تعذّر قراءة المسح · Could not read the scan (GLB, GLTF or USDZ)',
+      });
+    } finally {
+      setBusy(false);
+    }
   };
 
   const exportZip = async () => {
@@ -208,6 +257,42 @@ export const TeachPanel: React.FC<{ videoRef: React.RefObject<HTMLVideoElement |
               تغيير · Change
             </button>
           </div>
+          {/* Best clue: a 3D scan (Scaniverse, Polycam, Reality Composer): every angle from one file. */}
+          <input
+            ref={meshInput}
+            type="file"
+            accept=".glb,.gltf,.usdz,model/gltf-binary,model/vnd.usdz+zip"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = '';
+              if (file) void learnMesh(file);
+            }}
+          />
+          <button
+            onClick={() => meshInput.current?.click()}
+            disabled={busy}
+            className="w-full flex items-center gap-3 p-2.5 rounded-2xl border text-start bg-amber-300/15 border-amber-300/50 active:scale-[0.99] disabled:opacity-60"
+          >
+            <span className="w-12 h-12 shrink-0 rounded-full bg-amber-300/20 flex items-center justify-center">
+              <Box className="w-6 h-6 text-amber-200" />
+            </span>
+            <span className="flex-1 min-w-0">
+              <span className="block text-[13px] font-semibold">
+                {meshState.step === 'render'
+                  ? `يرسمها من كل الزوايا… ${Math.round(meshState.progress * 100)}%`
+                  : meshState.step === 'learn'
+                    ? `يتعلّم كل زاوية… ${Math.round(meshState.progress * 100)}%`
+                    : 'أضف مسحاً ثلاثي الأبعاد · Add a 3D scan'}
+              </span>
+              <span className="block text-[11px] text-white/65">
+                {meshState.step === 'error'
+                  ? meshState.message
+                  : 'GLB من Scaniverse أو Polycam: يتعرّف عليها من أي جهة · A GLB from Scaniverse or Polycam: recognised from any side'}
+              </span>
+            </span>
+          </button>
+          <p className="text-[11px] text-white/45 text-center">أو صوّرها بنفسك · or photograph it yourself</p>
           <button
             onClick={walk}
             className={`w-full flex items-center gap-3 p-2.5 rounded-2xl border text-start transition active:scale-[0.99] ${walking ? 'bg-sky-300/20 border-sky-300/60' : 'bg-white/10 border-white/20'}`}

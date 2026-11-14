@@ -286,7 +286,11 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
       .catch(() => {});
   }, [isOpen]);
   const titleOf = (t: SightTarget) =>
-    t.kind === 'moon' ? sightTitles.current.get(`moon:${t.recordId}`) || t.recordId : ALQAMI_ARTIFACTS.find((a) => a.id === t.id)?.title.ar || t.id;
+    t.kind === 'moon'
+      ? sightTitles.current.get(`moon:${t.recordId}`) || t.recordId
+      : ALQAMI_ARTIFACTS.find((a) => a.id === t.id)?.title.ar ||
+        referenceObjects.find((o) => o.id === t.id)?.metadata.titleAr ||
+        t.id;
   const onSightCandidates = useCallback((targets: SightTarget[]) => {
     setSightCandidates(targets.map((target) => ({ target, title: titleOf(target) })));
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -58,12 +58,13 @@ export async function loadRecognitionIndex(
       if (!raw.length) continue;
     }
     const views = raw.map(decodeView);
+    // Angles of a 3D scan's renders (aligned with photos, so also with views re-learnt from them).
+    const angles = views.map((_, i) => taught.angles?.[i] ?? null);
     const same = entries.find((e) => e.key === taught.key);
     if (same) {
+      same.angles = [...(same.angles ?? same.views.map(() => null)), ...angles];
       same.views.push(...views);
-      same.angles?.push(...views.map(() => null));
-    }
-    else entries.push({ key: taught.key, threshold: floor, views });
+    } else entries.push({ key: taught.key, threshold: floor, views, angles: angles.some((a) => a !== null) ? angles : undefined });
   }
   return { file, entries };
 }

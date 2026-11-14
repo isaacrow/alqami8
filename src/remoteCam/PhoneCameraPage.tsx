@@ -1,20 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { PhoneCommand, sendPhoneCamera } from './phoneCamera';
-
-/** <model-viewer> (public/js): the same viewer as the AR page; AR Quick Look on iPhone, Scene Viewer on Android. */
-let viewerLoading: Promise<void> | null = null;
-function loadModelViewer() {
-  viewerLoading ??= new Promise((resolve, reject) => {
-    if (customElements.get('model-viewer')) return resolve();
-    const s = document.createElement('script');
-    s.type = 'module';
-    s.src = new URL('js/model-viewer.min.js', new URL(import.meta.env.BASE_URL || './', location.href)).href;
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error('model-viewer'));
-    document.head.appendChild(s);
-  });
-  return viewerLoading;
-}
+import { ModelOverlay } from '../components/three/ModelOverlay';
 
 /**
  * What the phone shows when it opens the PC's QR code: its camera, going to the PC; and, when the PC sends one,
@@ -28,9 +14,6 @@ export const PhoneCameraPage: React.FC<{ hostId: string }> = ({ hostId }) => {
   const stop = useRef<(() => void) | null>(null);
 
   useEffect(() => () => stop.current?.(), []);
-  useEffect(() => {
-    if (shown) void loadModelViewer().catch(() => undefined);
-  }, [shown]);
 
   const onCommand = (c: PhoneCommand) => {
     if (c.t === 'show') {
@@ -69,41 +52,7 @@ export const PhoneCameraPage: React.FC<{ hostId: string }> = ({ hostId }) => {
         )}
       </div>
 
-      {shown && (
-        <div className="absolute inset-0 z-20 bg-[#0c0a09] flex flex-col">
-          <div className="flex items-center gap-3 p-4 pt-[calc(env(safe-area-inset-top)+12px)]">
-            <p className="flex-1 text-[16px] font-semibold leading-snug" dir="auto">
-              {shown.title}
-            </p>
-            <button onClick={() => setShown(null)} aria-label="Close" className="w-10 h-10 rounded-full bg-white/12 text-[18px]">
-              ✕
-            </button>
-          </div>
-          {React.createElement(
-            'model-viewer',
-            {
-              src: shown.model,
-              alt: shown.title,
-              'camera-controls': true,
-              'touch-action': 'pan-y',
-              'auto-rotate': true,
-              'shadow-intensity': '1',
-              exposure: '1.05',
-              'environment-image': 'neutral',
-              ar: true,
-              'ar-modes': 'quick-look scene-viewer webxr',
-              'ar-scale': 'auto',
-              style: { flex: 1, width: '100%', background: 'radial-gradient(circle at 50% 40%, #2a2420, #0c0a09)' },
-            },
-            <button
-              slot="ar-button"
-              className="absolute bottom-[calc(env(safe-area-inset-bottom)+20px)] inset-x-4 h-14 rounded-full bg-[#FFD60A] text-black text-[16px] font-semibold"
-            >
-              ضعها في مكانك · View in your space (AR)
-            </button>
-          )}
-        </div>
-      )}
+      {shown && <ModelOverlay model={shown.model} title={shown.title} onClose={() => setShown(null)} />}
     </div>
   );
 };
