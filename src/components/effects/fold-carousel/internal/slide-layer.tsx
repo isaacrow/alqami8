@@ -26,7 +26,8 @@ export function SlideLayer({
 }: SlideLayerProps) {
   return (
     <div
-      inert={!primary}
+      // React 18 has no `inert` prop: pass the attribute itself (present = inert).
+      {...({ inert: primary ? undefined : '' } as Record<string, string | undefined>)}
       style={{ left, top, width: panels(2), height: panels(1) }}
       // Cancels the stage's mirror for the slide itself, so only the geometry flips.
       className="absolute in-[[data-mirrored]]:-scale-x-100"

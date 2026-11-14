@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, use } from "react";
+import { createContext, type ReactNode, useContext } from "react";
 import type { MotionValue } from "motion/react";
 
 import type { Fold } from "./fold-carousel.types";
@@ -17,7 +17,7 @@ export const FoldCarouselContext =
 
 /** The surrounding carousel's full state. Throws outside a `FoldCarousel`. */
 export function useFoldCarouselContext() {
-  const context = use(FoldCarouselContext);
+  const context = useContext(FoldCarouselContext);
   if (!context) {
     throw new Error("Fold carousel parts must be used inside <FoldCarousel>.");
   }
