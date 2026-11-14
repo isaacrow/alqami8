@@ -17,8 +17,15 @@ import { disposeObject, downscaleTextures, getDracoLoader } from '../../utils/mo
  */
 const FOV = 60;
 
-export const QrModelAR: React.FC<{ video: React.RefObject<HTMLVideoElement | null>; model: string; code: string }> = ({ video, model, code }) => {
+export const QrModelAR: React.FC<{
+  video: React.RefObject<HTMLVideoElement | null>;
+  model: string;
+  code: string;
+  /** Shown floating just above the model while the QR is in view (e.g. the object's record). */
+  children?: React.ReactNode;
+}> = ({ video, model, code, children }) => {
   const host = useRef<HTMLDivElement>(null);
+  const label = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<'loading' | 'tracking' | 'searching'>('loading');
 
   useEffect(() => {
@@ -82,6 +89,9 @@ export const QrModelAR: React.FC<{ video: React.RefObject<HTMLVideoElement | nul
         setState('searching');
       });
 
+    // Where the label goes: just above the model's top (marker space: up is +Z, the model is 1.6 tall).
+    const top = new THREE.Vector3();
+    let crop = { cw: 0, ch: 0, left: 0, top: 0 };
     // Canvas over the video with the video's cover crop, so the 3D lines up with the picture.
     const layout = () => {
       const W = el.clientWidth;
@@ -93,6 +103,7 @@ export const QrModelAR: React.FC<{ video: React.RefObject<HTMLVideoElement | nul
       const ch = vh * s;
       renderer.setSize(cw, ch, false);
       Object.assign(renderer.domElement.style, { width: `${cw}px`, height: `${ch}px`, left: `${(W - cw) / 2}px`, top: `${(H - ch) / 2}px` });
+      crop = { cw, ch, left: (W - cw) / 2, top: (H - ch) / 2 };
       camera.aspect = vw / vh;
       camera.updateProjectionMatrix();
     };
@@ -167,6 +178,21 @@ export const QrModelAR: React.FC<{ video: React.RefObject<HTMLVideoElement | nul
         setState(marker.visible ? 'tracking' : 'searching');
       }
       renderer.render(scene, camera);
+      const tag = label.current;
+      if (tag) {
+        if (marker.visible) {
+          marker.updateMatrixWorld();
+          top.set(0, 0, 1.8).applyMatrix4(marker.matrixWorld).project(camera);
+          const x = Math.min(el.clientWidth - 8, Math.max(8, crop.left + ((top.x + 1) / 2) * crop.cw));
+          const y = Math.max(120, crop.top + ((1 - top.y) / 2) * crop.ch);
+          tag.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`;
+          tag.style.opacity = '1';
+          tag.style.pointerEvents = 'auto';
+        } else {
+          tag.style.opacity = '0';
+          tag.style.pointerEvents = 'none';
+        }
+      }
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
@@ -187,6 +213,11 @@ export const QrModelAR: React.FC<{ video: React.RefObject<HTMLVideoElement | nul
 
   return (
     <div ref={host} className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+      {children && (
+        <div ref={label} className="absolute left-0 top-0 transition-opacity duration-300" style={{ opacity: 0 }}>
+          {children}
+        </div>
+      )}
       {state !== 'tracking' && (
         <div className="absolute top-[calc(env(safe-area-inset-top)+104px)] inset-x-0 flex justify-center">
           <span className="px-3 py-1 rounded-full bg-black/60 text-white text-[11.5px]">

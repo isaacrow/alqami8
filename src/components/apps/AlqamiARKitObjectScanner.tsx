@@ -24,6 +24,7 @@ import {
   Trash2,
   ExternalLink,
   Camera,
+  MoreHorizontal,
 } from 'lucide-react';
 import {
   getAllReferenceObjects,
@@ -67,6 +68,9 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
 }) => {
   // Catalog identification by printed QR label, plus metadata record creation.
   const [activeMode, setActiveMode] = useState<'detect' | 'teach' | 'scan'>('detect');
+  // Simple (the default): only the camera; what it recognises shows its record on the object itself. The tools
+  // (teach, add a record, QR labels, hands, AI) are one tap away behind "⋯".
+  const [simple, setSimple] = useState(true);
 
   // Detection state
   const referenceObjects = getAllReferenceObjects();
@@ -475,7 +479,8 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
         >
           <X className="w-5 h-5" />
         </button>
-        <div dir="rtl" className="flex-1 min-w-0 flex items-center p-1 rounded-full bg-black/55 backdrop-blur-md border border-white/15">
+        {simple && <div className="flex-1" />}
+        <div dir="rtl" className={`flex-1 min-w-0 items-center p-1 rounded-full bg-black/55 backdrop-blur-md border border-white/15 ${simple ? 'hidden' : 'flex'}`}>
           {[
     { id: 'detect' as const, ar: 'تعرّف', en: 'Recognise', Icon: ShieldCheck, on: 'bg-emerald-400 text-black' },
     { id: 'teach' as const, ar: 'علّم', en: 'Teach', Icon: Camera, on: 'bg-sky-300 text-black' },
@@ -498,6 +503,20 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
             </button>
           ))}
         </div>
+        <button
+          onClick={() => {
+            setSimple((s) => !s);
+            if (!simple) setActiveMode('detect');
+          }}
+          aria-pressed={!simple}
+          aria-label={simple ? 'More tools' : 'Fewer tools'}
+          title={simple ? 'أدوات أكثر · More tools' : 'أبسط · Simpler'}
+          className={`w-10 h-10 shrink-0 rounded-full backdrop-blur-md border flex items-center justify-center active:scale-95 ${
+            simple ? 'bg-black/55 border-white/20 text-white' : 'bg-white text-black border-white'
+          }`}
+        >
+          {simple ? <MoreHorizontal className="w-5 h-5" /> : <X className="w-4 h-4" />}
+        </button>
       </div>
 
         {/* Live camera view and QR metadata overlay */}
@@ -521,17 +540,28 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
           }}
           onCandidates={onSightCandidates}
           onStatus={setSightReady}
+          simple={simple}
+          hint={
+            isLockedOnObject
+              ? undefined
+              : 
+            sightReady === 'loading'
+              ? 'يجهّز… · Getting ready…'
+              : 'وجّه الكاميرا إلى مخطوطة أو قطعة · Point at a manuscript or object'
+          }
         />
 
         {activeMode === 'detect' && (
           <>
+            {!simple && (
             <div className="absolute top-[calc(env(safe-area-inset-top)+64px)] left-1/2 -translate-x-1/2 z-30 px-3.5 py-1.5 rounded-full bg-black/55 backdrop-blur-md border border-white/15 text-white text-[11.5px] text-center max-w-[80%] truncate pointer-events-none">
               {scanMessage}
             </div>
-            <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
+            )}
+            <div className={`absolute inset-0 z-10 pointer-events-none items-center justify-center ${simple ? 'hidden' : 'flex'}`}>
               <div className="w-60 h-60 max-w-[62vw] max-h-[62vw] rounded-3xl border border-white/45 [mask:linear-gradient(#000_0_0)_content-box_exclude,linear-gradient(#000_0_0)] opacity-70" />
             </div>
-            <div className="absolute bottom-[calc(env(safe-area-inset-bottom)+76px)] inset-x-3 z-30 flex flex-col items-center gap-2 pointer-events-none">
+            <div className={`absolute inset-x-3 z-30 flex flex-col items-center gap-2 pointer-events-none ${simple ? 'bottom-[calc(env(safe-area-inset-bottom)+80px)]' : 'bottom-[calc(env(safe-area-inset-bottom)+76px)]'}`}>
               {sightCandidates.length > 0 && (
                 <div className="pointer-events-auto max-w-full px-3 py-2.5 rounded-2xl vision-glass border border-white/20 bg-black/70 text-white space-y-2">
                   <p className="text-[11.5px] text-white/70 text-center">هل هو أحد هذه؟ · Is it one of these?</p>
@@ -549,7 +579,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
                   </div>
                 </div>
               )}
-              <span className="px-3 py-1 rounded-full bg-black/60 border border-white/15 text-[10.5px] text-white/70">
+              <span className={`px-3 py-1 rounded-full bg-black/60 border border-white/15 text-[10.5px] text-white/70 ${simple && sightReady !== 'off' ? 'hidden' : ''}`}>
                 {sightReady === 'loading'
                   ? 'تجهيز التعرّف بالنظر… · Preparing recognition by sight…'
                   : sightReady === 'ready'
@@ -564,10 +594,26 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
 
         {/* Catalog metadata card. Touch selection is used on phones instead of hover. */}
         {/* The recognised QR label's object, in 3D, standing on the code. */}
-        {activeMode === 'detect' && isLockedOnObject && lockedCode && qrModel && <QrModelAR video={videoRef} model={qrModel} code={lockedCode} />}
+        {activeMode === 'detect' && isLockedOnObject && lockedCode && qrModel && (
+          <QrModelAR video={videoRef} model={qrModel} code={lockedCode}>
+            {simple && !cardOpen && (
+              <button
+                dir="rtl"
+                onClick={() => setCardOpen(true)}
+                className="block w-[min(260px,80vw)] text-start rounded-2xl bg-black/70 backdrop-blur-md border border-white/20 text-white p-3 shadow-2xl"
+              >
+                <span className="block text-[14px] font-semibold leading-snug">{activeTarget.metadata.titleAr}</span>
+                {activeTarget.metadata.creatorAr && <span className="block text-[11.5px] text-white/70 truncate">{activeTarget.metadata.creatorAr}</span>}
+                {activeTarget.metadata.date && <span className="block mt-1 text-[11.5px] text-white/80">📅 {activeTarget.metadata.date}</span>}
+                {activeTarget.metadata.publisherAr && <span className="block text-[11.5px] text-white/80 truncate">🏛 {activeTarget.metadata.publisherAr}</span>}
+                <span className="block mt-1.5 text-[11px] text-[#FFD60A]">السجلّ الكامل · Full record ›</span>
+              </button>
+            )}
+          </QrModelAR>
+        )}
 
         {/* With a 3D model on the QR: a slim bar with the title; tap for the full card. */}
-        {activeMode === 'detect' && isLockedOnObject && lockedCode && !cardOpen && (
+        {activeMode === 'detect' && isLockedOnObject && lockedCode && !cardOpen && !(simple && qrModel) && (
           <div
             dir="rtl"
             className="absolute inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-30 flex items-center gap-2 p-2 ps-3 rounded-full vision-glass border border-emerald-400/60 bg-[#0a1324]/90 pointer-events-auto sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[480px]"
@@ -790,7 +836,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
       {/* ── BOTTOM DOCK CONTROLS ── */}
       <div className="relative z-40 px-3 pt-6 pb-[calc(env(safe-area-inset-bottom)+10px)] bg-gradient-to-t from-black/75 to-transparent">
         {/* Detect Mode: Quick Switcher for Detectable Artifacts */}
-        {activeMode === 'detect' && (
+        {activeMode === 'detect' && !simple && (
           <div className="flex items-center justify-between gap-3 overflow-x-auto py-1 custom-scrollbar">
             <div className="flex items-center gap-2">
               <button
