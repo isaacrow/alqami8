@@ -7,6 +7,7 @@ import { getCustomScannedObjects } from '../../utils/alqamiRdfStore';
 import { listEnrolled } from '../../recognize/localEnrol';
 import { ModelOverlay } from '../three/ModelOverlay';
 import { HologramAR, HologramPin, pinsFor } from './HologramAR';
+import { PagePins } from '../../pin/PagePins';
 import { useMoonRecord } from '../../moon/useMoon';
 import { SightRecognizer, SightTarget } from '../../recognize/recognizer';
 import { HandGestures, HandGesture } from '../../scan/handGestures';
@@ -399,7 +400,7 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
       {placed.map(({ tag, at }) =>
         at && at.onScreen ? (
           tag.key === shown ? (
-            <PinnedRecord key={tag.key} target={tag.target} angle={tag.angle} at={at} box={box} onOpen={() => onOpen(tag.target)} onClose={() => close(tag.key)} />
+            <PinnedRecord key={tag.key} target={tag.target} angle={tag.angle} at={at} box={box} video={video} onOpen={() => onOpen(tag.target)} onClose={() => close(tag.key)} />
           ) : (
             <TagChip key={tag.key} target={tag.target} angle={tag.angle} at={at} label={labels.get(tag.key) ?? { x: at.x, y: at.y - 46 }} onTap={() => setOpen(tag.key)} />
           )
@@ -551,9 +552,10 @@ const PinnedRecord: React.FC<{
   angle: number | null;
   at: { x: number; y: number };
   box: React.RefObject<HTMLDivElement | null>;
+  video: React.RefObject<HTMLVideoElement | null>;
   onOpen: () => void;
   onClose: () => void;
-}> = ({ target, angle, at, box, onOpen, onClose }) => {
+}> = ({ target, angle, at, box, video, onOpen, onClose }) => {
   const f = useObjectFacts(target);
   // The object's own 3D scan (taught from a GLB), else its catalogue model: shown in 3D and AR.
   const [mesh, setMesh] = useState<string | null>(null);
@@ -588,17 +590,22 @@ const PinnedRecord: React.FC<{
   useEffect(() => {
     if (builtIn) void pinsFor(builtIn.id).then(setPins);
   }, [builtIn]);
-  const hologram = mesh && !builtIn?.model.flat;
+  // A page with pins: the page is followed and its parts pinned; the record card folds to its title meanwhile.
+  const pagePins = builtIn?.pagePins;
+  const [onPage, setOnPage] = useState(false);
+  const hologram = mesh && !builtIn?.model.flat && !pagePins;
 
   const W = box.current?.clientWidth ?? 360;
   const cardW = Math.min(260, W - 24);
   const left = Math.max(12, Math.min(W - cardW - 12, at.x - cardW / 2));
-  const top = Math.max(12, at.y - 190);
+  // While a page is pinned, the card folds to its title at the top, out of the page's way.
+  const top = onPage ? 64 : Math.max(12, at.y - 190);
 
   return (
     <>
       {hologram && !show3d && <HologramAR model={mesh} at={at} angle={angle} pins={pins} />}
-      <svg className="absolute inset-0 w-full h-full overflow-visible">
+      {pagePins && builtIn && !show3d && <PagePins markerKey={`artifact:${builtIn.id}`} pins={pagePins} video={video.current} onTracking={setOnPage} />}
+      <svg className={`absolute inset-0 w-full h-full overflow-visible ${onPage ? 'hidden' : ''}`}>
         <line x1={at.x} y1={at.y} x2={Math.max(left + 16, Math.min(left + cardW - 16, at.x))} y2={top + 120} stroke="#FFD60A" strokeWidth="1.5" />
         <circle cx={at.x} cy={at.y} r="6" fill="#FFD60A" stroke="white" strokeWidth="2" />
       </svg>
@@ -612,7 +619,7 @@ const PinnedRecord: React.FC<{
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className="mt-1.5 space-y-0.5 text-[11.5px] text-white/80">
+        <div className={`mt-1.5 space-y-0.5 text-[11.5px] text-white/80 ${onPage ? 'hidden' : ''}`}>
           {f.date && <p>📅 {f.date}</p>}
           {f.material && <p className="truncate">🪨 {f.material}</p>}
           {f.holder && <p className="truncate">🏛 {f.holder}</p>}

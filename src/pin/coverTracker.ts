@@ -13,7 +13,14 @@ export interface CoverPose {
   corners: Array<[number, number]>;
 }
 
+// The tracker finds markers only in 4:3 frames (the shape its camera file, camera_para.dat, was made for: a 640x360
+// or a portrait 640x1138 frame finds nothing, measured with the library's own sample). So it is given the 4:3 middle
+// of the camera frame, 640x480, and the corners it finds are mapped back to the whole frame.
 const PROC_WIDTH = 640;
+const PROC_HEIGHT = 480;
+// Counters for checking on a device (window.__nft): frames processed, poses found, the marker being followed.
+const stats = { frames: 0, found: 0, marker: '', size: '' };
+(globalThis as unknown as { __nft?: typeof stats }).__nft = stats;
 let manifest: Promise<Record<string, { file: string }>> | null = null;
 
 const base = () => import.meta.env.BASE_URL || './';
@@ -47,6 +54,7 @@ export class CoverTracker {
   private timer = 0;
   private stopped = false;
   private lastSeen = 0;
+  private crop = { x: 0, y: 0, w: 1, h: 1, vw: 1, vh: 1 };
 
   constructor(
     private onPose: (pose: CoverPose) => void,
@@ -55,7 +63,13 @@ export class CoverTracker {
 
   private async controller(video: HTMLVideoElement) {
     const w = PROC_WIDTH;
-    const h = Math.round((PROC_WIDTH * video.videoHeight) / video.videoWidth);
+    const h = PROC_HEIGHT;
+    // The 4:3 middle of the video, in video pixels.
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    const cw = Math.min(vw, (vh * 4) / 3);
+    const ch = (cw * 3) / 4;
+    this.crop = { x: (vw - cw) / 2, y: (vh - ch) / 2, w: cw, h: ch, vw, vh };
     if (this.ar && this.size[0] === w && this.size[1] === h) return this.ar;
     this.size = [w, h];
     this.canvas.width = w;
@@ -65,10 +79,14 @@ export class CoverTracker {
     this.ar.addEventListener('getNFTMarker', (ev: any) => {
       if (!this.current || ev.data.index !== this.current.id) return;
       this.lastSeen = performance.now();
+      stats.found++;
       const m = mul(this.ar.getCameraMatrix(), ev.data.matrixGL_RH);
       const at = (x: number, y: number): [number, number] => {
         const v = [0, 1, 2, 3].map((r) => m[r] * x + m[4 + r] * y + m[12 + r]);
-        return [(v[0] / v[3] + 1) / 2, (1 - v[1] / v[3]) / 2];
+        const u = (v[0] / v[3] + 1) / 2;
+        const t = (1 - v[1] / v[3]) / 2;
+        const c = this.crop;
+        return [(c.x + u * c.w) / c.vw, (c.y + t * c.h) / c.vh];
       };
       const { w: cw, h: ch } = this.current;
       this.onPose({ corners: [at(0, ch), at(cw, ch), at(cw, 0), at(0, 0)] });
@@ -92,13 +110,17 @@ export class CoverTracker {
     const data = ar.getNFTData(id) as { width: number; height: number; dpi: number };
     const mm = (px: number) => (px / data.dpi) * 25.4;
     this.current = { id, w: mm(data.width), h: mm(data.height) };
+    stats.marker = recordId;
+    stats.size = `${this.size[0]}x${this.size[1]}`;
     this.stopped = false;
     this.lastSeen = performance.now();
     window.clearTimeout(this.timer);
     const tick = () => {
       if (this.stopped || !this.ctx) return;
-      this.ctx.drawImage(video, 0, 0, this.size[0], this.size[1]);
+      const c = this.crop;
+      this.ctx.drawImage(video, c.x, c.y, c.w, c.h, 0, 0, this.size[0], this.size[1]);
       ar.process(this.ctx.getImageData(0, 0, this.size[0], this.size[1]));
+      stats.frames++;
       // Lost when the cover has not been seen for a moment (a single missed frame keeps the card in place).
       if (performance.now() - this.lastSeen > 700) this.onLost();
       this.timer = window.setTimeout(tick, 40);
