@@ -85,4 +85,4 @@ ${life}
 }
 
 /** What he says first, so the visitor hears him at once. */
-export const WAILI_OPENING_CUE = '[دخل زائر وبدأ الحديث معك الآن. رحِّب به بجملة واحدة قصيرة، وعرّف نفسك، واسأله عمّا يحب أن يسمع.]';
+export const WAILI_OPENING_CUE = '[دخل زائر وبدأ الحديث معك الآن. رحِّب به بجملة واحدة قصيرة، وعرّف نفسك، واسأله عمّا يحب أن يسمع. تكلّم بالعربية.]';
