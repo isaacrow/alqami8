@@ -154,8 +154,8 @@ textarea,
   }
 
   .spatial-window-root {
-    max-width: calc(100vw - 24px);
-    max-height: calc(100dvh - 132px);
+    max-width: calc(100vw - 12px);
+    max-height: calc(100dvh - 112px);
   }
 
   .spatial-window-top-ornament {

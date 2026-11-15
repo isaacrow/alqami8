@@ -10,6 +10,7 @@ import {
 import { EnvironmentId } from '../../types/spatial';
 import { spatialSound } from '../../utils/spatialSound';
 
+import { Glyph } from '../shell/Glyph';
 export const PhotosMemoryApp: React.FC<{
   onSwitchEnvironment: (env: EnvironmentId, immersion: number) => void;
 }> = ({ onSwitchEnvironment }) => {
@@ -126,7 +127,7 @@ export const PhotosMemoryApp: React.FC<{
                 }}
                 className="w-20 h-16 rounded-xl bg-gradient-to-br from-amber-500 via-emerald-600 to-sky-700 border border-white/30 shadow-xl flex items-center justify-center text-xl animate-bounce"
               >
-                {['🛹', '🌲', '👟', '☀️', '🏞️'][i % 5]}
+                <Glyph e={['🛹', '🌲', '👟', '☀️', '🏞️'][i % 5]} />
               </div>
             ))}
           </div>

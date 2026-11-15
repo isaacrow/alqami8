@@ -46,6 +46,7 @@ const AlqamiSpatialApp = lazy(() =>
 const ChromaticWaveWallpaper = lazy(() => import('./components/effects/ChromaticWaveWallpaper').then((m) => ({ default: m.ChromaticWaveWallpaper })));
 import { PhoneCameraButton } from './remoteCam/PhoneCameraButton';
 
+import { Glyph, isGlyph } from './components/shell/Glyph';
 const IkeaSpatialApp = lazy(() =>
   import('./components/apps/IkeaSpatialApp').then((module) => ({ default: module.IkeaSpatialApp }))
 );
@@ -705,7 +706,7 @@ export function App() {
                     : 'text-white/75 hover:bg-white/15'
                 }`}
               >
-                {g}
+                {isGlyph(g) ? <Glyph e={g} /> : g}
               </button>
             ))}
           </div>
@@ -727,7 +728,7 @@ export function App() {
 
             <div className="flex-1 h-8 rounded-full bg-black/35 border border-white/15 px-3 flex items-center justify-between text-xs">
               <span className="text-[11px] font-serif">AA</span>
-              <span className="font-medium">🔒 numastays.com</span>
+              <span className="font-medium"><Glyph e="🔒" /> numastays.com</span>
               <RotateCw className="w-3 h-3 text-white/70" />
             </div>
 

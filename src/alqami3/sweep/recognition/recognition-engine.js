@@ -493,7 +493,7 @@ export class ClosedSetRecognitionEngine {
     if (temporal.status === 'WARMING_UP') {
       ctx.fillStyle = '#00f2fe';
       ctx.font = 'bold 14px -apple-system, sans-serif';
-      ctx.fillText('⚡ جاري تفعيل محرك الرؤية ثلاثية الأبعاد (WebGL GPU)...', badgeX + badgeW / 2, badgeY + 36);
+      ctx.fillText('جاري تفعيل محرك الرؤية ثلاثية الأبعاد (WebGL GPU)...', badgeX + badgeW / 2, badgeY + 36);
     } else if (isConfirmed && bestCandidate) {
       const pct = Math.round(topScore * 100);
       const viewTag = (bestCandidate.matchedView || 'FRONT').toUpperCase();
@@ -508,7 +508,7 @@ export class ClosedSetRecognitionEngine {
     } else {
       ctx.fillStyle = '#ff9f0a';
       ctx.font = 'bold 14px -apple-system, sans-serif';
-      ctx.fillText(`🔍 مسح ثلاثي الأبعاد سريع (360° Auto-Mask)`, badgeX + badgeW / 2, badgeY + 24);
+      ctx.fillText(`مسح ثلاثي الأبعاد سريع (360° Auto-Mask)`, badgeX + badgeW / 2, badgeY + 24);
 
       ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
       ctx.font = '12px -apple-system, sans-serif';
@@ -521,10 +521,10 @@ export class ClosedSetRecognitionEngine {
 
     // 4. Draw 360° Multi-Angle Compass Bar at Bottom of Reticle
     const angles = [
-      { key: 'left', label: '◀ يسار LEFT' },
+      { key: 'left', label: '‹ يسار LEFT' },
       { key: 'front', label: '▲ أمام FRONT' },
-      { key: 'right', label: '▶ يمين RIGHT' },
-      { key: 'wide', label: '🌐 شامل WIDE' }
+      { key: 'right', label: '› يمين RIGHT' },
+      { key: 'wide', label: 'شامل WIDE' }
     ];
     const barW = Math.min(w, 380);
     const barH = 32;

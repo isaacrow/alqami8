@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { spatialSound } from '../../utils/spatialSound';
 
+import { Glyph } from '../shell/Glyph';
 export const ImagePlaygroundApp: React.FC = () => {
   // Toggle between the two exact reference views in D:\vison os:
   // 1. 'orbital' (large_2x (1).mp4: Lani + Birthday + Disco orbiting portal mixer)
@@ -70,7 +71,7 @@ export const ImagePlaygroundApp: React.FC = () => {
         {/* Celebratory Disco Birthday Portrait */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,215,0,0.45),rgba(147,51,234,0.85))] flex flex-col items-center justify-center">
           <div className="text-[120px] drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
-            👩🏽‍🦱🎉🪩
+            <Glyph e="👩🏽‍🦱🎉🪩" />
           </div>
           <div className="mt-2 px-4 py-1.5 rounded-full bg-black/35 backdrop-blur-md text-sm font-semibold text-white">
             {activeConcepts.join(' • ')} — 3D Animation Style
@@ -144,9 +145,9 @@ export const ImagePlaygroundApp: React.FC = () => {
                   className="vision-btn absolute z-30 px-3 py-1.5 rounded-full vision-ornament flex items-center gap-1.5 text-[11.5px] font-semibold shadow-xl border border-white/30"
                 >
                   <span>
-                    {concept === 'Lani'
+                    <Glyph e={concept === 'Lani'
                       ? '👩🏽‍🦱'
-                      : themes.find((t) => t.name === concept)?.icon || '✨'}
+                      : themes.find((t) => t.name === concept)?.icon || '✨'} />
                   </span>
                   <span>{concept}</span>
                   <span className="text-white/50 text-[10px] ml-0.5">✕</span>
@@ -163,7 +164,7 @@ export const ImagePlaygroundApp: React.FC = () => {
               <div className="relative group">
                 <div className="w-48 h-48 rounded-[34px] ai-rainbow-border p-1 shadow-[0_0_50px_rgba(236,72,153,0.45)] overflow-hidden bg-gradient-to-br from-indigo-900 via-fuchsia-700 to-amber-500 flex flex-col items-center justify-center">
                   <div className="text-7xl drop-shadow-lg transform group-hover:scale-105 transition">
-                    👩🏽‍🦱🎉🪩
+                    <Glyph e="👩🏽‍🦱🎉🪩" />
                   </div>
                   <div className="mt-2 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-black/40 backdrop-blur-md">
                     {activeConcepts.join(' + ')}
@@ -197,7 +198,7 @@ export const ImagePlaygroundApp: React.FC = () => {
                     }}
                     className="p-2 rounded-xl bg-white/10 hover:bg-white/25 flex flex-col items-center gap-1 text-[11px]"
                   >
-                    <span className="text-xl">👩🏽‍🦱</span>
+                    <span className="text-xl"><Glyph e="👩🏽‍🦱" /></span>
                     <span>{p}</span>
                   </button>
                 ))}
@@ -226,7 +227,7 @@ export const ImagePlaygroundApp: React.FC = () => {
                     <div
                       className={`w-10 h-10 rounded-full bg-gradient-to-br ${t.color} flex items-center justify-center text-lg shadow`}
                     >
-                      {t.icon}
+                      <Glyph e={t.icon} />
                     </div>
                     <span className="text-[10.5px] font-medium text-white/90 truncate">
                       {t.name}
@@ -309,7 +310,7 @@ export const ImagePlaygroundApp: React.FC = () => {
                   }}
                   className={`aspect-square rounded-[20px] bg-gradient-to-br ${art.bg} flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition border border-white/15 shadow-md`}
                 >
-                  <span className="text-3xl">{art.emoji}</span>
+                  <span className="text-3xl"><Glyph e={art.emoji} /></span>
                   <span className="text-[10px] font-medium text-white/90 mt-1">
                     {art.title}
                   </span>
@@ -346,7 +347,7 @@ export const ImagePlaygroundApp: React.FC = () => {
             {/* Editable Prompt Caption & Modern Yellow Cabin Preview */}
             <div className="flex flex-col items-center max-w-md w-full my-auto">
               <p className="text-[13px] font-medium text-white/90 text-center mb-3 px-4 line-clamp-2">
-                ✎ {cabinPrompt}
+                <Glyph e="✎" /> {cabinPrompt}
               </p>
 
               {/* High-Res Yellow Modern Cabin Card (Exact match to apps__ggku3gfk5him_large.jpg) */}

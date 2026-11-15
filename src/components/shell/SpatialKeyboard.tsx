@@ -203,7 +203,7 @@ export const SpatialKeyboard: React.FC<SpatialKeyboardProps> = ({
               .?123
             </button>
             <button
-              onClick={() => handleKey(' ✨')}
+              onClick={() => handleKey('')}
               className="vision-keycap w-11 h-11 rounded-full bg-black/45 text-white flex items-center justify-center"
             >
               <Smile className="w-4 h-4" />

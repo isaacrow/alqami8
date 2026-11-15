@@ -1,0 +1,218 @@
+import React from 'react';
+import {
+  type LucideIcon,
+  AppWindow,
+  ArrowDown,
+  ArrowUp,
+  Armchair,
+  BarChart3,
+  Bed,
+  Bike,
+  Bird,
+  Box,
+  Calendar,
+  Camera,
+  Castle,
+  Circle,
+  Clapperboard,
+  Compass,
+  Cookie,
+  Croissant,
+  Disc,
+  Eye,
+  FileText,
+  Film,
+  Flower,
+  Flower2,
+  Folder,
+  Footprints,
+  Gamepad2,
+  Gem,
+  Gift,
+  Glasses,
+  Globe,
+  Grab,
+  Hand,
+  Heart,
+  Hourglass,
+  Keyboard,
+  Landmark,
+  Laptop,
+  Leaf,
+  Lock,
+  Mail,
+  Map,
+  MapPin,
+  MessageCircle,
+  Moon,
+  Mountain,
+  MountainSnow,
+  Orbit,
+  Package,
+  Paintbrush,
+  Palette,
+  Palmtree,
+  PartyPopper,
+  PenLine,
+  Pin,
+  Pointer,
+  Popcorn,
+  Rainbow,
+  RefreshCw,
+  Rocket,
+  Ruler,
+  Search,
+  Settings,
+  Ship,
+  Smartphone,
+  Smile,
+  Sparkles,
+  Sprout,
+  Star,
+  StickyNote,
+  Sun,
+  Sunset,
+  Tent,
+  ThumbsUp,
+  Train,
+  TreePine,
+  User,
+  Users,
+  UtensilsCrossed,
+  Zap,
+} from 'lucide-react';
+
+/**
+ * Emoji, drawn as SVG icons (lucide) instead of the phone's emoji font: the same look on every device, and in the
+ * app's own colours. `<Glyph e="📅" />` draws the calendar icon; `<Glyph e={item.icon} />` works on data that still
+ * names its icon by emoji. Unknown emoji fall back to a sparkle.
+ */
+const ICONS: Record<string, LucideIcon> = {
+  '🔍': Search,
+  '📸': Camera,
+  '📷': Camera,
+  '🔄': RefreshCw,
+  '⏳': Hourglass,
+  '⚡': Zap,
+  '🌐': Globe,
+  '🕹': Gamepad2,
+  '🔒': Lock,
+  '👋': Hand,
+  '✋': Hand,
+  '👍': ThumbsUp,
+  '👉': Pointer,
+  '🤏': Grab,
+  '📅': Calendar,
+  '🏛': Landmark,
+  '✨': Sparkles,
+  '★': Star,
+  '⭐': Star,
+  '🪑': Armchair,
+  '🏕': Tent,
+  '🎈': Gift,
+  '🪩': Disc,
+  '🏰': Castle,
+  '🎆': Sparkles,
+  '💖': Heart,
+  '🌌': Moon,
+  '🌕': Moon,
+  '☀': Sun,
+  '🎉': PartyPopper,
+  '🌸': Flower2,
+  '🌻': Flower2,
+  '🌺': Flower,
+  '🛸': Orbit,
+  '🌅': Sunset,
+  '👩‍🦱': User,
+  '👩': User,
+  '👤': User,
+  '🧔‍♂': User,
+  '👫': Users,
+  '🦤': Bird,
+  '🚆': Train,
+  '👩‍🚀': Rocket,
+  '🚀': Rocket,
+  '🥐': Croissant,
+  '🚣‍♀': Ship,
+  '💄': Paintbrush,
+  '🏔': MountainSnow,
+  '🏞': Mountain,
+  '✎': PenLine,
+  '😉': Smile,
+  '🙂': Smile,
+  '🥟': Cookie,
+  '🌿': Leaf,
+  '🧄': Sprout,
+  '🌱': Sprout,
+  '🌰': Sprout,
+  '🍝': UtensilsCrossed,
+  '⚙': Settings,
+  '🗺': Map,
+  '📐': Ruler,
+  '📏': Ruler,
+  '⌨': Keyboard,
+  '🎨': Palette,
+  '📍': MapPin,
+  '📌': Pin,
+  '🛏': Bed,
+  '🪟': AppWindow,
+  '👨‍💻': Laptop,
+  '🍿': Popcorn,
+  '👁': Eye,
+  '🧊': Box,
+  '⚪': Circle,
+  '🌈': Rainbow,
+  '📁': Folder,
+  '🎬': Clapperboard,
+  '🎞': Film,
+  '🧭': Compass,
+  '✉': Mail,
+  '💬': MessageCircle,
+  '📊': BarChart3,
+  '📝': FileText,
+  '🗒': StickyNote,
+  '🛹': Bike,
+  '🌲': TreePine,
+  '👟': Footprints,
+  '🪨': Gem,
+  '📦': Package,
+  '🏝': Palmtree,
+  '⬆': ArrowUp,
+  '⬇': ArrowDown,
+  '🥽': Glasses,
+  '📱': Smartphone,
+};
+
+/** The emoji without its variation selector and skin tone, as the table above names it. */
+function plain(e: string) {
+  return e.replace(/️/g, '').replace(/[\u{1F3FB}-\u{1F3FF}]/gu, '');
+}
+
+/** Whether a string is one emoji the table knows (e.g. a toast that is just "👋"). */
+export function isGlyph(s: string | null | undefined): boolean {
+  return Boolean(s) && plain(s!.trim()) in ICONS;
+}
+
+/** One emoji as an SVG icon. Several emoji in a row (e.g. "🌿🧄") draw several icons. */
+export const Glyph: React.FC<{ e: string; className?: string; strokeWidth?: number }> = ({ e, className = 'inline-block w-[1em] h-[1em] align-[-0.125em]', strokeWidth = 2 }) => {
+  const key = plain(e.trim());
+  const One = ICONS[key];
+  if (One) return <One className={className} strokeWidth={strokeWidth} aria-hidden="true" />;
+  // A run of emoji: split into single emoji (keeping joined sequences like 👩‍🚀 together) and draw each one.
+  const parts = key.match(/\p{Extended_Pictographic}(?:‍\p{Extended_Pictographic})*/gu) ?? [];
+  return (
+    <>
+      {parts.map((p, i) => {
+        const Icon = ICONS[p] ?? Sparkles;
+        return <Icon key={i} className={className} strokeWidth={strokeWidth} aria-hidden="true" />;
+      })}
+    </>
+  );
+};
+
+/** SVG markup for plain HTML (strings set as innerHTML): a few simple icons drawn inline. */
+export const SVG_ICON = {
+  up: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>',
+  doc: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h6"/></svg>',
+  down: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>',
+};

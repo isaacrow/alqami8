@@ -36,6 +36,7 @@ import {
   LightingPresetId,
 } from '../../utils/lightingManager';
 
+import { Glyph } from './Glyph';
 interface ControlCenter3PanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -204,7 +205,7 @@ export const ControlCenter3Panel: React.FC<ControlCenter3PanelProps> = ({
                   ALQAMI · علقمي
                 </div>
                 <div className="text-[12px] text-amber-300 font-medium flex items-center gap-1">
-                  <span>🌐 iPhone AR World</span>
+                  <span><Glyph e="🌐" /> iPhone AR World</span>
                 </div>
               </div>
             </div>
@@ -244,13 +245,13 @@ export const ControlCenter3Panel: React.FC<ControlCenter3PanelProps> = ({
           >
             <div className="flex items-center -space-x-1.5">
               <span className="w-5 h-5 rounded-full bg-emerald-500 border border-black/30 flex items-center justify-center text-[10px] font-bold">
-                💬
+                <Glyph e="💬" />
               </span>
               <span className="w-5 h-5 rounded-full bg-sky-500 border border-black/30 flex items-center justify-center text-[10px] font-bold">
-                ✉️
+                <Glyph e="✉️" />
               </span>
               <span className="w-5 h-5 rounded-full bg-amber-500 border border-black/30 flex items-center justify-center text-[10px] font-bold">
-                🗒️
+                <Glyph e="🗒️" />
               </span>
             </div>
             <span className="text-[12px] font-medium text-white/90">
@@ -330,7 +331,7 @@ export const ControlCenter3Panel: React.FC<ControlCenter3PanelProps> = ({
             {[
               {
                 id: 'alqami',
-                label: alqamiModeActive ? '✨ Alqami AR (Active)' : '✨ Alqami AR Mode',
+                label: alqamiModeActive ? 'Alqami AR (Active)' : 'Alqami AR Mode',
                 icon: Sparkles,
                 action: () => {
                   spatialSound.playAlqamiChime();
@@ -339,7 +340,7 @@ export const ControlCenter3Panel: React.FC<ControlCenter3PanelProps> = ({
               },
               {
                 id: 'object3d',
-                label: objectTracking3DActive || alqamiModeActive ? '📦 3D Tracking (Active)' : '📦 3D Object Tracking',
+                label: objectTracking3DActive || alqamiModeActive ? '3D Tracking (Active)' : '3D Object Tracking',
                 icon: Crosshair,
                 action: () => {
                   spatialSound.playPinchTap();

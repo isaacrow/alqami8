@@ -26,6 +26,7 @@ import {
 } from '../three/SpatialThreeCanvas';
 import { spatialSound } from '../../utils/spatialSound';
 
+import { Glyph } from '../shell/Glyph';
 // 1. NOTES APP (Exact replica of IMG-3-vision-pro.webp: Folders | Notes | Monday Morning Meeting)
 export const NotesSpatialApp: React.FC<{
   noteBody: string;
@@ -49,7 +50,7 @@ export const NotesSpatialApp: React.FC<{
           <div className="space-y-1 text-[12.5px]">
             <div className="px-2.5 py-1.5 rounded-xl flex items-center justify-between text-white/85 hover:bg-white/10 cursor-pointer">
               <span className="flex items-center gap-2">
-                <span className="text-amber-400">👤</span> Shared
+                <span className="text-amber-400"><Glyph e="👤" /></span> Shared
               </span>
               <span className="text-white/50">2</span>
             </div>
@@ -71,7 +72,7 @@ export const NotesSpatialApp: React.FC<{
             </div>
             <div className="px-2.5 py-1.5 rounded-xl flex items-center justify-between text-white/85 hover:bg-white/10 cursor-pointer">
               <span className="flex items-center gap-2">
-                <span className="text-amber-400">⚙️</span> Work
+                <span className="text-amber-400"><Glyph e="⚙️" /></span> Work
               </span>
               <span className="text-white/50">3</span>
             </div>
@@ -144,7 +145,7 @@ export const NotesSpatialApp: React.FC<{
               <div className="text-[10.5px] text-white/60">{n.sub}</div>
             </div>
             <span className="w-8 h-8 rounded-lg bg-white text-base flex items-center justify-center">
-              {n.icon}
+              <Glyph e={n.icon} />
             </span>
           </div>
         ))}
@@ -157,7 +158,7 @@ export const NotesSpatialApp: React.FC<{
             onClick={onSummonKeyboard}
             className="px-3 py-1 rounded-full bg-amber-400/25 border border-amber-300/40 text-amber-200 text-[11px] font-semibold"
           >
-            ⌨️ Show Spatial Keyboard
+            <Glyph e="⌨️" /> Show Spatial Keyboard
           </button>
           <button className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center">
             <Share className="w-3.5 h-3.5" />
@@ -184,7 +185,7 @@ export const NotesSpatialApp: React.FC<{
             #Policy #Housing #Art #work
           </div>
           <div className="text-[12.5px] font-bold text-stone-900 mt-3">
-            White Paper: Public Art&apos;s Development Benefits for Kids 🎨🌻⭐
+            White Paper: Public Art&apos;s Development Benefits for Kids <Glyph e="🎨🌻⭐" />
           </div>
           <textarea
             value={noteBody}
@@ -285,7 +286,7 @@ export const SafariSpatialApp: React.FC = () => {
               onClick={() => setSelectedCity(pin)}
               className="px-3 py-1 rounded-full bg-white shadow border border-stone-300 text-[11px] font-bold text-stone-800 hover:scale-105 transition"
             >
-              📍 {pin}
+              <Glyph e="📍" /> {pin}
             </button>
           ))}
         </div>
@@ -316,7 +317,7 @@ export const SafariSpatialApp: React.FC = () => {
                   <span className="px-2.5 py-1 rounded-md bg-black/65 text-white text-[10px] font-semibold">
                     360° Spatial Tour
                   </span>
-                  <span className="text-3xl">🛏️🪟</span>
+                  <span className="text-3xl"><Glyph e="🛏️🪟" /></span>
                 </div>
                 <h3 className="text-[18px] font-extrabold mt-3">{hotel.name}</h3>
                 <div className="text-xs text-stone-500">{hotel.area}</div>
@@ -386,7 +387,7 @@ export const SpotlightSearchApp: React.FC<{
         </div>
 
         <div className="w-9 h-9 rounded-full bg-sky-500 flex items-center justify-center text-sm font-bold shadow">
-          👨🏻‍💻
+          <Glyph e="👨🏻‍💻" />
         </div>
       </div>
 
@@ -452,7 +453,7 @@ export const SpotlightSearchApp: React.FC<{
             </div>
             <div className="h-28 rounded-[24px] bg-gradient-to-r from-rose-500 to-orange-500 p-4 flex items-center justify-between border border-white/15">
               <div className="text-sm font-bold">Spatial Entertainment</div>
-              <span className="text-4xl">🍿</span>
+              <span className="text-4xl"><Glyph e="🍿" /></span>
             </div>
           </div>
         </div>
@@ -513,7 +514,7 @@ export const SiriAISpatialApp: React.FC = () => {
         ) : (
           <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-400/35 space-y-2">
             <div className="text-xs font-bold uppercase tracking-wider text-emerald-300">
-              👁️ Visual Intelligence Active (visionOS 27)
+              <Glyph e="👁️" /> Visual Intelligence Active (visionOS 27)
             </div>
             <p className="text-xs text-white/90">
               Siri sees your physical room and active 3D volumes: The{' '}
@@ -605,7 +606,7 @@ export const QuickLookUSDZApp: React.FC = () => {
                   : 'hover:bg-white/10'
               }`}
             >
-              <span className="text-xl">{m.badge}</span>
+              <span className="text-xl"><Glyph e={m.badge} /></span>
               <span className="text-[11px] font-medium">{m.label}</span>
             </button>
           ))}
@@ -626,7 +627,7 @@ export const QuickLookUSDZApp: React.FC = () => {
 
         <div className="flex items-center gap-2 pr-2">
           <span className="w-6 h-6 rounded-md bg-[#0A84FF] flex items-center justify-center text-xs">
-            📁
+            <Glyph e="📁" />
           </span>
           <span className="font-semibold">Chair_V3.usdz</span>
         </div>
@@ -1232,7 +1233,7 @@ export const MacVirtualDisplayApp: React.FC = () => {
           <div className="flex-1 grid grid-cols-12 gap-2 overflow-hidden">
             {/* Program Monitor */}
             <div className="col-span-8 rounded-lg bg-gradient-to-br from-amber-900/60 via-stone-900 to-emerald-950 flex flex-col items-center justify-center relative overflow-hidden border border-white/10">
-              <span className="text-5xl">🎬👩🏾‍🦱✨</span>
+              <span className="text-5xl"><Glyph e="🎬👩🏾‍🦱✨" /></span>
               <span className="text-[10px] text-amber-200/80 mt-2 font-mono">
                 01:00:08:19 • ACEScct 4K DCI
               </span>
@@ -1274,7 +1275,7 @@ export const MacVirtualDisplayApp: React.FC = () => {
                 key={idx}
                 className="rounded bg-stone-800 p-1 flex flex-col items-center justify-center text-[8px] text-white/75"
               >
-                <span>🎞️</span>
+                <span><Glyph e="🎞️" /></span>
                 <span className="truncate w-full text-center mt-0.5">
                   A00{idx + 1}.mov
                 </span>
@@ -1312,14 +1313,14 @@ export const MacVirtualDisplayApp: React.FC = () => {
       {/* Bottom macOS Dock */}
       <div className="pb-1.5 flex justify-center">
         <div className="px-3 py-1 rounded-2xl bg-white/25 backdrop-blur-xl border border-white/30 flex items-center gap-2 shadow-lg">
-          {['🙂', '🚀', '🧭', '✉️', '💬', '🗺️', '📷', '🎨', '🎬', '📊', '📝', '⚙️'].map(
+          {['', '', '', '', '', '', '', '', '', '', '', ''].map(
             (ic, idx) => (
               <button
                 key={idx}
                 onClick={() => spatialSound.playPinchTap()}
                 className="w-6 h-6 rounded-lg bg-white/20 hover:scale-125 transition flex items-center justify-center text-xs"
               >
-                {ic}
+                <Glyph e={ic} />
               </button>
             )
           )}
