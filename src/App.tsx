@@ -357,6 +357,8 @@ export function App() {
   }, []);
 
   useEffect(() => {
+    // index.html?scan=1 (the button on an object's page): straight into the scanner.
+    if (new URLSearchParams(location.search).get('scan') === '1') setIsArkitScannerOpen(true);
     const onOpenScanner = () => setIsArkitScannerOpen(true);
     window.addEventListener('visionos:open-arkit-scanner', onOpenScanner);
   return () => window.removeEventListener('visionos:open-arkit-scanner', onOpenScanner);

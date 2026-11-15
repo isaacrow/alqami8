@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background: #0c0a09;
+  color: #fff;
+  font-family: 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #ffd60a;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* The label sheet: on screen a preview, on paper A4 with 8 labels (95 × 66 mm) a page. */
+.sheet {
+  display: grid;
+  grid-template-columns: repeat(2, 95mm);
+  gap: 4mm;
+  justify-content: center;
+  padding: 8mm 0 16mm;
+}
+.label {
+  width: 95mm;
+  height: 66mm;
+  box-sizing: border-box;
+  background: #fff;
+  color: #111;
+  border: 0.3mm solid #ccc;
+  border-radius: 3mm;
+  padding: 4mm;
+  display: flex;
+  gap: 4mm;
+  align-items: center;
+  break-inside: avoid;
+}
+.label .qr {
+  width: 38mm;
+  height: 38mm;
+  flex: none;
+}
+.label .qr img {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+.label .text {
+  flex: 1;
+  min-width: 0;
+}
+.label .ar {
+  font-size: 13pt;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.label .en {
+  font-size: 8.5pt;
+  color: #333;
+  margin-top: 1mm;
+  line-height: 1.3;
+}
+.label .meta {
+  font-size: 8pt;
+  color: #555;
+  margin-top: 1.5mm;
+}
+.label .hint {
+  font-size: 8pt;
+  margin-top: 2.5mm;
+  line-height: 1.35;
+}
+.label .id {
+  font-size: 7pt;
+  color: #777;
+  margin-top: 1.5mm;
+  letter-spacing: 0.02em;
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+  html,
+  body {
+    background: #fff;
+  }
+  .no-print {
+    display: none;
+  }
+  .sheet {
+    padding: 0;
+    gap: 3mm;
+  }
+}

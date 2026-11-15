@@ -72,8 +72,9 @@ export default defineConfig({
   plugins: [react(), usdzContentType, basicSsl(), offlineManifest],
   build: {
     rollupOptions: {
-      // jawahiri.html is the talking character (src/character). bench.html measures recognition by sight on a phone (see src/bench/sightBench.ts).
-      input: { main: resolve(__dirname, 'index.html'), bench: resolve(__dirname, 'bench.html'), jawahiri: resolve(__dirname, 'jawahiri.html') },
+      // jawahiri.html is the talking character (src/character). object.html is an object's own page, opened by its QR
+      // label in any phone camera; labels.html prints every object's label (src/object). bench.html measures recognition by sight on a phone (see src/bench/sightBench.ts).
+      input: { main: resolve(__dirname, 'index.html'), bench: resolve(__dirname, 'bench.html'), jawahiri: resolve(__dirname, 'jawahiri.html'), object: resolve(__dirname, 'object.html'), labels: resolve(__dirname, 'labels.html') },
     },
   },
   server: {
