@@ -77,7 +77,7 @@ export const CharacterApp: React.FC = () => {
   useEffect(() => {
     const s = new Stage(mount.current!);
     stage.current = s;
-    s.load('characters/jawahiri.glb', setLoaded).then(
+    s.load('characters/jawahiri-mouth.glb', setLoaded).then(
       () => setLoaded(1),
       (e) => setLoadError(String(e))
     );
