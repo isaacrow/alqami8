@@ -1,11 +1,14 @@
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 
 /**
  * Brings an unrigged bust scan to life without bones: the shaders bend and repaint the mesh by region.
- *  - mouth: drawn per pixel on the skin, because the scan has only a few dozen vertices around the lips. The lips
- *    slide apart on the texture (the upper lip a little, the lower lip with the jaw), the opening shows a dark mouth
- *    with upper teeth, lower teeth and a tongue; the lips spread (ee, s), round (oo, o), press together (m, b, p) and
- *    the lower lip tucks under the upper teeth (f, v). The chin itself drops a little with the jaw (vertices);
+ *  - mouth: the model keeps the scan's full detail around the mouth and its lips are cut apart where they meet
+ *    (scripts/rig-character.mjs bakes two weights per vertex: _JAW, how much it turns with the jaw, and _LIP, the
+ *    upper (+) or lower (−) lip). The jaw turns the lower lip, chin and lower cheeks around a hinge in front of the
+ *    ears; the lips themselves spread (ee, s), round and push forward (oo, o), press together (m, b, p), lift to show
+ *    the teeth, and the lower lip tucks under the upper teeth (f, v). Behind the lips sit real teeth (an upper and a
+ *    lower arch; the lower one moves with the jaw), a tongue that rises for t, d, n, l, and a dark mouth;
  *  - smile: the corners lift, and the cheeks with them;
  *  - brows: rise on emphasis and when he is surprised;
  *  - eyes: the irises move (the texture slides inside each eye) to look at the visitor, with small saccades, and the
@@ -13,7 +16,7 @@ import * as THREE from 'three';
  *  - head: everything above the collar turns and nods around the neck;
  *  - breath: the chest rises slowly.
  *
- * All regions are measured on public/characters/jawahiri.glb (model units; the bust faces +Z, Y up). The face's
+ * All regions are measured on public/characters/jawahiri-mouth.glb (built by scripts/rig-character.mjs) (model units; the bust faces +Z, Y up). The face's
  * centre line is at x≈0.02, the lips meet at y≈0.095, the eyes sit behind the glasses at (-0.12, 0.39) and
  * (0.165, 0.385), the brows at y≈0.49. Another bust needs its own numbers.
  */
@@ -47,9 +50,9 @@ export interface BustRegions {
 
 export const JAWAHIRI_REGIONS: BustRegions = {
   centreX: 0.02,
-  lipLine: 0.095,
+  lipLine: 0.093,
   chinBottom: -0.11,
-  jawHinge: new THREE.Vector3(0.02, 0.12, 0.12),
+  jawHinge: new THREE.Vector3(0.02, 0.21, 0.03),
   neckPivot: new THREE.Vector3(0.02, -0.22, 0.0),
   headFrom: -0.26,
   headTo: -0.1,
@@ -92,6 +95,55 @@ export interface BustRig {
   apply(): void;
 }
 
+/** How far the jaw turns at full opening (radians): about 13 mm at the lips on this bust (1 unit ≈ 22 cm). */
+const JAW_ANGLE = 0.12;
+
+/**
+ * The inside of the mouth, in the bust's own units (1 unit ≈ 22 cm: the eyes are 0.285 apart). Teeth sit on an arch
+ * behind the lips (front at z ≈ 0.473, curving back 4.4·dx²), the upper incisors' edges just under the lip line; the
+ * lower arch and the tongue turn with the jaw. A dark shell behind them is seen only from inside (back faces), so it
+ * never hides the teeth.
+ */
+function buildMouth(r: BustRegions) {
+  const CX = r.centreX;
+  const root = new THREE.Group();
+  root.matrixAutoUpdate = false;
+  root.name = 'mouth-inside';
+  const lower = new THREE.Group();
+  lower.matrixAutoUpdate = false;
+  root.add(lower);
+  // An old man's teeth: ivory, a little darker below and further in.
+  const enamel = new THREE.MeshStandardMaterial({ color: 0xcbbd9e, roughness: 0.34, envMapIntensity: 0.45 });
+  const enamelLow = new THREE.MeshStandardMaterial({ color: 0xb5a685, roughness: 0.38, envMapIntensity: 0.35 });
+  const archZ = (x: number) => 0.473 - 4.4 * (x - CX) ** 2;
+  const teeth = (widths: number[], edgeY: number, height: number, up: boolean, back: number, mat: THREE.Material, parent: THREE.Object3D) => {
+    let x = CX - widths.reduce((a, b) => a + b, 0) / 2;
+    for (const w of widths) {
+      const cx = x + w / 2;
+      const geo = new RoundedBoxGeometry(w * 0.94, height, 0.026, 2, Math.min(w, 0.026) * 0.3);
+      const tooth = new THREE.Mesh(geo, mat);
+      tooth.position.set(cx, edgeY + (up ? height / 2 : -height / 2), archZ(cx) - back - 0.013);
+      tooth.rotation.y = -Math.atan(8.8 * (cx - CX));
+      parent.add(tooth);
+      x += w;
+    }
+  };
+  // Upper: canine, lateral, central, central, lateral, canine (mm 7.5, 6.5, 8.5 at 22 cm a unit).
+  teeth([0.034, 0.03, 0.039, 0.039, 0.03, 0.034], r.lipLine - 0.004, 0.05, true, 0, enamel, root);
+  teeth([0.032, 0.028, 0.026, 0.026, 0.028, 0.032], r.lipLine - 0.006, 0.045, false, 0.011, enamelLow, lower);
+  // The tongue lies just behind the lower teeth, its top about level with their edges.
+  const tongueRest = new THREE.Vector3(CX, r.lipLine - 0.017, 0.438);
+  const tongue = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), new THREE.MeshStandardMaterial({ color: 0x8c4740, roughness: 0.55, envMapIntensity: 0.4 }));
+  tongue.scale.set(0.075, 0.02, 0.045);
+  tongue.position.copy(tongueRest);
+  lower.add(tongue);
+  const shell = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), new THREE.MeshStandardMaterial({ color: 0x3a1210, roughness: 0.9, side: THREE.BackSide }));
+  shell.scale.set(0.115, 0.07, 0.07);
+  shell.position.set(CX, r.lipLine - 0.008, 0.43);
+  root.add(shell);
+  return { root, lower, tongue, tongueRest };
+}
+
 export function rigBust(mesh: THREE.Mesh, r: BustRegions = JAWAHIRI_REGIONS): BustRig {
   const lidColour = (c: [number, number, number]) => new THREE.Color().setRGB(c[0] / 255, c[1] / 255, c[2] / 255, THREE.SRGBColorSpace);
   const uniforms = {
@@ -126,18 +178,20 @@ export function rigBust(mesh: THREE.Mesh, r: BustRegions = JAWAHIRI_REGIONS): Bu
         `#include <common>
 uniform float uJaw;
 uniform float uWide;
+uniform float uRound;
+uniform float uUpper;
+uniform float uPress;
+uniform float uTuck;
+attribute float _jaw;
+attribute float _lip;
 uniform float uSmile;
 uniform float uBrow;
 uniform mat3 uHead;
 uniform float uBreath;
 varying vec3 vRest;
 float ell(vec2 p, vec2 c, vec2 r) { return 1.0 - smoothstep(0.5, 1.0, length((p - c) / r)); }
-float jawWeight(vec3 p) {
-  return (1.0 - smoothstep(${f(r.lipLine - 0.06)}, ${f(r.lipLine - 0.03)}, p.y))
-       * smoothstep(${f(r.chinBottom - 0.09)}, ${f(r.chinBottom)}, p.y)
-       * (1.0 - smoothstep(0.10, 0.19, abs(p.x - ${CX})))
-       * smoothstep(0.22, 0.40, p.z);
-}
+// Baked by scripts/rig-character.mjs: 1 on the lower lip and chin, fading over the cheeks and neck.
+float jawWeight(vec3 p) { return _jaw; }
 float headWeight(vec3 p) {
   return smoothstep(${f(r.headFrom)}, ${f(r.headTo)}, p.y) * (1.0 - smoothstep(${f(r.headHalfWidth)}, ${f(r.headHalfWidth + 0.1)}, abs(p.x)));
 }
@@ -147,7 +201,16 @@ vec3 faceShape(vec3 p) {
   vec3 q = p;
   float front = smoothstep(0.38, 0.46, p.z);
   float dx = p.x - ${CX};
-  float corner = (1.0 - smoothstep(0.0, 0.035, abs(abs(dx) - 0.065))) * (1.0 - smoothstep(0.0, 0.04, abs(p.y - ${LIP}))) * front;
+  // The lips (baked: + upper, − lower). Round pulls them in and forward, wide spreads them; press closes them
+  // on each other; upper lifts the upper lip off the teeth; tuck draws the lower lip up and back under the teeth.
+  float up = max(_lip, 0.0);
+  float lo = max(-_lip, 0.0);
+  float lip = up + lo;
+  q.x += dx * (0.10 * max(uWide, 0.0) - 0.24 * uRound) * lip;
+  q.z += (0.013 * uRound - 0.003 * max(uWide, 0.0)) * lip;
+  q.y += (0.006 * uUpper - 0.003 * uPress) * up + (0.003 * uPress + 0.008 * uTuck) * lo;
+  q.z += 0.002 * uUpper * up - 0.011 * uTuck * lo - 0.001 * uPress * lip;
+  float corner = (1.0 - smoothstep(0.0, 0.035, abs(abs(dx) - 0.08))) * (1.0 - smoothstep(0.0, 0.04, abs(p.y - ${LIP}))) * front;
   q.y += uSmile * 0.011 * corner;
   q.x += sign(dx) * uSmile * 0.006 * corner;
   q.z -= uSmile * 0.004 * corner;
@@ -161,7 +224,7 @@ mat3 rigMatrix(vec3 p, out vec3 jawPivot, out vec3 neckPivot, out float hw) {
   jawPivot = ${v3(r.jawHinge)};
   neckPivot = ${v3(r.neckPivot)};
   hw = headWeight(p);
-  return rotX(uJaw * 0.07 * jawWeight(p));
+  return rotX(uJaw * ${f(JAW_ANGLE)} * jawWeight(p));
 }
 vec3 rigPosition(vec3 p) {
   vec3 jp; vec3 np; float hw;
@@ -202,56 +265,11 @@ uniform vec2 uGaze;
 uniform vec3 uLidL;
 uniform vec3 uLidR;
 varying vec3 vRest;
-// The mouth, per pixel, around where the lips meet (model units, at rest). mouthOpening() gives the edges of the
-// opening; mouthShift() where to read the skin texture from, so the lips appear to move apart.
-vec2 mouthPos() { return vRest.xy - vec2(${CX}, ${LIP}); }
-float mouthFront() { return smoothstep(0.40, 0.46, vRest.z); }
-float mouthHalfWidth() { return 0.074 * (1.0 + 0.30 * max(uWide, 0.0) - 0.36 * uRound); }
-// x: how far the upper edge rises, y: how far the lower edge drops, at this point across the mouth.
-vec2 mouthOpening(vec2 m) {
-  float nx = m.x / mouthHalfWidth();
-  float across = clamp(1.0 - nx * nx, 0.0, 1.0);
-  float shut = 1.0 - uPress;
-  float up = (0.007 * uUpper + 0.004 * uJaw + 0.003 * uRound) * across * shut;
-  float down = (0.042 * uJaw * pow(across, 0.6) + 0.004 * uRound * across) * shut - 0.005 * uTuck * across;
-  return vec2(up, max(down, 0.0));
-}
-vec2 mouthShift(vec2 m) {
-  vec2 o = mouthOpening(vec2(m.x, 0.0));
-  float nx = m.x / mouthHalfWidth();
-  float side = 1.0 - smoothstep(0.9, 1.5, abs(nx));
-  float fall = m.y > 0.0 ? 1.0 - smoothstep(0.0, 0.045, m.y) : 1.0 - smoothstep(0.0, 0.09, -m.y);
-  // Read from nearer the lip line: the upper lip appears raised, the lower lip lowered.
-  float dy = m.y > 0.0 ? -o.x : o.y;
-  // Wider or rounder lips: read from nearer (or further from) the centre line.
-  float spread = 1.0 + 0.30 * max(uWide, 0.0) - 0.32 * uRound;
-  // Capped: further out, the texture crosses a seam of the scan (dark specks appeared below the right lip corner).
-  float dx = clamp(m.x / spread - m.x, -0.010, 0.010);
-  // Pressed lips roll in a little; a tucked lower lip rides up under the teeth.
-  dy += (m.y > 0.0 ? 0.0025 : -0.0025) * uPress + (m.y < 0.0 ? -0.007 * uTuck : 0.0);
-  return vec2(dx, dy) * side * fall * mouthFront();
-}
-// The inside of the mouth: rgb + coverage (0 outside the opening).
-vec4 mouthInside(vec2 m) {
-  vec2 o = mouthOpening(m);
-  float nx = m.x / mouthHalfWidth();
-  float aa = max(fwidth(m.y), 1e-5) * 1.5;
-  float cover = smoothstep(-o.y - aa, -o.y + aa, m.y) * (1.0 - smoothstep(o.x - aa, o.x + aa, m.y)) * (1.0 - smoothstep(0.92, 1.0, abs(nx)));
-  cover *= mouthFront() * step(0.0005, o.x + o.y);
-  float depth = 1.0 - 0.5 * abs(nx);
-  vec3 col = vec3(0.07, 0.022, 0.022) * (0.6 + 0.6 * (1.0 - depth));
-  // Tongue at the bottom, rising for t, d, n, l, th.
-  float tongueTop = -o.y + 0.010 + 0.014 * uTongue;
-  float tongue = (1.0 - smoothstep(tongueTop - aa, tongueTop + aa, m.y)) * (1.0 - smoothstep(0.45, 0.7, abs(nx)));
-  col = mix(col, vec3(0.46, 0.15, 0.14) * (0.75 + 0.25 * depth), tongue);
-  // Lower teeth, just inside the lower lip, when the mouth is well open.
-  float lowTeeth = (1.0 - smoothstep(-o.y + 0.005 - aa, -o.y + 0.005 + aa, m.y)) * (1.0 - smoothstep(0.5, 0.62, abs(nx))) * smoothstep(0.35, 0.6, uJaw);
-  col = mix(col, vec3(0.70, 0.66, 0.58) * (0.7 + 0.3 * depth), lowTeeth);
-  // Upper teeth, hanging from the upper lip: a fixed height, so a small opening shows mostly teeth.
-  float upTeeth = smoothstep(o.x - 0.009 - aa, o.x - 0.009 + aa, m.y) * (1.0 - smoothstep(0.62, 0.78, abs(nx)));
-  float gaps = 0.92 + 0.08 * smoothstep(0.2, 0.5, abs(fract(nx * 3.2) - 0.5));
-  col = mix(col, vec3(0.86, 0.82, 0.74) * (0.72 + 0.28 * depth) * gaps, upTeeth);
-  return vec4(col, cover);
+// The inner edge of each lip, where they part: a little darker and redder as the mouth opens.
+float innerLip() {
+  float dx = vRest.x - ${CX};
+  float line = ${LIP} + 1.5 * dx * dx;
+  return (1.0 - smoothstep(0.0, 0.007, abs(vRest.y - line))) * (1.0 - smoothstep(0.06, 0.075, abs(dx))) * smoothstep(0.45, 0.48, vRest.z) * clamp(uJaw * 4.0, 0.0, 1.0);
 }
 float eyeMask(vec2 c, vec2 r, float soft) {
   return (1.0 - smoothstep(soft, 1.0, length((vRest.xy - c) / r))) * (1.0 - smoothstep(${f(r.eyeMaxZ - 0.01)}, ${f(r.eyeMaxZ)}, vRest.z));
@@ -271,10 +289,7 @@ float lid(vec2 c, vec2 r) {
   mat2 dPos = mat2(dFdx(vRest.xy), dFdy(vRest.xy));
   mat2 uvPerUnit = abs(determinant(dPos)) > 1e-14 ? dUv * inverse(dPos) : mat2(0.0);
   float inLeft = eyeMask(${v2(L.centre)}, ${v2(L.radius)}, 0.55);
-  // On a seam of the texture the UV rate jumps (normal values are about 0.1 to 0.2 per unit): no lip shift there.
-  float uvRate = max(length(uvPerUnit[0]), length(uvPerUnit[1]));
-  vec2 lipShift = mouthShift(mouthPos()) * (1.0 - smoothstep(0.5, 0.9, uvRate));
-  vec4 skin = texture2D( map, vMapUv - inLeft * (uvPerUnit * uGaze) + uvPerUnit * lipShift );
+  vec4 skin = texture2D( map, vMapUv - inLeft * (uvPerUnit * uGaze) );
   // Right eye: the left eye's texture, mirrored left-right, moved with the gaze.
   float inRight = eyeMask(${v2(R.centre)}, ${v2(R.radius)}, 0.4);
   vec2 q = vRest.xy - uGaze - ${v2(R.centre)};
@@ -285,17 +300,19 @@ float lidL = lid(${v2(L.centre)}, ${v2(L.radius)});
 float lidR = lid(${v2(R.centre)}, ${v2(R.radius)});
 diffuseColor.rgb = mix(diffuseColor.rgb, uLidL, lidL);
 diffuseColor.rgb = mix(diffuseColor.rgb, uLidR, lidR);
-vec4 inside = mouthInside(mouthPos());
-float mouth = inside.a;
-diffuseColor.rgb = mix(diffuseColor.rgb, inside.rgb, mouth);`
+float mouth = innerLip();
+diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.62, 0.42, 0.42), mouth * 0.8);`
       )
-      .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, 1.0, max(mouth, max(lidL, lidR)));');
+      .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, 1.0, max(lidL, lidR));\nroughnessFactor = mix(roughnessFactor, 0.35, mouth);');
   };
-  material.customProgramCacheKey = () => 'alqami-bust-rig-3';
+  material.customProgramCacheKey = () => 'alqami-bust-rig-4';
   material.needsUpdate = true;
 
+  const inside = buildMouth(r);
+  mesh.add(inside.root);
   const euler = new THREE.Euler();
   const m4 = new THREE.Matrix4();
+  const tmp = new THREE.Matrix4();
   const rig: BustRig = {
     jaw: 0,
     wide: 0,
@@ -327,6 +344,16 @@ diffuseColor.rgb = mix(diffuseColor.rgb, inside.rgb, mouth);`
       uniforms.uBreath.value = rig.breath;
       euler.set(rig.pitch, rig.yaw, rig.roll, 'YXZ');
       uniforms.uHead.value.setFromMatrix4(m4.makeRotationFromEuler(euler));
+      // The teeth and tongue move as the face does: the head around the neck, the lower parts with the jaw.
+      const np = r.neckPivot;
+      const jp = r.jawHinge;
+      inside.root.matrix.makeTranslation(np.x, np.y, np.z).multiply(m4).multiply(tmp.makeTranslation(-np.x, -np.y, -np.z));
+      inside.lower.matrix
+        .makeTranslation(jp.x, jp.y, jp.z)
+        .multiply(tmp.makeRotationX(rig.jaw * JAW_ANGLE))
+        .multiply(new THREE.Matrix4().makeTranslation(-jp.x, -jp.y, -jp.z));
+      inside.tongue.position.set(inside.tongueRest.x, inside.tongueRest.y + 0.014 * rig.tongue, inside.tongueRest.z + 0.008 * rig.tongue);
+      inside.root.matrixWorldNeedsUpdate = true;
     },
   };
   // The mesh bends in the shader, so its box must be loose enough not to be culled while turning.
@@ -377,6 +404,9 @@ export class BustMotion {
   private closedFor = 1;
   private talkFor = 0;
   private wasTalking = false;
+  // People often look aside for a moment as they start to speak (gathering the thought), then back at the listener.
+  private avertLeft = 0;
+  private avert = new THREE.Vector2();
   constructor(private rig: BustRig) {}
 
   /** A short nod with a smile (he noticed a gesture). */
@@ -420,6 +450,11 @@ export class BustMotion {
     // At the end of a phrase people often blink.
     this.talkFor = talking ? this.talkFor + dt : this.talkFor;
     if (this.wasTalking && !talking && this.talkFor > 0.8 && Math.random() < 0.6) this.nextBlink = Math.min(this.nextBlink, 0.12);
+    if (!this.wasTalking && talking && this.talkFor === 0 && Math.random() < 0.5) {
+      this.avertLeft = 0.6 + Math.random() * 0.7;
+      this.avert.set((Math.random() < 0.5 ? -1 : 1) * (0.12 + Math.random() * 0.1), -0.05 - Math.random() * 0.05);
+    }
+    this.avertLeft = Math.max(0, this.avertLeft - dt);
     if (!talking && !this.wasTalking) this.talkFor = 0;
     this.wasTalking = talking;
     rig.brow = approach(rig.brow, this.browLeft > 0 ? 1 : 0, this.browLeft > 0 ? 14 : 5, dt);
@@ -446,10 +481,11 @@ export class BustMotion {
       this.glance = 3 + Math.random() * 4;
       this.glanceYaw = (Math.random() - 0.5) * 0.35;
     }
-    const yaw = hasTarget ? this.targetYaw : this.glanceYaw;
+    const away = this.avertLeft > 0 ? 1 : 0;
+    const yaw = (hasTarget ? this.targetYaw : this.glanceYaw) + this.avert.x * away;
     // The head turns most of the way; the eyes do the rest.
     const headYaw = yaw * 0.75;
-    const pitch = hasTarget ? this.targetPitch : 0.03;
+    const pitch = (hasTarget ? this.targetPitch : 0.03) + this.avert.y * away;
     this.nodLeft = Math.max(0, this.nodLeft - dt);
     const ack = this.nodLeft > 0 ? Math.sin(((0.7 - this.nodLeft) / 0.7) * Math.PI * 2) * 0.13 : 0;
     const nod = ack + this.beat * this.beat * 0.045 + (talking ? Math.sin(this.t * 1.7) * 0.015 : 0);
