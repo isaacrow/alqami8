@@ -43,9 +43,19 @@ export interface BustRegions {
    * eye's iris instead, mirrored: the texture UV at the left eye's centre and how it changes per model unit there
    * ([du/dx, dv/dx, du/dy, dv/dy]), measured on the model.
    */
-  leftEyeUv: { centre: THREE.Vector2; perUnit: [number, number, number, number] };
+  leftEyeUv?: { centre: THREE.Vector2; perUnit: [number, number, number, number] };
   /** Anything in front of this depth near the eyes (the glasses) is never repainted. */
   eyeMaxZ: number;
+  /** The lip line bends up toward the corners by lipCurve · dx² (as in scripts/rig-character.mjs). */
+  lipCurve?: number;
+  /** Half the width of the lip cut (the corners stay joined). */
+  mouthHalf?: number;
+  /** Size of the teeth and mouth against al-Jawahiri's bust (by the distance between the eyes). */
+  mouthScale?: number;
+  /** Depth of the front teeth (a little behind the lips). */
+  teethZ?: number;
+  /** Where the upper teeth end against the lip line (negative: below it). Hidden behind the lips at rest. */
+  teethEdge?: number;
 }
 
 export const JAWAHIRI_REGIONS: BustRegions = {
@@ -64,6 +74,39 @@ export const JAWAHIRI_REGIONS: BustRegions = {
   ],
   leftEyeUv: { centre: new THREE.Vector2(0.1063, 0.3998), perUnit: [-0.0813, 0.1393, 0.1254, 0.0883] },
   eyeMaxZ: 0.47,
+  lipCurve: 1.5,
+  mouthHalf: 0.072,
+  mouthScale: 1,
+  teethZ: 0.473,
+};
+
+/**
+ * al-Mutanabbi (public/characters/mutanabbi-mouth.glb, from characters/mutanabbi.json): measured on the scan's front
+ * view and depth. His head is about 0.8 of al-Jawahiri's in model units (eyes 0.227 apart against 0.285); the lips
+ * meet under the moustache at y ≈ 0.137; no glasses; his beard turns with the jaw. The turban's cloth hangs from his
+ * head to his chest, so the head turns over a long, soft band of the neck.
+ */
+export const MUTANABBI_REGIONS: BustRegions = {
+  centreX: 0.032,
+  lipLine: 0.137,
+  chinBottom: -0.17,
+  jawHinge: new THREE.Vector3(0.032, 0.25, 0.03),
+  neckPivot: new THREE.Vector3(0.032, -0.15, 0.0),
+  headFrom: -0.22,
+  headTo: -0.02,
+  headHalfWidth: 0.3,
+  brows: [new THREE.Vector2(-0.09, 0.44), new THREE.Vector2(0.135, 0.44)],
+  eyes: [
+    { centre: new THREE.Vector2(-0.088, 0.385), radius: new THREE.Vector2(0.04, 0.016), lid: [150, 98, 72] },
+    { centre: new THREE.Vector2(0.135, 0.385), radius: new THREE.Vector2(0.04, 0.016), lid: [150, 98, 72] },
+  ],
+  eyeMaxZ: 2,
+  lipCurve: 0.6,
+  mouthHalf: 0.062,
+  mouthScale: 0.8,
+  teethZ: 0.458,
+  // His lips rest a hair apart in the scan: the teeth sit a little higher, behind the upper lip.
+  teethEdge: 0.0015,
 };
 
 export interface BustRig {
@@ -115,31 +158,33 @@ function buildMouth(r: BustRegions) {
   // An old man's teeth: ivory, a little darker below and further in.
   const enamel = new THREE.MeshStandardMaterial({ color: 0xcbbd9e, roughness: 0.34, envMapIntensity: 0.45 });
   const enamelLow = new THREE.MeshStandardMaterial({ color: 0xb5a685, roughness: 0.38, envMapIntensity: 0.35 });
-  const archZ = (x: number) => 0.473 - 4.4 * (x - CX) ** 2;
+  const k = r.mouthScale ?? 1;
+  const tz = r.teethZ ?? 0.473;
+  const archZ = (x: number) => tz - (4.4 / k) * (x - CX) ** 2;
   const teeth = (widths: number[], edgeY: number, height: number, up: boolean, back: number, mat: THREE.Material, parent: THREE.Object3D) => {
     let x = CX - widths.reduce((a, b) => a + b, 0) / 2;
     for (const w of widths) {
       const cx = x + w / 2;
-      const geo = new RoundedBoxGeometry(w * 0.94, height, 0.026, 2, Math.min(w, 0.026) * 0.3);
+      const geo = new RoundedBoxGeometry(w * 0.94, height, 0.026 * k, 2, Math.min(w, 0.026 * k) * 0.3);
       const tooth = new THREE.Mesh(geo, mat);
-      tooth.position.set(cx, edgeY + (up ? height / 2 : -height / 2), archZ(cx) - back - 0.013);
-      tooth.rotation.y = -Math.atan(8.8 * (cx - CX));
+      tooth.position.set(cx, edgeY + (up ? height / 2 : -height / 2), archZ(cx) - back - 0.013 * k);
+      tooth.rotation.y = -Math.atan((8.8 / k) * (cx - CX));
       parent.add(tooth);
       x += w;
     }
   };
   // Upper: canine, lateral, central, central, lateral, canine (mm 7.5, 6.5, 8.5 at 22 cm a unit).
-  teeth([0.034, 0.03, 0.039, 0.039, 0.03, 0.034], r.lipLine - 0.004, 0.05, true, 0, enamel, root);
-  teeth([0.032, 0.028, 0.026, 0.026, 0.028, 0.032], r.lipLine - 0.006, 0.045, false, 0.011, enamelLow, lower);
+  teeth([0.034, 0.03, 0.039, 0.039, 0.03, 0.034].map((w) => w * k), r.lipLine + (r.teethEdge ?? -0.004 * k), 0.05 * k, true, 0, enamel, root);
+  teeth([0.032, 0.028, 0.026, 0.026, 0.028, 0.032].map((w) => w * k), r.lipLine + (r.teethEdge ?? -0.004 * k) - 0.002 * k, 0.045 * k, false, 0.011 * k, enamelLow, lower);
   // The tongue lies just behind the lower teeth, its top about level with their edges.
-  const tongueRest = new THREE.Vector3(CX, r.lipLine - 0.017, 0.438);
-  const tongue = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), new THREE.MeshStandardMaterial({ color: 0x8c4740, roughness: 0.55, envMapIntensity: 0.4 }));
-  tongue.scale.set(0.075, 0.02, 0.045);
+  const tongueRest = new THREE.Vector3(CX, r.lipLine - 0.017 * k, tz - 0.035 * k);
+  const tongue = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), new THREE.MeshStandardMaterial({ color: 0x763830, roughness: 0.6, envMapIntensity: 0.3 }));
+  tongue.scale.set(0.075 * k, 0.02 * k, 0.045 * k);
   tongue.position.copy(tongueRest);
   lower.add(tongue);
   const shell = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), new THREE.MeshStandardMaterial({ color: 0x3a1210, roughness: 0.9, side: THREE.BackSide }));
-  shell.scale.set(0.115, 0.07, 0.07);
-  shell.position.set(CX, r.lipLine - 0.008, 0.43);
+  shell.scale.set(0.115 * k, 0.07 * k, 0.07 * k);
+  shell.position.set(CX, r.lipLine - 0.008 * k, tz - 0.043 * k);
   root.add(shell);
   return { root, lower, tongue, tongueRest };
 }
@@ -268,8 +313,8 @@ varying vec3 vRest;
 // The inner edge of each lip, where they part: a little darker and redder as the mouth opens.
 float innerLip() {
   float dx = vRest.x - ${CX};
-  float line = ${LIP} + 1.5 * dx * dx;
-  return (1.0 - smoothstep(0.0, 0.007, abs(vRest.y - line))) * (1.0 - smoothstep(0.06, 0.075, abs(dx))) * smoothstep(0.45, 0.48, vRest.z) * clamp(uJaw * 4.0, 0.0, 1.0);
+  float line = ${LIP} + ${f(r.lipCurve ?? 1.5)} * dx * dx;
+  return (1.0 - smoothstep(0.0, 0.007, abs(vRest.y - line))) * (1.0 - smoothstep(${f((r.mouthHalf ?? 0.072) - 0.012)}, ${f((r.mouthHalf ?? 0.072) + 0.003)}, abs(dx))) * smoothstep(${f((r.teethZ ?? 0.473) - 0.023)}, ${f((r.teethZ ?? 0.473) + 0.007)}, vRest.z) * clamp(uJaw * 4.0, 0.0, 1.0);
 }
 float eyeMask(vec2 c, vec2 r, float soft) {
   return (1.0 - smoothstep(soft, 1.0, length((vRest.xy - c) / r))) * (1.0 - smoothstep(${f(r.eyeMaxZ - 0.01)}, ${f(r.eyeMaxZ)}, vRest.z));
@@ -290,11 +335,16 @@ float lid(vec2 c, vec2 r) {
   mat2 uvPerUnit = abs(determinant(dPos)) > 1e-14 ? dUv * inverse(dPos) : mat2(0.0);
   float inLeft = eyeMask(${v2(L.centre)}, ${v2(L.radius)}, 0.55);
   vec4 skin = texture2D( map, vMapUv - inLeft * (uvPerUnit * uGaze) );
-  // Right eye: the left eye's texture, mirrored left-right, moved with the gaze.
   float inRight = eyeMask(${v2(R.centre)}, ${v2(R.radius)}, 0.4);
+${
+  r.leftEyeUv
+    ? `  // Right eye: the left eye's texture, mirrored left-right, moved with the gaze (a seam crosses this right eye).
   vec2 q = vRest.xy - uGaze - ${v2(R.centre)};
   vec2 fromLeft = ${v2(r.leftEyeUv.centre)} + mat2(${r.leftEyeUv.perUnit.map(f).join(', ')}) * vec2(-q.x, q.y);
-  diffuseColor *= mix(skin, texture2D( map, fromLeft ), inRight);
+  diffuseColor *= mix(skin, texture2D( map, fromLeft ), inRight);`
+    : `  // Right eye: slides its own texture, like the left.
+  diffuseColor *= texture2D( map, vMapUv - (inLeft + inRight) * (uvPerUnit * uGaze) );`
+}
 #endif
 float lidL = lid(${v2(L.centre)}, ${v2(L.radius)});
 float lidR = lid(${v2(R.centre)}, ${v2(R.radius)});
@@ -352,7 +402,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.62, 0.42, 0.4
         .makeTranslation(jp.x, jp.y, jp.z)
         .multiply(tmp.makeRotationX(rig.jaw * JAW_ANGLE))
         .multiply(new THREE.Matrix4().makeTranslation(-jp.x, -jp.y, -jp.z));
-      inside.tongue.position.set(inside.tongueRest.x, inside.tongueRest.y + 0.014 * rig.tongue, inside.tongueRest.z + 0.008 * rig.tongue);
+      inside.tongue.position.set(inside.tongueRest.x, inside.tongueRest.y + 0.014 * (r.mouthScale ?? 1) * rig.tongue, inside.tongueRest.z + 0.008 * (r.mouthScale ?? 1) * rig.tongue);
       inside.root.matrixWorldNeedsUpdate = true;
     },
   };

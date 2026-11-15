@@ -16,14 +16,25 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import sharp from 'sharp';
 import { MeshoptSimplifier } from 'meshoptimizer';
 
-const [input, output, trianglesArg] = process.argv.slice(2);
+const [input, output, trianglesArg, configPath] = process.argv.slice(2);
+// Per-character numbers (a JSON file, 4th argument); the defaults are al-Jawahiri's.
+const cfg = configPath ? JSON.parse(readFileSync(configPath, 'utf8')) : {};
 const TARGET_TRIS = Number(trianglesArg || 80000);
 const TEXTURE_SIZES = [2048, 1024, 1024];
 
-const CX = 0.02;
-const lipLine = (x) => 0.093 + 1.5 * (x - CX) ** 2;
-const CUT_HALF = 0.072; // the cut stops this far either side of the centre: the lip corners stay joined
-const inLock = (x, y, z) => Math.abs(x - CX) < 0.12 && y > 0.03 && y < 0.16 && z > 0.42;
+const CX = cfg.centreX ?? 0.02;
+const LIP_Y = cfg.lipLine ?? 0.093;
+const LIP_CURVE = cfg.lipCurve ?? 1.5;
+const lipLine = (x) => LIP_Y + LIP_CURVE * (x - CX) ** 2;
+const CUT_HALF = cfg.cutHalf ?? 0.072; // the cut stops this far either side of the centre: the lip corners stay joined
+const LOCK = { halfWidth: 0.12, yMin: 0.03, yMax: 0.16, zMin: 0.42, ...(cfg.lock ?? {}) };
+const inLock = (x, y, z) => Math.abs(x - CX) < LOCK.halfWidth && y > LOCK.yMin && y < LOCK.yMax && z > LOCK.zMin;
+// Where the lips are in depth (the cut and the lip weights only touch the front of the face).
+const LIP_Z = cfg.lipZ ?? 0.44;
+// The jaw's reach: across (dx), down to the neck (y) and front to back (z).
+const JAW_DX = cfg.jawDx ?? [0.09, 0.17];
+const JAW_NECK = cfg.jawNeck ?? [-0.3, -0.17];
+const JAW_Z = cfg.jawZ ?? [0.18, 0.36];
 
 const glb = readFileSync(input);
 const jsonLen = glb.readUInt32LE(12);
@@ -75,7 +86,7 @@ for (let t = 0; t < tris.length / 3; t++) {
   const x = (vx(a) + vx(b) + vx(c)) / 3;
   const y = (vy(a) + vy(b) + vy(c)) / 3;
   const z = (vz(a) + vz(b) + vz(c)) / 3;
-  if (Math.abs(x - CX) > CUT_HALF + 0.01 || Math.abs(y - lipLine(x)) > 0.03 || z < 0.44) continue;
+  if (Math.abs(x - CX) > CUT_HALF + 0.01 || Math.abs(y - lipLine(x)) > 0.03 || z < LIP_Z) continue;
   side[t] = y < lipLine(x) ? 1 : 0;
   for (const v of [a, b, c]) usedBy[v] |= side[t] ? 2 : 1;
 }
@@ -135,8 +146,8 @@ for (let v = 0; v < count; v++) {
   // turns as one piece.
   const lens = Math.sqrt(Math.max(0, 1 - (dx / (CUT_HALF + 0.006)) ** 2));
   const nearLips = 1 - smooth(0.015, 0.05, -below);
-  JAW[v] = lower * (1 - smooth(0.09, 0.17, dx)) * smooth(-0.3, -0.17, y) * smooth(0.18, 0.36, z) * (1 - nearLips * (1 - lens));
-  const lip = (1 - smooth(0.012, 0.03, Math.abs(below))) * (1 - smooth(0.07, 0.1, dx)) * smooth(0.43, 0.47, z);
+  JAW[v] = lower * (1 - smooth(JAW_DX[0], JAW_DX[1], dx)) * smooth(JAW_NECK[0], JAW_NECK[1], y) * smooth(JAW_Z[0], JAW_Z[1], z) * (1 - nearLips * (1 - lens));
+  const lip = (1 - smooth(0.012, 0.03, Math.abs(below))) * (1 - smooth(CUT_HALF - 0.002, CUT_HALF + 0.028, dx)) * smooth(LIP_Z - 0.01, LIP_Z + 0.03, z);
   LIP[v] = lower > 0.5 ? -lip : lip;
 }
 

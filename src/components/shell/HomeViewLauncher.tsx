@@ -169,6 +169,13 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({
       glyph: <span className="text-[30px]">🗣️</span>,
     },
     {
+      id: 'messages',
+      href: './mutanabbi.html',
+      name: 'المتنبي · Talk',
+      bg: 'radial-gradient(circle at 50% 30%, #7a5a2e, #1a1209)',
+      glyph: <span className="text-[30px]">🐎</span>,
+    },
+    {
       id: 'search',
       name: 'Spotlight',
       bg: 'linear-gradient(180deg, #0a84ff 0%, #32ade6 100%)',

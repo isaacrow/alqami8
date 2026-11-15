@@ -1,0 +1,12 @@
+{
+  "_about": "al-Mutanabbi's numbers for scripts/rig-character.mjs, measured on the Meshy scan's depth: lips meet at y ~0.137 under the moustache, mouth centre x ~0.032, half-width ~0.075; the beard moves with the jaw.",
+  "centreX": 0.032,
+  "lipLine": 0.137,
+  "lipCurve": 0.6,
+  "cutHalf": 0.062,
+  "lock": { "halfWidth": 0.1, "yMin": 0.095, "yMax": 0.175, "zMin": 0.45 },
+  "lipZ": 0.44,
+  "jawDx": [0.08, 0.15],
+  "jawNeck": [-0.26, -0.12],
+  "jawZ": [0.18, 0.36]
+}

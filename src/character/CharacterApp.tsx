@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Camera, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
 import { KeyTerminal } from './KeyTerminal';
-import { JAWAHIRI, OPENING_CUE, systemInstruction } from './jawahiri';
+import { pageCharacter } from './characters';
+
+const C = pageCharacter();
 import { GEMINI_VOICES, LiveConversation, LiveState, loadSettings, saveSettings, VoiceKind, VoiceSettings } from './liveVoice';
 import { Stage } from './stage';
 import { Gesture, VisitorTracker } from './tracking';
@@ -15,7 +17,7 @@ const GESTURE_CUES: Record<Gesture, string> = {
 };
 
 /**
- * Talk with al-Jawahiri: a live voice conversation (Gemini Live) with his 3D bust, which moves its jaw with the voice,
+ * Talk with a character (al-Jawahiri or al-Mutanabbi, named by the HTML page; see characters.ts): a live voice conversation (Gemini Live) with his 3D bust, which moves its jaw with the voice,
  * looks at the visitor's face (front camera), reacts to hand waves and pinches, and hovers in the room over the back
  * camera. An AI recreation, and the screen says so.
  */
@@ -49,7 +51,7 @@ export const CharacterApp: React.FC = () => {
     if (!stage.current || v === view) return;
     setViewLoading(true);
     try {
-      await stage.current.setView(v, 'characters/jawahiri-4d.bin');
+      await stage.current.setView(v, C.fourD ?? '');
       setViewState(v);
     } catch {
       flash(t('تعذّر تحميل العرض رباعي الأبعاد', 'The 4D view could not load'));
@@ -77,7 +79,7 @@ export const CharacterApp: React.FC = () => {
   useEffect(() => {
     const s = new Stage(mount.current!);
     stage.current = s;
-    s.load('characters/jawahiri-mouth.glb', setLoaded).then(
+    s.load(C.model, setLoaded, C.regions).then(
       () => setLoaded(1),
       (e) => setLoadError(String(e))
     );
@@ -163,7 +165,11 @@ export const CharacterApp: React.FC = () => {
       return;
     }
     live.current?.dispose();
-    const conv = new LiveConversation(settings, systemInstruction(), {
+    // al-Jawahiri's cloned voice is his alone; another character speaks with his own Gemini voice unless the visitor chose one.
+    const voiceSettings = C.clonedVoice
+      ? settings
+      : { ...settings, voiceServer: '', geminiVoice: C.geminiVoice && settings.geminiVoice === GEMINI_VOICES[0].id ? C.geminiVoice : settings.geminiVoice };
+    const conv = new LiveConversation(voiceSettings, C.instruction(), {
       onState: (s, detail) => {
         setState(s);
         setStateDetail(detail ?? '');
@@ -177,7 +183,7 @@ export const CharacterApp: React.FC = () => {
     setVisitor('');
     try {
       // Mic first (it needs this tap), then the front camera so he can look at you.
-      const starting = conv.start(OPENING_CUE);
+      const starting = conv.start(C.openingCue);
       if (cam === 'off') void setCamera('front');
       await starting;
     } catch {
@@ -257,9 +263,9 @@ export const CharacterApp: React.FC = () => {
           <ArrowLeft className={`w-5 h-5 ${lang === 'ar' ? 'rotate-180' : ''}`} />
         </a>
         <div className="flex-1 min-w-0">
-          <h1 className="text-[16px] font-semibold leading-tight truncate">{t(JAWAHIRI.nameAr, JAWAHIRI.nameEn)}</h1>
+          <h1 className="text-[16px] font-semibold leading-tight truncate">{t(C.nameAr, C.nameEn)}</h1>
           <p className="text-[11px] text-white/60 truncate">
-            1899–1997 · {t('إعادة بناء بالذكاء الاصطناعي', 'AI recreation')}
+            {t(C.datesAr, C.datesEn)} · {t('إعادة بناء بالذكاء الاصطناعي', 'AI recreation')}
             {recreated ? ` · ${t('صوت معاد بناؤه بالذكاء الاصطناعي', 'AI-recreated voice')}` : ` · ${t('ليس صوته الحقيقي', 'not his real voice')}`}
           </p>
         </div>
@@ -275,6 +281,7 @@ export const CharacterApp: React.FC = () => {
       </header>
 
       {/* Two ways to see him: the sculpted bust that speaks, or the filmed 4D capture. */}
+      {C.fourD && (
       <div className="absolute top-[calc(env(safe-area-inset-top)+64px)] inset-x-0 z-30 flex justify-center pointer-events-none">
         <div className="pointer-events-auto flex rounded-full bg-black/45 backdrop-blur border border-white/15 p-1 text-[12.5px] font-medium">
           {([
@@ -287,13 +294,14 @@ export const CharacterApp: React.FC = () => {
           ))}
         </div>
       </div>
+      )}
 
       {loaded < 1 && !loadError && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 pointer-events-none">
           <div className="w-44 h-1.5 rounded-full bg-white/15 overflow-hidden">
             <div className="h-full bg-[#FFD60A] transition-all" style={{ width: `${Math.round(loaded * 100)}%` }} />
           </div>
-          <p className="text-[12px] text-white/60">{t('يحضر الجواهري…', 'Al-Jawahiri is arriving…')}</p>
+          <p className="text-[12px] text-white/60">{t(C.arrivingAr, C.arrivingEn)}</p>
         </div>
       )}
       {loadError && <p className="absolute inset-x-6 top-1/2 z-20 text-center text-rose-300 text-[13px]">{t('تعذّر تحميل المجسّم', 'The model could not load')}</p>}
@@ -469,16 +477,13 @@ const SettingsSheet: React.FC<{ lang: Lang; settings: VoiceSettings; onClose: ()
 const AboutSheet: React.FC<{ lang: Lang; onClose: () => void }> = ({ lang, onClose }) => {
   const t = (ar: string, en: string) => (lang === 'ar' ? ar : en);
   return (
-    <Sheet title={t(JAWAHIRI.nameAr, JAWAHIRI.nameEn)} onClose={onClose}>
+    <Sheet title={t(C.nameAr, C.nameEn)} onClose={onClose}>
       <div className="space-y-4 text-[13.5px] leading-relaxed">
         <p className="text-white/70">
-          {t(
-            `${JAWAHIRI.titleAr}. وُلد في النجف في 26 تموز 1899 وتوفي في دمشق في 27 تموز 1997.`,
-            'Iraq’s great Arab poet. Born in Najaf on 26 July 1899, died in Damascus on 27 July 1997.'
-          )}
+          {t(C.aboutAr, C.aboutEn)}
         </p>
         <ol className="space-y-2 border-s border-white/15 ps-3">
-          {JAWAHIRI.life.map((l) => (
+          {C.life.map((l) => (
             <li key={l.year}>
               <span className="text-[#FFD60A] font-semibold text-[12px]">{l.year}</span>
               <p>{t(l.ar, l.en)}</p>
@@ -488,7 +493,7 @@ const AboutSheet: React.FC<{ lang: Lang; onClose: () => void }> = ({ lang, onClo
         <div>
           <p className="font-medium mb-1.5">{t('أعماله في الفهرس', 'His works in the catalogue')}</p>
           <div className="flex flex-wrap gap-1.5" dir="rtl">
-            {JAWAHIRI.works.map((w) => (
+            {C.works.map((w) => (
               <span key={w} className="px-2.5 py-1 rounded-full bg-white/10 border border-white/10 text-[12px]">
                 {w}
               </span>
@@ -496,7 +501,7 @@ const AboutSheet: React.FC<{ lang: Lang; onClose: () => void }> = ({ lang, onClo
           </div>
         </div>
         <div className="text-[12px] text-white/60 space-y-1" dir="ltr">
-          {JAWAHIRI.ids.map((id) => (
+          {C.ids.map((id) => (
             <p key={id.label}>
               {id.label}: {id.url ? <a className="underline" href={id.url} target="_blank" rel="noreferrer">{id.value}</a> : id.value}
             </p>
