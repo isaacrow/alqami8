@@ -1,0 +1,21 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+@prefix ms: <https://w3id.org/manuscript-ar/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix bf: <http://id.loc.gov/ontologies/bibframe/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/instance/1789642441889>
+    a schema:Manuscript, <http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object> ;
+    dc:title "القبسات"@ar, "Al-Qabasat (Kitāb al-Qabasāt)"@en ;
+    dc:creator "الميرداماد، محمد باقر بن محمد الحسيني الاسترآبادي (توفي 1041 هـ)"@ar ;
+    dc:date "1650 [1061 هـ.]" ;
+    dc:format "مخطوط وحيد / أحادي (Single unit)"@ar ;
+    dc:identifier "b125923 / (Sirsi) a209527" ;
+    schema:extent "344 ورقة (18 سطرًا في الصفحة)"@ar ;
+    schema:material "ورق، حبر اسود، خط النستعليق، جلد احمر"@ar ;
+    schema:publisher "مكتبة مجلس الشورى : 4662، طهران، ايران (ir) • Moon Library System"@ar ;
+    ms:transcriptionArabic "كتاب فلسفي كلامي للميرداماد يناقش حدوث العالم وقدمه ومسألة الدهر والزمان والمصادر الوجودية وفق الحكمة المتعالية والمشائية. أوله: الحمد لله الواحد الاحد الصمد المصمود مهيمن كل وجود وجاعل كل موجود... آخره: ولا تخلنا اللهم مع ذلك من عواطف رأفتك وسوابغ رحمتك ولطايف كفايتك وحوط عنايتك وحسن كلائتك بجودك ومنك وفضلك وطولك يا أرحم الراحمين. النسخة مجدولة ومذهبة والغلاف جلد أحمر."@ar ;
+    ms:translationEnglish "Philosophical and theological masterpiece by Mir Damad discussing the origination and eternity of the cosmos, time and eternal duration (Dahr). Single illuminated manuscript codex held at Majlis Library (4662)."@en .

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#000000" />
+    <title>التعرّف من كل الجهات (علقمي 3 المحلي) · ALQAMI</title>
+    <link rel="icon" type="image/png" href="./icons/icon-192.png" />
+    <script type="module" src="/src/alqami3/sweep/page.js"></script>
+  </head>
+  <body>
+    <div id="stage">
+      <video id="video" playsinline muted></video>
+      <canvas id="canvas"></canvas>
+      <div id="xr"></div>
+    </div>
+    <div class="a3-bar">
+      <a id="back" class="a3-btn" aria-label="Back">✕</a>
+      <span class="a3-title">التعرّف من كل الجهات · 360° recognition (alqami3 local)</span>
+      <button id="show-targets" class="a3-btn">الصور · Pictures</button>
+    </div>
+    <div id="status"><span id="status-text">اضغط «ابدأ» · Tap Start</span></div>
+    <button id="start">ابدأ المسح · Start</button>
+    <button id="anim" class="a3-btn" hidden></button>
+    <section id="record" class="a3-sheet" hidden style="top: calc(env(safe-area-inset-top) + 100px); bottom: auto; max-height: 30vh">
+      <h2 id="rec-title"></h2>
+      <p class="sub" id="rec-sub"></p>
+      <dl id="rec-rows"></dl>
+    </section>
+    <div id="hud"></div>
+    <section id="targets" hidden>
+      <button id="close-targets" class="a3-close" aria-label="Close">✕</button>
+      <h2 style="margin: 0 0 6px; font-size: 17px">صور للتجربة · Pictures to try</h2>
+      <p style="margin: 0 0 14px; font-size: 13px; color: #fffa">يتعرّف على: رائد الفضاء الذهبي، صندوق براغ، القبسات، ذو الفقار، طاسة السقاخانة، الرق الكوفي. · Knows: the golden astronaut, the Prague box, Al-Qabasat, Zulfiqar, the Saqqakhana bowl, the Kufic folio.</p>
+      <div id="targets-list"></div>
+    </section>
+  </body>
+</html>

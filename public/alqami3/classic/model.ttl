@@ -1,0 +1,21 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+@prefix ms: <http://example.org/manuscript/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://alqami.net/manuscript/qabasat>
+    a schema:Manuscript ;
+    dc:title "القبسات"@ar ;
+    dc:title "Al-Qabasat"@en ;
+    dc:creator "الميرداماد، محمد باقر بن محمد"@ar ;
+    dc:creator "Mir Damad"@en ;
+    dc:date "1061 هـ / 1650 م" ;
+    schema:material "ورق، حبر اسود، خط النستعليق"@ar ;
+    schema:material "Paper, Black Ink, Nastaliq Script"@en ;
+    schema:publisher "مكتبة مجلس الشورى : 4662، طهران، ايران"@ar ;
+    schema:publisher "Majlis Parliament Library"@en ;
+    ms:transcriptionArabic """أوله : الحمد لله الواحد الاحد الصمد المصمود مهيمن كل وجود وجاعل كل موجود، والصلاة على من اقتفاه من زمرة الانبياء، واصطفاه من رسل الرسل فابتعثه بالذكر...
+آخره : ولا تخلنا اللهم مع ذلك من عواطف رأفتك وسوابغ رحمتك ولطايف كفايتك وحوط عنايتك وحسن كلائتك بجودك ومنك وفضلك وطولك يا أرحم الراحمين."""@ar ;
+    ms:translationEnglish """A significant manuscript on Islamic Shia Philosophy. The manuscript is framed with decorative margins on the first page, bound in red leather, and organized by catchwords."""@en ;
+    schema:extent "344 ورقة (18 سطرًا)"@ar .

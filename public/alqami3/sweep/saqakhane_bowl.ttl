@@ -1,0 +1,17 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix ms: <http://example.org/manuscript/> .
+
+<https://alqami.net/museum/saqakhane_bowl>
+    a schema:Manuscript ;
+    dc:title "طاسة سقاخانة (وعاء الشرب)"@ar ;
+    dc:title "Saqakhane Drinking Bowl"@en ;
+    dc:creator "صانع مجهول (العصر القاجاري/الصفوي)"@ar ;
+    dc:creator "Unknown Maker"@en ;
+    dc:date "القرن 18-19 م" ;
+    schema:material "نحاس منقوش، برونز"@ar ;
+    schema:material "Engraved Copper, Bronze"@en ;
+    schema:extent "نموذج ثلاثي الأبعاد لوعاء تاريخي" ;
+    schema:publisher "مجموعة المتحف الخاصة"@ar ;
+    ms:transcriptionArabic """وعاء شرب تاريخي يُعرف بـ (طاسة سقاخانة)، كان يُستخدم في السقايات والأماكن المقدسة لتقديم الماء للزائرين تبركاً. يتميز بنقوش كتابية وزخرفية دقيقة."""@ar ;
+    ms:translationEnglish """A historical drinking bowl known as (Saqakhane Bowl), historically used in shrines and public drinking fountains to offer water to pilgrims. Features exquisite engraved calligraphy and motifs."""@en .

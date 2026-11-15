@@ -1,0 +1,17 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix ms: <http://example.org/manuscript/> .
+
+<https://alqami.net/museum/zulfiqar_sword>
+    a schema:Manuscript ;
+    dc:title "سيف ذو الفقار (Zulfiqar Sword)"@ar ;
+    dc:title "Zulfiqar Sword"@en ;
+    dc:creator "تراث إسلامي خالد"@ar ;
+    dc:creator "Islamic Heritage"@en ;
+    dc:date "صدر الإسلام / القرن الأول الهجري" ;
+    schema:material "فولاذ دمشقي، فضة، مقبض مزخرف"@ar ;
+    schema:material "Damascus Steel, Silver Inlay"@en ;
+    schema:extent "الطول: 98 سم" ;
+    schema:publisher "مجموعة المتحف التراثية"@ar ;
+    ms:transcriptionArabic """نموذج ثلاثي الأبعاد مجسم لسيف ذي الفقار الشهير، ذي النصلين المشقوقين، رمز الشجاعة والعدالة والفروسية الإسلامية للإمام علي بن أبي طالب (عليه السلام)."""@ar ;
+    ms:translationEnglish """A 3D model of the legendary double-bladed sword 'Zulfiqar', the timeless symbol of bravery, justice, and chivalry associated with Imam Ali ibn Abi Talib (AS)."""@en .

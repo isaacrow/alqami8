@@ -1,0 +1,190 @@
+/* The ALQAMI frame around alqami3's scan modes: a top bar, a status pill, the record as a bottom sheet, and the
+   pictures to point at. Loaded after alqami3's own styles.css. */
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #000;
+  color: #fff;
+  font-family: 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  overflow: hidden;
+}
+#ar,
+#stage {
+  position: fixed;
+  inset: 0;
+}
+#stage video,
+#stage canvas,
+#stage #xr {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+#stage video {
+  object-fit: cover;
+}
+#stage canvas {
+  pointer-events: none;
+}
+.a3-bar {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: calc(env(safe-area-inset-top) + 10px) 12px 8px;
+  background: linear-gradient(#000a, transparent);
+}
+.a3-btn {
+  height: 40px;
+  min-width: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid #fff3;
+  background: #0008;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+}
+.a3-title {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#status {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 62px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  max-width: 88vw;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #000a;
+  border: 1px solid #fff3;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#status.found {
+  border-color: #34d399;
+  color: #a7f3d0;
+}
+#start {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 40px);
+  transform: translateX(-50%);
+  z-index: 60;
+  height: 52px;
+  padding: 0 28px;
+  border-radius: 999px;
+  border: 0;
+  background: #ffd60a;
+  color: #000;
+  font: inherit;
+  font-weight: 700;
+  font-size: 15px;
+}
+.a3-sheet {
+  position: fixed;
+  inset-inline: 12px;
+  bottom: calc(env(safe-area-inset-bottom) + 12px);
+  z-index: 55;
+  max-height: 42vh;
+  overflow: auto;
+  padding: 14px 16px;
+  border-radius: 22px;
+  background: #0b0d14e6;
+  border: 1px solid #ffffff2a;
+  backdrop-filter: blur(16px);
+}
+.a3-sheet h2 {
+  margin: 0;
+  font-size: 16px;
+}
+.a3-sheet .sub {
+  margin: 2px 0 8px;
+  font-size: 12px;
+  color: #fff9;
+}
+.a3-sheet dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  font-size: 13px;
+}
+.a3-sheet dt {
+  color: #fff8;
+}
+.a3-sheet dd {
+  margin: 0;
+}
+.a3-close {
+  float: inline-end;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 0;
+  background: #fff2;
+  color: #fff;
+}
+#targets {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  overflow: auto;
+  background: #000e;
+  padding: calc(env(safe-area-inset-top) + 16px) 16px 24px;
+}
+#targets-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+#targets figure {
+  margin: 0;
+}
+#targets img {
+  width: 100%;
+  border-radius: 10px;
+  background: #222;
+}
+#targets figcaption {
+  font-size: 12px;
+  margin-top: 4px;
+}
+#anim {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(env(safe-area-inset-bottom) + 200px);
+  z-index: 56;
+}
+#hud {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 54;
+  width: 92%;
+  max-width: 440px;
+}
+[hidden] {
+  display: none !important;
+}
