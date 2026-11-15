@@ -48,6 +48,10 @@ export interface BustRegions {
   eyeMaxZ: number;
   /** The lip line bends up toward the corners by lipCurve · dx² (as in scripts/rig-character.mjs). */
   lipCurve?: number;
+  /** A tilted head tilts the lip line: its slope across the mouth (the teeth tilt with it). */
+  lipTilt?: number;
+  /** A face turned to one side: how the mouth's depth changes across it (dz/dx); the teeth and tongue turn with it. */
+  mouthYaw?: number;
   /** Half the width of the lip cut (the corners stay joined). */
   mouthHalf?: number;
   /** Size of the teeth and mouth against al-Jawahiri's bust (by the distance between the eyes). */
@@ -109,6 +113,37 @@ export const MUTANABBI_REGIONS: BustRegions = {
   teethEdge: 0.0015,
 };
 
+/**
+ * Sheikh Ahmad al-Waili (public/characters/waili-mouth.glb, from characters/waili.json): measured on rasterised
+ * close-ups of the scan. His head is about al-Jawahiri's size (eyes 0.274 apart) but rolled to one side (his right
+ * eye is higher), so the lip line tilts; the face sits forward (lips at z ≈ 0.6); no glasses; the white beard turns
+ * with the jaw.
+ */
+export const WAILI_REGIONS: BustRegions = {
+  centreX: 0.033,
+  lipLine: -0.031,
+  chinBottom: -0.12,
+  jawHinge: new THREE.Vector3(0.033, 0.09, 0.1),
+  neckPivot: new THREE.Vector3(0.04, -0.3, 0.05),
+  headFrom: -0.28,
+  headTo: -0.14,
+  headHalfWidth: 0.34,
+  brows: [new THREE.Vector2(-0.08, 0.4), new THREE.Vector2(0.19, 0.385)],
+  eyes: [
+    { centre: new THREE.Vector2(-0.084, 0.335), radius: new THREE.Vector2(0.055, 0.017), lid: [226, 168, 150] },
+    { centre: new THREE.Vector2(0.19, 0.312), radius: new THREE.Vector2(0.06, 0.016), lid: [226, 168, 150] },
+  ],
+  eyeMaxZ: 2,
+  lipCurve: 0.7,
+  lipTilt: -0.13,
+  // His face is turned about 13°: below the lips the surface falls back 0.009 on one side and 0.077 on the other.
+  mouthYaw: -0.228,
+  mouthHalf: 0.085,
+  mouthScale: 0.96,
+  // His lower lip and chin fall back steeply, so the inside of the mouth sits deep.
+  teethZ: 0.525,
+};
+
 export interface BustRig {
   /** 0 (closed) .. 1 (wide open). */
   jaw: number;
@@ -160,15 +195,18 @@ function buildMouth(r: BustRegions) {
   const enamelLow = new THREE.MeshStandardMaterial({ color: 0xb5a685, roughness: 0.38, envMapIntensity: 0.35 });
   const k = r.mouthScale ?? 1;
   const tz = r.teethZ ?? 0.473;
-  const archZ = (x: number) => tz - (4.4 / k) * (x - CX) ** 2;
+  const yaw = r.mouthYaw ?? 0;
+  const archZ = (x: number) => tz + yaw * (x - CX) - (4.4 / k) * (x - CX) ** 2;
   const teeth = (widths: number[], edgeY: number, height: number, up: boolean, back: number, mat: THREE.Material, parent: THREE.Object3D) => {
     let x = CX - widths.reduce((a, b) => a + b, 0) / 2;
     for (const w of widths) {
       const cx = x + w / 2;
       const geo = new RoundedBoxGeometry(w * 0.94, height, 0.026 * k, 2, Math.min(w, 0.026 * k) * 0.3);
       const tooth = new THREE.Mesh(geo, mat);
-      tooth.position.set(cx, edgeY + (up ? height / 2 : -height / 2), archZ(cx) - back - 0.013 * k);
-      tooth.rotation.y = -Math.atan((8.8 / k) * (cx - CX));
+      const tilt = r.lipTilt ?? 0;
+      tooth.position.set(cx, edgeY + tilt * (cx - CX) + (up ? height / 2 : -height / 2), archZ(cx) - back - 0.013 * k);
+      tooth.rotation.z = Math.atan(tilt);
+      tooth.rotation.y = -Math.atan((8.8 / k) * (cx - CX)) - Math.atan(yaw);
       parent.add(tooth);
       x += w;
     }
@@ -181,10 +219,12 @@ function buildMouth(r: BustRegions) {
   const tongue = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), new THREE.MeshStandardMaterial({ color: 0x763830, roughness: 0.6, envMapIntensity: 0.3 }));
   tongue.scale.set(0.075 * k, 0.02 * k, 0.045 * k);
   tongue.position.copy(tongueRest);
+  tongue.rotation.y = -Math.atan(yaw);
   lower.add(tongue);
   const shell = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), new THREE.MeshStandardMaterial({ color: 0x3a1210, roughness: 0.9, side: THREE.BackSide }));
   shell.scale.set(0.115 * k, 0.07 * k, 0.07 * k);
   shell.position.set(CX, r.lipLine - 0.008 * k, tz - 0.043 * k);
+  shell.rotation.y = -Math.atan(yaw);
   root.add(shell);
   return { root, lower, tongue, tongueRest };
 }
@@ -313,7 +353,7 @@ varying vec3 vRest;
 // The inner edge of each lip, where they part: a little darker and redder as the mouth opens.
 float innerLip() {
   float dx = vRest.x - ${CX};
-  float line = ${LIP} + ${f(r.lipCurve ?? 1.5)} * dx * dx;
+  float line = ${LIP} + ${f(r.lipTilt ?? 0)} * dx + ${f(r.lipCurve ?? 1.5)} * dx * dx;
   return (1.0 - smoothstep(0.0, 0.007, abs(vRest.y - line))) * (1.0 - smoothstep(${f((r.mouthHalf ?? 0.072) - 0.012)}, ${f((r.mouthHalf ?? 0.072) + 0.003)}, abs(dx))) * smoothstep(${f((r.teethZ ?? 0.473) - 0.023)}, ${f((r.teethZ ?? 0.473) + 0.007)}, vRest.z) * clamp(uJaw * 4.0, 0.0, 1.0);
 }
 float eyeMask(vec2 c, vec2 r, float soft) {

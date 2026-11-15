@@ -1,0 +1,13 @@
+{
+  "_about": "Sheikh Ahmad al-Waili's numbers for scripts/rig-character.mjs, read off a rasterised close-up of the Meshy scan: the lips meet at y -0.031 at the centre (x 0.033), the corners at x -0.063 and 0.13; the head is rolled, so the line tilts (slope -0.13) and bends (0.70). His face sits forward (lips at z ~0.6); the white beard turns with the jaw.",
+  "centreX": 0.033,
+  "lipLine": -0.031,
+  "lipTilt": -0.13,
+  "lipCurve": 0.7,
+  "cutHalf": 0.085,
+  "lock": { "halfWidth": 0.13, "yMin": -0.085, "yMax": 0.02, "zMin": 0.53 },
+  "lipZ": 0.53,
+  "jawDx": [0.1, 0.18],
+  "jawNeck": [-0.22, -0.12],
+  "jawZ": [0.25, 0.45]
+}
