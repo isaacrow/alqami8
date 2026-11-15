@@ -176,6 +176,13 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({
       glyph: <span className="text-[30px]">🐎</span>,
     },
     {
+      id: 'messages',
+      href: './waili.html',
+      name: 'الوائلي · Talk',
+      bg: 'radial-gradient(circle at 50% 30%, #4a3a2a, #120d08)',
+      glyph: <span className="text-[30px]">🎙️</span>,
+    },
+    {
       id: 'search',
       name: 'Spotlight',
       bg: 'linear-gradient(180deg, #0a84ff 0%, #32ade6 100%)',

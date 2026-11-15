@@ -1,14 +1,15 @@
-import { BustRegions, JAWAHIRI_REGIONS, MUTANABBI_REGIONS } from './bustRig';
+import { BustRegions, JAWAHIRI_REGIONS, MUTANABBI_REGIONS, WAILI_REGIONS } from './bustRig';
 import { JAWAHIRI, OPENING_CUE, systemInstruction } from './jawahiri';
 import { MUTANABBI, MUTANABBI_OPENING_CUE, mutanabbiInstruction } from './mutanabbi';
+import { WAILI, WAILI_OPENING_CUE, wailiInstruction } from './waili';
 
 /**
  * The talking characters. One page (src/character) shows whichever the HTML page names in <body data-character>:
- * jawahiri.html → al-Jawahiri, mutanabbi.html → al-Mutanabbi. Each has its own bust (built by
+ * jawahiri.html → al-Jawahiri, mutanabbi.html → al-Mutanabbi, waili.html → Sheikh Ahmad al-Waili. Each has its own bust (built by
  * scripts/rig-character.mjs), its own face measurements, its own life, works and instructions for the voice.
  */
 export interface CharacterDef {
-  id: 'jawahiri' | 'mutanabbi';
+  id: 'jawahiri' | 'mutanabbi' | 'waili';
   nameAr: string;
   nameEn: string;
   /** The line under the name: dates and "AI recreation". */
@@ -75,6 +76,26 @@ export const CHARACTERS: Record<CharacterDef['id'], CharacterDef> = {
     openingCue: MUTANABBI_OPENING_CUE,
     clonedVoice: false,
     geminiVoice: 'Orus',
+  },
+  waili: {
+    id: 'waili',
+    nameAr: WAILI.nameAr,
+    nameEn: WAILI.nameEn,
+    datesAr: WAILI.datesAr,
+    datesEn: WAILI.datesEn,
+    aboutAr: `${WAILI.fullNameAr}، ${WAILI.titleAr}. وُلد في النجف سنة 1928 وتوفي في الكاظمية سنة 2003، ودُفن في النجف.`,
+    aboutEn: 'Sheikh Dr Ahmad al-Waili, the dean of the Husayni pulpit: preacher, poet and scholar. Born in Najaf in 1928, died in Kadhimiya in 2003, buried in Najaf.',
+    arrivingAr: 'يحضر الشيخ الوائلي…',
+    arrivingEn: 'Sheikh al-Waili is arriving…',
+    model: 'characters/waili-mouth.glb',
+    regions: WAILI_REGIONS,
+    life: WAILI.life,
+    works: WAILI.works,
+    ids: WAILI.ids,
+    instruction: wailiInstruction,
+    openingCue: WAILI_OPENING_CUE,
+    clonedVoice: false,
+    geminiVoice: 'Gacrux',
   },
 };
 

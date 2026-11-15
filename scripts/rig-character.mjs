@@ -25,7 +25,9 @@ const TEXTURE_SIZES = [2048, 1024, 1024];
 const CX = cfg.centreX ?? 0.02;
 const LIP_Y = cfg.lipLine ?? 0.093;
 const LIP_CURVE = cfg.lipCurve ?? 1.5;
-const lipLine = (x) => LIP_Y + LIP_CURVE * (x - CX) ** 2;
+// A tilted head tilts the lip line too: lipTilt is its slope across the mouth.
+const LIP_TILT = cfg.lipTilt ?? 0;
+const lipLine = (x) => LIP_Y + LIP_TILT * (x - CX) + LIP_CURVE * (x - CX) ** 2;
 const CUT_HALF = cfg.cutHalf ?? 0.072; // the cut stops this far either side of the centre: the lip corners stay joined
 const LOCK = { halfWidth: 0.12, yMin: 0.03, yMax: 0.16, zMin: 0.42, ...(cfg.lock ?? {}) };
 const inLock = (x, y, z) => Math.abs(x - CX) < LOCK.halfWidth && y > LOCK.yMin && y < LOCK.yMax && z > LOCK.zMin;
