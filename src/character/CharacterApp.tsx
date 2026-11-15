@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowUp, Camera, Crosshair, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Play, Camera, Crosshair, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
 import { KeyTerminal } from './KeyTerminal';
 import { CHARACTERS, pageCharacter } from './characters';
 
@@ -8,6 +8,7 @@ const C = pageCharacter();
 const SHORT = { jawahiri: { ar: 'الجواهري', en: 'al-Jawahiri' }, mutanabbi: { ar: 'المتنبي', en: 'al-Mutanabbi' }, waili: { ar: 'الوائلي', en: 'al-Waili' } } as const;
 import { GEMINI_VOICES, LiveConversation, LiveState, loadSettings, saveSettings, VoiceKind, VoiceSettings } from './liveVoice';
 import { Stage } from './stage';
+import { clock, LectureHit, loadLectures } from './lectureSearch';
 import { Gesture, VisitorTracker } from './tracking';
 
 import { Glyph, isGlyph } from '../components/shell/Glyph';
@@ -41,6 +42,8 @@ export const CharacterApp: React.FC = () => {
   const [state, setState] = useState<LiveState>('idle');
   const [stateDetail, setStateDetail] = useState('');
   const [his, setHis] = useState('');
+  /** The recorded lectures he drew on for this answer: shown as "listen to him" links. */
+  const [sources, setSources] = useState<LectureHit[]>([]);
   const [visitor, setVisitor] = useState('');
   const [typing, setTyping] = useState(false);
   const [typed, setTyped] = useState('');
@@ -189,10 +192,13 @@ export const CharacterApp: React.FC = () => {
       onHisWords: (text) => setHis(text),
       onVisitorWords: (text) => setVisitor((v) => `${v}${text}`.slice(-160)),
       onVoice: setVoice,
+      tools: C.lectures ? lectureTools(C.lectures, setSources) : undefined,
     });
     live.current = conv;
+    if (C.lectures) void loadLectures(C.lectures).catch(() => {}); // start fetching while he says hello
     setHis('');
     setVisitor('');
+    setSources([]);
     try {
       // Mic first (it needs this tap), then the front camera so he can look at you.
       const starting = conv.start(C.openingCue);
@@ -264,7 +270,7 @@ export const CharacterApp: React.FC = () => {
         className={
           ar
             ? 'absolute inset-0 w-full h-full object-cover'
-            : `absolute top-[calc(env(safe-area-inset-top)+64px)] end-3 w-24 h-32 rounded-2xl object-cover border border-white/20 shadow-xl -scale-x-100 z-20 ${cam === 'front' ? '' : 'hidden'}`
+            : `absolute top-[calc(env(safe-area-inset-top)+152px)] end-3 w-24 h-32 rounded-2xl object-cover border border-white/20 shadow-xl -scale-x-100 z-20 ${cam === 'front' ? '' : 'hidden'}`
         }
       />
       <div ref={mount} className="absolute inset-0 z-10" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} />
@@ -381,6 +387,28 @@ export const CharacterApp: React.FC = () => {
               </p>
             )}
             {errorText && <p className="text-[12.5px] text-rose-300">{errorText}</p>}
+          </div>
+        )}
+        {sources.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none]">
+            {sources.map((s) => (
+              <a
+                key={s.url}
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                dir="rtl"
+                className="shrink-0 max-w-[78vw] flex items-center gap-2.5 rounded-2xl bg-white/15 backdrop-blur border border-white/15 pl-3 pr-2 py-2 active:scale-[0.98] transition"
+              >
+                <span className="w-9 h-9 rounded-full bg-[#FFD60A] text-black flex items-center justify-center shrink-0">
+                  <Play className="w-4 h-4 fill-current" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] text-white/60">{t('اسمعه بصوته الحقيقي', 'Hear him in his own voice')} · {clock(s.start)}</span>
+                  <span dir="auto" className="block text-[13px] font-semibold truncate">{s.title}</span>
+                </span>
+              </a>
+            ))}
           </div>
         )}
 
@@ -578,3 +606,32 @@ const AboutSheet: React.FC<{ lang: Lang; onClose: () => void }> = ({ lang, onClo
     </Sheet>
   );
 };
+
+/** "Search his lectures": the voice asks with a few Arabic words, gets back the best passages, and the page shows them. */
+function lectureTools(url: string, show: (hits: LectureHit[]) => void) {
+  return {
+    declarations: [
+      {
+        name: 'search_lectures',
+        description:
+          'Searches the transcripts of your own recorded lectures (YouTube, automatic Arabic captions) and returns the most relevant passages with the lecture title and time. Use it before answering about a verse, a religious, moral, historical or social topic, or when the visitor wants to hear what you said.',
+        parameters: {
+          type: 'OBJECT',
+          properties: { query: { type: 'STRING', description: 'A few Arabic words that are the core of the question, e.g. «الصبر على البلاء».' } },
+          required: ['query'],
+        },
+      },
+    ],
+    call: async (name: string, args: Record<string, unknown>) => {
+      if (name !== 'search_lectures') return { error: 'unknown tool' };
+      const index = await loadLectures(url);
+      const hits = index.search(String(args.query ?? ''), 3);
+      show(hits.slice(0, 2));
+      if (!hits.length) return { passages: [], note: 'Nothing found in the lectures for this.' };
+      return {
+        note: 'Machine transcription of speech: some words are misheard, especially in verse and Qur’an. The visitor sees a link to each passage in the recording.',
+        passages: hits.map((h) => ({ lecture: h.title, at: clock(h.start), text: h.text.slice(0, 1100) })),
+      };
+    },
+  };
+}

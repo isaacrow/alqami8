@@ -115,6 +115,11 @@ export interface LiveHandlers {
   onVisitorWords: (text: string) => void;
   /** Which voice is speaking (changes to 'gemini' if the cloned-voice server stops answering). */
   onVoice?: (kind: VoiceKind) => void;
+  /** Tools the voice may call (e.g. searching his lectures): what to declare, and how to answer a call. */
+  tools?: {
+    declarations: object[];
+    call: (name: string, args: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  };
 }
 
 // Microphone → 16 kHz 16-bit PCM in 40 ms packets. Runs on the audio thread.
@@ -257,6 +262,21 @@ export class LiveConversation {
     );
   }
 
+  /** The voice asked for a tool (searching his lectures): run it and send back what it found. */
+  private async answerTools(ws: WebSocket, calls: Array<{ id: string; name: string; args?: Record<string, unknown> }>) {
+    const functionResponses = await Promise.all(
+      calls.map(async (c) => {
+        try {
+          const response = this.h.tools ? await this.h.tools.call(c.name, c.args ?? {}) : { error: 'no tools' };
+          return { id: c.id, name: c.name, response };
+        } catch (e) {
+          return { id: c.id, name: c.name, response: { error: String((e as Error)?.message ?? e) } };
+        }
+      })
+    );
+    if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ toolResponse: { functionResponses } }));
+  }
+
   private open(url: string, openingCue?: string) {
     const ws = new WebSocket(url);
     this.ws = ws;
@@ -271,6 +291,7 @@ export class LiveConversation {
               speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: this.settings.geminiVoice } } },
             },
             systemInstruction: { parts: [{ text: this.instruction }] },
+            ...(this.h.tools ? { tools: [{ functionDeclarations: this.h.tools.declarations }] } : {}),
             inputAudioTranscription: {},
             outputAudioTranscription: {},
             // Answer as soon as the visitor pauses.
@@ -301,6 +322,7 @@ export class LiveConversation {
         // The server is about to end this connection: open the next one with the same conversation.
         this.reconnect();
       }
+      if (msg.toolCall?.functionCalls?.length) void this.answerTools(ws, msg.toolCall.functionCalls);
       const sc = msg.serverContent;
       if (!sc) return;
       if (sc.interrupted) this.flush();

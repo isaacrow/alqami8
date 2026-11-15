@@ -34,6 +34,8 @@ export interface CharacterDef {
   clonedVoice: boolean;
   /** The Gemini voice for this character, unless the visitor picked one. */
   geminiVoice?: string;
+  /** His recorded lectures as searchable passages (public/characters/…-lectures.json), when we have them. */
+  lectures?: string;
 }
 
 export const CHARACTERS: Record<CharacterDef['id'], CharacterDef> = {
@@ -96,6 +98,7 @@ export const CHARACTERS: Record<CharacterDef['id'], CharacterDef> = {
     openingCue: WAILI_OPENING_CUE,
     clonedVoice: false,
     geminiVoice: 'Gacrux',
+    lectures: 'characters/waili-lectures.json',
   },
 };
 
