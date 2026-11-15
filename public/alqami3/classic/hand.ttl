@@ -1,0 +1,17 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix ms: <http://example.org/manuscript/> .
+
+<https://alqami.net/museum/hand>
+    a schema:Manuscript ;
+    dc:title "الخوذة الإسلامية القديمة"@ar ;
+    dc:title "Old Islamic Helmet"@en ;
+    dc:creator "صانع مجهول (العصر العثماني/الصفوي)"@ar ;
+    dc:creator "Unknown Maker (Ottoman/Safavid Era)"@en ;
+    dc:date "القرن 16-17 م / 16th-17th Century CE" ;
+    schema:material "صلب مزخرف، ذهب، فضة"@ar ;
+    schema:material "Decorated Steel, Gold, Silver"@en ;
+    schema:extent "القطر: 22 سم" ;
+    schema:publisher "مجموعة المتحف الخاصة"@ar ;
+    ms:transcriptionArabic """خوذة حربية إسلامية قديمة، تتميز بزخارف نباتية دقيقة مطعمة بالذهب والفضة. كانت تستخدم في المعارك الكبرى وتعتبر رمزاً للقوة والفروسية."""@ar ;
+    ms:translationEnglish """An ancient Islamic war helmet, featuring intricate floral arabesque patterns inlaid with gold and silver. It was used in major battles and is considered a symbol of strength and chivalry."""@en .

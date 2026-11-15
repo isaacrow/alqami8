@@ -1,0 +1,47 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+@prefix crm: <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix ms: <https://w3id.org/manuscript-ar/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<https://alqami.net/artifact/astronaut-3d>
+    a crm:E22_Human-Made_Object ;
+    dc:identifier "IPKSN:ART-006-ASTRONAUT" ;
+    dc:title "مجسم رائد الفضاء الذهبي (متعدد الزوايا 360°)"@ar ;
+    dc:title "Golden Visor Astronaut Statue (Multi-Angle 3D)"@en ;
+    dc:creator "مختبر القمي للرؤية المكانية الثلاثية (Alqami 3D Vision Lab)"@ar ;
+    dc:date "2026 م — نموذج اختبار تجسيمي متعدد الزوايا" ;
+    schema:material "راتنج بوليمر أبيض غير لامع مع طلاء ذهبي معدني عاكس على الخوذة والشارات"@ar ;
+    schema:publisher "مجموعة القمي للنماذج المجسمة والتماثيل الميدانية"@ar ;
+    schema:extent "الارتفاع: 12.5 سم × العرض: 6.8 سم × العمق: 5.5 سم (مسح 360°)"@ar ;
+    ms:transcriptionArabic """مجسم ثلاثي الأبعاد لرائد فضاء يرتدي بدلة فضاء بيضاء مفصلية مع قناع خوذة ذهبي كروي عاكس وشارات ذهبية على الذراعين والركبتين ووحدة تحكم صدرية. تم تسجيل هذا المجسم عبر 4 زوايا حقيقية متعددة (الأمامية، الجانبية اليسرى، الجانبية اليمنى، والزاوية العريضة) باستخدام خوارزمية الهرم البصري متعدد المقاييس (Multi-Scale Spatial Pyramid + 1280-D MobileNetV2 + البصمة اللونية المركزية) للتعرف الفوري من أي زاوية دوران في الواقع الحقيقي."""@ar ;
+    ms:translationEnglish """3D physical figurine of an astronaut featuring a matte white spacesuit, spherical metallic gold visor, chest life-support control module, and gold arm/knee stripes. Enrolled across 4 real-world multi-angle views (Front, Left Profile, Right Profile, Wide Angle) with Multi-Scale Spatial Pyramid cropping for 360-degree real-time recognition."""@en .
+
+<https://alqami.net/artifact/astronaut-3d#visor>
+    a ms:SpatialHotspot ;
+    rdfs:label "القناع الذهبي العاكس (Golden Visor)" ;
+    dc:description "قناع خوذة كروي مطلي بالذهب المعدني العاكس لحماية الرؤية من الإشعاع الشمسي، يعمل كعلامة بصرية عالية التباين في جميع زوايا الرؤية." ;
+    ms:targetFolio "Upper Helmet (360°)" ;
+    ms:normalizedX "0.50" ;
+    ms:normalizedY "0.24" ;
+    ms:elevationZ "0.09" .
+
+<https://alqami.net/artifact/astronaut-3d#chest>
+    a ms:SpatialHotspot ;
+    rdfs:label "وحدة دعم الحياة الصدرية (PLSS Control)" ;
+    dc:description "لوحة التحكم الصدرية البارزة المزودة بأزرار ومؤشرات ذهبية دقيقة لضبط الأكسجين والضغط." ;
+    ms:targetFolio "Anterior Torso" ;
+    ms:normalizedX "0.48" ;
+    ms:normalizedY "0.52" ;
+    ms:elevationZ "0.07" .
+
+<https://alqami.net/artifact/astronaut-3d#stripes>
+    a ms:SpatialHotspot ;
+    rdfs:label "الشارات الذهبية الجانبية (Side Gold Stripes)" ;
+    dc:description "حلقات ذهبية مزدوجة على الذراعين الأيمن والأيسر تتيح للنظام التمييز الدقيق بين الزاوية اليمنى واليسرى للمجسم." ;
+    ms:targetFolio "Lateral Arms (Left/Right)" ;
+    ms:normalizedX "0.72" ;
+    ms:normalizedY "0.50" ;
+    ms:elevationZ "0.06" .

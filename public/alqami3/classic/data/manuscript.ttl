@@ -1,0 +1,130 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+@prefix crm: <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix edm: <http://www.europeana.eu/schemas/edm/> .
+@prefix ms: <https://w3id.org/manuscript-ar/ontology#> .
+@prefix wd: <http://www.wikidata.org/entity/> .
+
+# ==============================================================================
+# MANUSCRIPT RESOURCE DEFINITION (Dublin Core & Schema.org)
+# ==============================================================================
+
+<https://w3id.org/manuscript-ar/item/MS-17874180> a schema:Manuscript, crm:E22_Human-Made_Object, edm:ProvidedCHO ;
+    # Standard Dublin Core Metadata
+    dc:title "Kitāb al-Shifāʾ: Logic & Metaphysics with Illuminated ʿUnwān"@en ;
+    dc:title "كتاب الشفاء: منطق وإلهيات مع ديباجة مذهبة"@ar ;
+    dc:title "کتاب الشفاء: بخش منطق و الهیات با سرلوح مذهب"@fa ;
+    dc:creator <http://www.wikidata.org/entity/Q8011> ;
+    dc:contributor "Anonymous Master Scribe & Royal Illuminator"@en ;
+    dc:date "16th-17th Century CE (Safavid / Timurid Continuation Era)"@en ;
+    dc:language "ar", "fa" ;
+    dc:format "Manuscript codex (2 folios displayed: recto & verso opening spread)"@en ;
+    dc:type "Illuminated Philosophical Treatise"@en ;
+    dc:identifier "MS-SHIFA-1302-MAJLIS" ;
+    dc:publisher "Parliament Library Collection (Ketābkhāneh-ye Majles)"@en ;
+    dc:rights <http://creativecommons.org/publicdomain/mark/1.0/> ;
+    
+    # Schema.org Extended Attributes
+    schema:name "Illuminated Opening of Kitāb al-Shifāʾ"@en ;
+    schema:author [
+        a schema:Person ;
+        schema:name "Abū ʿAlī al-Ḥusayn ibn ʿAbd Allāh ibn Sīnā (Avicenna / ابن سینا)"@en ;
+        schema:birthDate "0980-08-23" ;
+        schema:deathDate "1037-06-22" ;
+        schema:sameAs wd:Q8011
+    ] ;
+    schema:material "Burnished rag paper (kāghaz), shell gold (ṭalā-ye ḥall), lapis lazuli pigment, iron gall ink, vermilion ink"@en ;
+    schema:artform "Islamic Calligraphy & Illumination (Tadhhīb)"@en ;
+    schema:inLanguage "Arabic (Main Text), Persian (Marginal Scholarly Glosses / Ḥāshiyah)"@en ;
+    
+    # Codicology & Structural Analysis
+    ms:hasScript ms:NaskhFine, ms:NastaliqTaaliqGlosses ;
+    ms:hasIllumination ms:LapisGoldUnwan ;
+    ms:hasProvenanceSeal ms:MajlisLibrarySeal ;
+    ms:dimensions "26.5 cm x 17.2 cm" ;
+    ms:folioLayout "Single-column framed text box with 17 ruled lines; marginal annotations at 45-degree angled layout"@en ;
+    ms:rulingTechnique "Mastār (ruling board impression in paper)"@en ;
+    ms:rubrication "Section headers, bismillah keywords, and transition particles in vermilion red"@en ;
+    
+    # Hotspot Annotations for WebAR Anchors
+    ms:hasHotspot ms:HotspotUnwan, ms:HotspotBasmala, ms:HotspotMainText, ms:HotspotMajlisSeal ;
+    
+    # Transcription Excerpt
+    ms:transcriptionArabic """بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ
+الحمد لله الواحد الأحد الصمد المصور ومهيمن كل وجود وجاعل كل موجود والصلوة على من قفاه من زمر الانبياء واصطفاه من رسل الرسل... والقوانين فيما قد استبان لعين عقل مقلة قلبي ببصيرة رؤى بنور الهبة في طول المدتين ان رتب الابداع والتكوين تنفرد بالقدم وبقاء الدوام..."""@ar ;
+    ms:translationEnglish """In the Name of God, the Most Gracious, the Most Merciful.
+Praise be to God, the One, the Unique, the Eternal Refuge, the Fashioner and Guardian of all being, the Creator of every existent; and blessings upon him whom He chose from among the ranks of prophets and messengers... And the principles that have become clear to the eye of reason and inner insight through the luminous bestowal over the two durations: namely, that the ranks of origination (ibdāʿ) and cosmic formation (takwīn) are uniquely characterized by eternity and perpetual subsistence..."""@en .
+
+# ==============================================================================
+# CREATOR & CONTRIBUTOR ENTITIES
+# ==============================================================================
+
+<http://www.wikidata.org/entity/Q8011> a schema:Person, crm:E21_Person ;
+    rdfs:label "Avicenna (Ibn Sīnā / ابن سینا)"@en ;
+    schema:name "Ibn Sīnā (ابن سینا)"@ar ;
+    schema:jobTitle "Polymath, Philosopher, Physician, Scientist"@en ;
+    schema:description "One of the most significant physicians, astronomers, thinkers and writers of the Islamic Golden Age, and the father of early modern medicine and Avicennian metaphysics."@en .
+
+# ==============================================================================
+# CODICOLOGY & ARTIFACT COMPONENTS
+# ==============================================================================
+
+ms:LapisGoldUnwan a ms:IlluminationFeature, crm:E25_Man-Made_Feature ;
+    rdfs:label "Illuminated Header (ʿUnwān / ديباجة مذهبة)"@en ;
+    dc:description "Intricate polylobed arch headpiece rendered in lapis lazuli (ultramarine blue), turquoise, and 24-karat shell gold with intertwining floral islimi (arabesque) vine scrollwork framing the cartouche."@en ;
+    ms:pigments "Lapis lazuli, ground malachite, cinnabar, shell gold leaf"@en ;
+    ms:style "Persian / Central Asian Imperial Court Workshop (Safavid-Timurid tradition)"@en .
+
+ms:MajlisLibrarySeal a ms:ProvenanceFeature, crm:E37_Mark ;
+    rdfs:label "Majlis Parliament Library Seal (مهر کتابخانه مجلس شورای ملی)"@en ;
+    dc:description "Official ownership stamp of the Iranian National Consultative Assembly Library (Ketābkhāneh-ye Majles-e Showrā-ye Mellī), established in 1302 AH / 1923 CE. The seal bears the Iranian lion and sun crest with historical typography."@en ;
+    crm:P53_has_former_or_current_location "Tehran, Iran"@en ;
+    schema:foundingDate "1302 AH (1923 CE)" .
+
+ms:NaskhFine a ms:CalligraphicScript ;
+    rdfs:label "Clear Naskh Calligraphy (خط النسخ الدقيق)"@en ;
+    dc:description "Carefully proportioned Naskh script written with a reed pen (qalam) using iron gall ink, providing optimal clarity for philosophical discourse."@en .
+
+ms:NastaliqTaaliqGlosses a ms:CalligraphicScript ;
+    rdfs:label "Marginal Nastaliq / Ta'liq Glosses (تعلیقات و حواشی نستعلیق)"@en ;
+    dc:description "Scholarly annotations written in diagonal margins (Ḥāshiyah) clarifying subtle metaphysical terms, logical syllogisms, and textual variants."@en .
+
+# ==============================================================================
+# AR SPATIAL HOTSPOTS (Relative 2D/3D Coordinates on Target Image)
+# ==============================================================================
+
+ms:HotspotUnwan a ms:SpatialHotspot ;
+    rdfs:label "Illuminated ʿUnwān Headpiece"@en ;
+    ms:targetFolio "Recto (Right Folio)"@en ;
+    ms:normalizedX 0.72 ;
+    ms:normalizedY 0.22 ;
+    ms:elevationZ 0.08 ;
+    dc:description "Magnificent gold leaf and lapis lazuli dome-arched cartouche marking the formal beginning of the treatise."@en .
+
+ms:HotspotBasmala a ms:SpatialHotspot ;
+    rdfs:label "The Basmala Calligraphy"@en ;
+    ms:targetFolio "Recto (Right Folio)"@en ;
+    ms:normalizedX 0.72 ;
+    ms:normalizedY 0.42 ;
+    ms:elevationZ 0.06 ;
+    dc:description "Opening invocation 'Bismillāh al-Raḥmān al-Raḥīm' illuminated in a cloudband cartouche."@en .
+
+ms:HotspotMainText a ms:SpatialHotspot ;
+    rdfs:label "Philosophical Text & Arguments"@en ;
+    ms:targetFolio "Verso (Left Folio)"@en ;
+    ms:normalizedX 0.32 ;
+    ms:normalizedY 0.38 ;
+    ms:elevationZ 0.07 ;
+    dc:description "Core logical treatise exploring origination (ibdāʿ), substance, form, matter, and the active intellect."@en .
+
+ms:HotspotMajlisSeal a ms:SpatialHotspot ;
+    rdfs:label "Majlis National Assembly Seal"@en ;
+    ms:targetFolio "Recto Lower Right"@en ;
+    ms:normalizedX 0.88 ;
+    ms:normalizedY 0.82 ;
+    ms:elevationZ 0.05 ;
+    dc:description "Historical provenance stamp confirming accession to the National Parliament Library."@en .

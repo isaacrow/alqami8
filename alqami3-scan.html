@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#000000" />
+    <title>المسح بتتبع الصور (علقمي 3) · ALQAMI</title>
+    <link rel="icon" type="image/png" href="./icons/icon-192.png" />
+    <script type="module" src="/src/alqami3/classic/page.js"></script>
+  </head>
+  <body>
+    <div id="ar"></div>
+    <div class="a3-bar">
+      <a id="back" class="a3-btn" aria-label="Back">✕</a>
+      <span class="a3-title">المسح بتتبع الصور · Picture tracking (alqami3)</span>
+      <button id="show-targets" class="a3-btn">الصور · Pictures</button>
+    </div>
+    <div id="status"><span id="status-text">اضغط «ابدأ» · Tap Start</span></div>
+    <button id="start">ابدأ المسح · Start</button>
+    <section id="record" class="a3-sheet" hidden>
+      <h2 id="rec-title"></h2>
+      <p class="sub" id="rec-sub"></p>
+      <dl id="rec-rows"></dl>
+    </section>
+    <section id="pin" class="a3-sheet" hidden>
+      <button id="close-pin" class="a3-close" aria-label="Close">✕</button>
+      <h2 id="pin-title"></h2>
+      <p class="sub" id="pin-folio"></p>
+      <p id="pin-text" style="font-size: 13.5px; line-height: 1.7; margin: 0"></p>
+    </section>
+    <section id="targets" hidden>
+      <button id="close-targets" class="a3-close" aria-label="Close">✕</button>
+      <h2 style="margin: 0 0 6px; font-size: 17px">الصور المتتبَّعة · Pictures it tracks</h2>
+      <p style="margin: 0 0 14px; font-size: 13px; color: #fffa">اعرض إحداها على شاشة أخرى أو اطبعها ووجّه الكاميرا إليها. · Show one on another screen or print it, and point the camera at it.</p>
+      <div id="targets-list"></div>
+    </section>
+  </body>
+</html>

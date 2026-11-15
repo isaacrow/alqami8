@@ -1,0 +1,22 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+@prefix ms: <http://example.org/manuscript/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://alqami.net/manuscript/quran>
+    a schema:Manuscript ;
+    dc:title "القرآن الكريم"@ar ;
+    dc:title "The Holy Quran"@en ;
+    dc:creator "حيدر علي"@ar ;
+    dc:creator "Haydar Ali"@en ;
+    dc:date "1009 هـ / 1600 م" ;
+    schema:material "ورق، حبر اسود، خط النسخ"@ar ;
+    schema:material "Paper, Black Ink, Naskh Script"@en ;
+    schema:publisher "مكتبة مجلس الشورى : 4175، طهران، ايران"@ar ;
+    schema:publisher "Majlis Parliament Library"@en ;
+    ms:transcriptionArabic """النسخة مجدولة بعدة الوان والصفحة الأولى والثانية مزخرفة. صدر كل سورة لوحة ذهبية وفي هوامشها دوائر مزخرفة لبيان الحزب وبداية الأجزاء.
+نتسخت في حائر الإمام الحسين عليه السلام.
+الغلاف: جلد لاكي."""@ar ;
+    ms:translationEnglish """An illuminated Quran manuscript framed in multiple colors with highly decorated first and second pages. Each surah begins with a golden panel, with decorative margin circles indicating sections. Copied in the shrine of Imam Hussain (AS). Binding: Lacquer leather."""@en ;
+    schema:extent "294 ورقة (15 سطرًا)"@ar .

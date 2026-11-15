@@ -4,6 +4,23 @@ import basicSsl from '@vitejs/plugin-basic-ssl';
 import { readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 
+/**
+ * alqami3's picture-tracking mode (src/alqami3/classic) runs on MindAR 1.2.5, built for three.js r150 (it imports
+ * sRGBEncoding, gone since r162). That mode, and MindAR itself, get three r150 (installed as "three150"); everything
+ * else keeps the site's three.js. One three per page, so MindAR's scene and the mode's cards share it.
+ */
+const threeForMindAR: Plugin = {
+  name: 'three-r150-for-mindar',
+  enforce: 'pre',
+  async resolveId(source, importer, options) {
+    if (!importer || !(source === 'three' || source.startsWith('three/'))) return null;
+    const imp = importer.replace(/\\/g, '/');
+    if (!imp.includes('/node_modules/mind-ar/') && !imp.includes('/src/alqami3/classic/')) return null;
+    const mapped = source === 'three' ? 'three150' : source.replace(/^three\/addons\//, 'three150/examples/jsm/').replace(/^three\//, 'three150/');
+    return this.resolve(mapped, importer, { ...options, skipSelf: true });
+  },
+};
+
 function serveUsdModels(publicDir: string) {
   return async (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse, next: (error?: Error) => void) => {
     const pathname = decodeURIComponent((req.url ?? '').split('?')[0]);
@@ -57,7 +74,8 @@ const offlineManifest: Plugin = {
           if (path !== 'mobile' && path !== 'records') await walk(resolve(dir, entry.name), path);
           // ort-wasm*.wasm (2 x ~27 MB) are only used by bench.html's lip-model test: recognition loads its ONNX engine
           // through Transformers.js (from jsDelivr, kept in its own cache), so "Save for offline" leaves them out.
-        } else if (!path.endsWith('.map') && !/\/ort-wasm[^/]*\.wasm$/.test(path) && path !== 'offline-manifest.json' && path !== 'CNAME') {
+        // alqami3's two scan modes (about 10 MB) need the camera and live models, so they are not saved for offline.
+        } else if (!path.endsWith('.map') && !/\/ort-wasm[^/]*\.wasm$/.test(path) && !/(^|\/)alqami3(-|\/|Scan|Sweep)/.test(path) && path !== 'offline-manifest.json' && path !== 'CNAME') {
           files.push({ path, bytes: (await stat(resolve(dir, entry.name))).size });
         }
       }
@@ -69,12 +87,12 @@ const offlineManifest: Plugin = {
 
 export default defineConfig({
   base: './',
-  plugins: [react(), usdzContentType, basicSsl(), offlineManifest],
+  plugins: [threeForMindAR, react(), usdzContentType, basicSsl(), offlineManifest],
   build: {
     rollupOptions: {
       // jawahiri.html is the talking character (src/character). object.html is an object's own page, opened by its QR
       // label in any phone camera; labels.html prints every object's label (src/object). bench.html measures recognition by sight on a phone (see src/bench/sightBench.ts).
-      input: { main: resolve(__dirname, 'index.html'), bench: resolve(__dirname, 'bench.html'), jawahiri: resolve(__dirname, 'jawahiri.html'), object: resolve(__dirname, 'object.html'), labels: resolve(__dirname, 'labels.html') },
+      input: { main: resolve(__dirname, 'index.html'), bench: resolve(__dirname, 'bench.html'), jawahiri: resolve(__dirname, 'jawahiri.html'), object: resolve(__dirname, 'object.html'), labels: resolve(__dirname, 'labels.html'), alqami3Scan: resolve(__dirname, 'alqami3-scan.html'), alqami3Sweep: resolve(__dirname, 'alqami3-360.html') },
     },
   },
   server: {

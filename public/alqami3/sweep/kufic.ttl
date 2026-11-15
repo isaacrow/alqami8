@@ -1,0 +1,19 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+@prefix ms: <http://example.org/manuscript/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://alqami.net/manuscript/kufic>
+    a schema:Manuscript ;
+    dc:title "القرآن الكريم (مخطوط كوفي)"@ar ;
+    dc:title "The Holy Quran (Kufic Manuscript)"@en ;
+    dc:creator "علي زين العابدين بن الحسين (ينسب إليه)"@ar ;
+    dc:creator "Ali Zain Al-Abidin bin Al-Hussein (Attributed)"@en ;
+    dc:date "200-299 هـ / 800-899 م" ;
+    schema:material "رق غزال اصفر فاتح، حبر اسود واحمر وماء الذهب، خط الكوفي قديم"@ar ;
+    schema:material "Light yellow deer parchment, black/red ink and gold water, old Kufic script"@en ;
+    schema:extent "40 ورقة (7 اسطر) ؛ 26.5x37 سم"@ar ;
+    ms:transcriptionArabic """بِٱلَّذِي خَلَقَكَ مِن تُرَابٖ ثُمَّ مِن نُّطۡفَةٖ ثُمَّ سَوَّىٰكَ رَجُلٗا لَّٰكِنَّا۠ هُوَ ٱللَّهُ رَبِّي وَلَآ أُشۡرِكُ بِرَبِّيٓ أَحَدٗا وَلَوۡلَآ إِذۡ دَخَلۡتَ جَنَّتَكَ قُلۡتَ مَا شَآءَ ٱللَّهُ لَا قُوَّةَ إِلَّا بِٱللَّهِۚ إِن تَرَنِ"""@ar ;
+    ms:translationEnglish """A rare Kufic manuscript of the Holy Quran, attributed to Imam Ali Zain Al-Abidin. The manuscript consists of loose leaves from three different Qurans gathered in a single volume, written on deer parchment. Diacritics were added later using red dots and gold illumination."""@en ;
+    schema:publisher "مكتبة مجلس الشورى (المخطوطات)"@ar .

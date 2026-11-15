@@ -1,0 +1,125 @@
+// The scan mode of the local alqami3 copy (alqami3-local), on its own page (alqami3-360.html).
+//
+// Closed-set recognition from every side: MobileNetV2 features of the camera (several crops, background masked
+// out) are matched against each registered object's multi-angle signatures (seed-artifacts.json: the golden
+// astronaut, the Prague box, Al-Qabasat, the Zulfiqar sword, the Saqqakhana bowl, the Kufic folio, plus a bank of
+// background views that must never match), confirmed over several frames. A confirmed object gets its 3D model and
+// holographic card floating on it, turned to the side the camera sees. The test panel sets the threshold, captures a
+// side live, or sweeps 360° to teach an object. The code is the local copy's own; only this page's wiring is new.
+import './styles.css';
+import '../shell.css';
+import { XRArtifactDeployer } from './recognition/xr-artifact-deployer.js';
+import { ClosedSetRecognitionEngine } from './recognition/recognition-engine.js';
+import { TestInspectorHUD } from './admin/test-inspector-hud.js';
+import { RDFManuscriptParser } from './rdf-parser.js';
+import { ManuscriptSpeechEngine } from './speech.js';
+
+const BASE = import.meta.env.BASE_URL || './';
+const HERE = `${BASE}alqami3/sweep/`;
+const $ = (id) => document.getElementById(id);
+const status = (found, text) => {
+  $('status').classList.toggle('found', found);
+  $('status-text').textContent = text;
+};
+
+const parser = new RDFManuscriptParser();
+const speech = new ManuscriptSpeechEngine();
+let spoken = null;
+
+function showRecord(meta, match) {
+  $('rec-title').textContent = match.title || meta?.titleArabic || meta?.title || '—';
+  $('rec-sub').textContent = `${match.id} · ${Math.round(match.similarity * 100)}%${match.matchedView ? ` · ${match.matchedView}` : ''}`;
+  const a = match.artifact || {};
+  const rows = [
+    ['المؤلف أو الصانع · Creator', meta?.creator],
+    ['التاريخ · Date', meta?.date || a.date],
+    ['المادة · Material', meta?.material || (a.materials || []).join('، ')],
+    ['الحجم · Size', meta?.dimensions || a.dimensions],
+    ['الجهة · Institution', a.institution || meta?.publisher],
+  ].filter(([, v]) => v);
+  $('rec-rows').innerHTML = '';
+  for (const [k, v] of rows) {
+    const dt = document.createElement('dt');
+    dt.textContent = k;
+    const dd = document.createElement('dd');
+    dd.textContent = v;
+    $('rec-rows').append(dt, dd);
+  }
+  $('record').hidden = false;
+}
+
+async function start() {
+  $('start').hidden = true;
+  status(false, 'يجهّز التعرّف… · Getting ready…');
+  try {
+    const deployer = new XRArtifactDeployer($('xr'));
+    await deployer.init();
+    deployer.start();
+    const btn = $('anim');
+    deployer.onAnimationStateChange = (s) => {
+      btn.hidden = !s.hasAnimation;
+      btn.textContent = s.isOpen ? 'أغلق المخطوط · Close' : 'افتح المخطوط · Open';
+    };
+    btn.addEventListener('click', () => deployer.toggleBookAnimation());
+
+    const engine = new ClosedSetRecognitionEngine($('video'), $('canvas'));
+    engine.init().catch((e) => console.warn('Engine init:', e));
+    const hud = new TestInspectorHUD(
+      $('hud'),
+      (t) => engine.setThreshold(t),
+      (id, title, angle) => engine.captureLiveAngle(id, title, angle),
+      (id, title, onProgress) => engine.startAutoSweep360(id, title, onProgress)
+    );
+    engine.onEvaluation = (report) => {
+      hud.update(report);
+      if (deployer.isConfirmed && report.roi) {
+        deployer._compute3DPositionFromROI(report.roi);
+        if (report.bestCandidate?.matchedView) deployer.syncDetectedAngle(report.bestCandidate.matchedView);
+      }
+    };
+    engine.onArtifactConfirmed = async (match) => {
+      status(true, `✓ ${match.title}`);
+      let meta = null;
+      try {
+        meta = (await parser.loadFromUrl(`${HERE}${match.artifact.bibframe?.ttlPath || 'alqabasat.ttl'}`)).metadata;
+      } catch (e) {
+        console.warn('Record:', e);
+      }
+      showRecord(meta, match);
+      deployer.deployArtifactXR(match.artifact, meta, match.roi, match.matchedView, Math.round(match.similarity * 100));
+      if (spoken !== match.id) {
+        spoken = match.id;
+        speech.speak(`تم التعرف على القطعة: ${match.title}`, 'ar');
+      }
+    };
+    engine.onArtifactLost = () => {
+      status(false, 'وجّه الكاميرا إلى قطعة · Point at an object');
+      deployer.collapseArtifactXR();
+      $('record').hidden = true;
+      btn.hidden = true;
+      spoken = null;
+    };
+    await engine.start();
+    status(false, 'وجّه الكاميرا إلى قطعة · Point at an object');
+  } catch (e) {
+    console.error(e);
+    status(false, 'تعذّر فتح الكاميرا · Camera unavailable');
+    $('start').hidden = false;
+  }
+}
+
+for (const [img, name] of [
+  ['astronaut_front.jpg', 'رائد الفضاء · Astronaut (front)'],
+  ['astronaut_left.jpg', 'رائد الفضاء · Astronaut (left)'],
+  ['astronaut_right.jpg', 'رائد الفضاء · Astronaut (right)'],
+  ['praha_front.jpg', 'صندوق براغ · Prague box'],
+]) {
+  const fig = document.createElement('figure');
+  fig.innerHTML = `<img src="${HERE}${img}" alt=""><figcaption></figcaption>`;
+  fig.querySelector('figcaption').textContent = name;
+  $('targets-list').append(fig);
+}
+$('start').addEventListener('click', start);
+$('show-targets').addEventListener('click', () => ($('targets').hidden = false));
+$('close-targets').addEventListener('click', () => ($('targets').hidden = true));
+$('back').href = `${BASE}index.html`;

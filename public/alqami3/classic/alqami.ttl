@@ -1,0 +1,17 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix ms: <http://example.org/manuscript/> .
+
+<https://alqami.net/museum/alqami_artifact>
+    a schema:Manuscript ;
+    dc:title "تحفة القمي الخزفية (Alqami Ceramic Artifact)"@ar ;
+    dc:title "Alqami Ceramic Artifact"@en ;
+    dc:creator "صناعة خزفية إسلامية / ورشة القمي"@ar ;
+    dc:creator "Islamic Ceramic Guild / Alqami Workshop"@en ;
+    dc:date "القرن 18-19 م" ;
+    schema:material "طين فخاري مزجج (ميناكاري / خزف متعدد الألوان)"@ar ;
+    schema:material "Glazed Polychrome Ceramic (Mina-kari Faience)"@en ;
+    schema:extent "القطر: 14 سم ، الارتفاع: 11 سم" ;
+    schema:publisher "مجموعة القمي التراثية الخاصة"@ar ;
+    ms:transcriptionArabic """قطعة خزفية فنية نادرة ذات طراز شرقي أصيل، مزخرفة بنقوش نباتية وهندسية بألوان الميناء (الأخضر الزمردي، البرتقالي، والأبيض الصيني). تم التعرف عليها عبر نظام الرؤية الحاسوبية والذكاء الاصطناعي (Alqami AI Vision)."""@ar ;
+    ms:translationEnglish """A rare Oriental ceramic art piece adorned with floral and geometric arabesque motifs in rich enamels (emerald green, Persian orange, and cobalt tones). Recognized and cataloged via Alqami AI Computer Vision."""@en .

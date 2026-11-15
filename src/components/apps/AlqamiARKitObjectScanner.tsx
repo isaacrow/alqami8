@@ -841,6 +841,23 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
         {activeMode === 'detect' && !simple && (
           <div className="flex items-center justify-between gap-3 overflow-x-auto py-1 custom-scrollbar">
             <div className="flex items-center gap-2">
+              {/* alqami3's two scan modes, kept as they were on their own pages. */}
+              <a
+                href={assetUrl('/alqami3-scan.html')}
+                className="px-3 py-1.5 rounded-2xl flex items-center gap-2 text-xs whitespace-nowrap vision-glass border border-sky-300/50 text-sky-100 hover:bg-white/15"
+                title="alqami3: MindAR picture tracking with 3D cards and hotspots on the page"
+              >
+                <Scan className="w-4 h-4" />
+                <span>تتبع الصور · علقمي 3</span>
+              </a>
+              <a
+                href={assetUrl('/alqami3-360.html')}
+                className="px-3 py-1.5 rounded-2xl flex items-center gap-2 text-xs whitespace-nowrap vision-glass border border-sky-300/50 text-sky-100 hover:bg-white/15"
+                title="alqami3 local: recognition from every side, with the 360° test panel"
+              >
+                <RotateCw className="w-4 h-4" />
+                <span>التعرّف 360° · علقمي 3 المحلي</span>
+              </a>
               <button
                 onClick={downloadCatalogLabel}
                 className="px-3 py-1.5 rounded-2xl flex items-center gap-2 text-xs transition cursor-pointer whitespace-nowrap vision-glass border border-amber-300/50 text-amber-100 hover:bg-white/15"
