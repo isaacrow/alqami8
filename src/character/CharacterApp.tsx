@@ -8,6 +8,7 @@ const C = pageCharacter();
 const SHORT = { jawahiri: { ar: 'الجواهري', en: 'al-Jawahiri' }, mutanabbi: { ar: 'المتنبي', en: 'al-Mutanabbi' }, waili: { ar: 'الوائلي', en: 'al-Waili' } } as const;
 import { GEMINI_VOICES, LiveConversation, LiveState, loadSettings, saveSettings, VoiceKind, VoiceSettings } from './liveVoice';
 import { Stage } from './stage';
+import { VisualGyro } from './visualGyro';
 import { clock, LectureHit, loadLectures } from './lectureSearch';
 import { Gesture, VisitorTracker } from './tracking';
 
@@ -51,7 +52,8 @@ export const CharacterApp: React.FC = () => {
   const [toast, setToast] = useState('');
   /** In the room: which way to turn the phone to find him (null when he is on screen). */
   const [lost, setLost] = useState<{ x: number; y: number } | null>(null);
-  const [noMotion, setNoMotion] = useState(false);
+  /** The phone's turn from the camera picture: keeps him in the room when iPhone does not give the motion sensor. */
+  const visualGyro = useRef(new VisualGyro());
   const [trackerReady, setTrackerReady] = useState(false);
   const [view, setViewState] = useState<'model' | '4d'>('model');
   const [viewLoading, setViewLoading] = useState(false);
@@ -110,6 +112,9 @@ export const CharacterApp: React.FC = () => {
         look = seen.face ?? seen.hand;
         if (seen.pinchDelta) s.bodyYaw += seen.pinchDelta.x * 5;
       }
+      if (mode === 'back' && video.current && !s.hasGyro && visualGyro.current.update(video.current, window.innerWidth, window.innerHeight, s.arFov)) {
+        s.setVisual(visualGyro.current.yaw, visualGyro.current.pitch);
+      }
       const voice = debug?.voice != null ? { level: debug.voice, bright: debug.bright ?? 0.5, ...(debug.mouth ? { mouth: debug.mouth } : {}) } : live.current?.features(level, spectrum) ?? quiet;
       if (debug) (debug as { last?: unknown }).last = voice;
       s.frame(dt, voice, debug?.look ?? look);
@@ -143,7 +148,7 @@ export const CharacterApp: React.FC = () => {
     cameraMode.current = 'off';
     setCam(mode);
     await stage.current?.setMode(mode === 'back' ? 'ar' : 'studio');
-    setNoMotion(mode === 'back' && stage.current?.motionOk === false);
+    visualGyro.current.reset();
     if (mode === 'off') return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -340,20 +345,7 @@ export const CharacterApp: React.FC = () => {
       {loadError && <p className="absolute inset-x-6 top-1/2 z-20 text-center text-rose-300 text-[13px]">{t('تعذّر تحميل المجسّم', 'The model could not load')}</p>}
 
       {/* In the room and he is off screen: an arrow to him, and a button that brings him in front of the phone. */}
-      {/* Motion refused: he would be stuck to the screen instead of standing in the room. */}
-      {ar && noMotion && (
-        <div className="absolute inset-x-4 top-[calc(env(safe-area-inset-top)+160px)] z-20 rounded-2xl bg-black/70 backdrop-blur border border-white/20 p-3 text-center">
-          <p className="text-[13px] leading-snug">{t('ليبقى في مكانه في غرفتك يحتاج الموقع إلى حركة الهاتف.', 'To stay put in your room he needs the phone’s motion.')}</p>
-          <button
-            onClick={async () => setNoMotion(!(await stage.current?.retryMotion()))}
-            className="mt-2 h-10 px-4 rounded-full bg-[#FFD60A] text-black text-[14px] font-bold"
-          >
-            {t('اسمح بحركة الهاتف', 'Allow motion')}
-          </button>
-          <p className="mt-2 text-[11px] text-white/55">{t('إن لم يظهر السؤال: أغلق الصفحة وافتحها من جديد في Safari.', 'No question shown? Close the page and open it again in Safari.')}</p>
-        </div>
-      )}
-      {ar && lost && !noMotion && (
+      {ar && lost && (
         <div className="absolute inset-0 z-20 pointer-events-none">
           <div
             className="absolute left-1/2 top-1/2 w-14 h-14 -ml-7 -mt-7 rounded-full bg-[#FFD60A] text-black flex items-center justify-center shadow-lg"

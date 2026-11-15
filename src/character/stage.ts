@@ -93,8 +93,24 @@ export class Stage {
     if (this.cloud) this.cloud.object.visible = view === '4d';
   }
 
-  /** False when the phone would not give its motion (permission refused): then he cannot stay put in the room. */
-  motionOk = true;
+  /** The phone's turn read from the camera picture (VisualGyro), used when the motion sensor is not given. */
+  private visual: { yaw: number; pitch: number } | null = null;
+  private visualEuler = new THREE.Euler(0, 0, 0, 'YXZ');
+
+  /** The stage camera's vertical field of view in AR, in radians (to turn picture shifts into angles). */
+  get arFov() {
+    return THREE.MathUtils.degToRad(62);
+  }
+
+  /** Whether the motion sensor is giving readings (then the camera picture is not needed). */
+  get hasGyro() {
+    return this.gyro.available;
+  }
+
+  /** The phone's turn from the camera picture, when there is no motion sensor. */
+  setVisual(yaw: number, pitch: number) {
+    this.visual = { yaw, pitch };
+  }
 
   async setMode(mode: StageMode) {
     this.mode = mode;
@@ -105,7 +121,10 @@ export class Stage {
       this.needsPlacement = true;
       this.arStart = this.t;
       this.placedBlind = false;
-      this.motionOk = await this.gyro.start();
+      this.visual = null;
+      // Asked on this tap (iPhone only asks on a tap), but not waited for: if the question never shows, the camera
+      // picture keeps him in place instead.
+      void this.gyro.start();
     } else {
       this.gyro.stop();
       this.camera.quaternion.identity();
@@ -117,12 +136,6 @@ export class Stage {
     this.resize();
   }
 
-  /** Ask for the phone's motion again (call from a tap): iPhone only shows the question on a tap. */
-  async retryMotion() {
-    this.motionOk = await this.gyro.start();
-    if (this.motionOk) this.needsPlacement = true;
-    return this.motionOk;
-  }
 
   /** In AR: bring him back in front of the phone (the "bring him here" button). */
   recenter() {
@@ -181,16 +194,19 @@ export class Stage {
   frame(dt: number, voice: VoiceFeatures, look: { x: number; y: number } | null) {
     this.t += dt;
     if (this.mode === 'ar') {
-      this.gyro.apply(this.camera);
-      // Wait for the phone to say where it points (the first reading can take a moment). Placing him before it came
-      // left him wherever the phone's compass heading was not: usually off to the side or behind the visitor.
-      if (this.needsPlacement && (this.gyro.available || this.t - this.arStart > 2.5)) {
+      if (this.gyro.available) this.gyro.apply(this.camera);
+      else if (this.visual) this.camera.quaternion.setFromEuler(this.visualEuler.set(this.visual.pitch, this.visual.yaw, 0, 'YXZ'));
+      // Wait for the phone (or the camera picture) to say where it points. Placing him before it came left him
+      // wherever the phone's compass heading was not: usually off to the side or behind the visitor.
+      if (this.needsPlacement && (this.gyro.available || this.visual || this.t - this.arStart > 2.5)) {
         this.placeInFront();
         this.placedBlind = !this.gyro.available;
       } else if (this.placedBlind && this.gyro.available) {
         this.placeInFront();
         this.placedBlind = false;
       }
+      // Not drawn until he is placed: before that he stood where the phone is, his face filling the screen.
+      this.holder.visible = !this.needsPlacement;
       // Face the phone, hover gently.
       const p = this.holder.position;
       this.holder.rotation.y = Math.atan2(-p.x, -p.z) + this.bodyYaw;
@@ -198,8 +214,11 @@ export class Stage {
       this.holder.scale.setScalar(0.36 * this.arScale);
       (this.ring.material as THREE.MeshBasicMaterial).opacity = 0.25 + Math.sin(this.t * 2.6) * 0.1 + voice.level * 0.25;
     } else {
+      this.holder.visible = true;
       this.holder.rotation.y = this.bodyYaw;
     }
+    // The bust is cut at the shoulders: turned further than this, the cut shows.
+    this.bodyYaw = THREE.MathUtils.clamp(this.bodyYaw, -0.5, 0.5);
 
     if (this.motion) {
       if (look) {
