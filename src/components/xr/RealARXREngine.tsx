@@ -296,7 +296,7 @@ function draw3DObjectPrism(
     ctx.fill();
     ctx.fillStyle = '#000000';
     ctx.font = 'bold 10px system-ui, sans-serif';
-    ctx.fillText(`📌 ${obj.pinnedNote}`, noteX + 8, noteY + 15);
+    ctx.fillText(`${obj.pinnedNote}`, noteX + 8, noteY + 15);
     ctx.restore();
   }
 
@@ -973,7 +973,7 @@ export const RealARXREngine: React.FC<RealARXREngineProps> = ({
             const pinkyExt = hand[20].y < hand[18].y - 0.035;
             const thumbExt = Math.hypot(hand[4].x - hand[2].x, hand[4].y - hand[2].y) > 0.075 && hand[4].y < hand[2].y;
 
-            // ✌️ Peace Sign: Opens Home Apps Launcher
+            // Peace Sign: Opens Home Apps Launcher
             const isPeace = indexExt && middleExt && !ringExt && !pinkyExt;
             if (isPeace && !lastPeaceStateRef.current) {
               window.dispatchEvent(new CustomEvent('visionos:gesture-peace'));
@@ -981,7 +981,7 @@ export const RealARXREngine: React.FC<RealARXREngineProps> = ({
             }
             lastPeaceStateRef.current = isPeace;
 
-            // 👍 Thumbs Up: Recenters view
+            // Thumbs Up: Recenters view
             const isThumbsUp = thumbExt && !indexExt && !middleExt && !ringExt && !pinkyExt;
             if (isThumbsUp && !lastThumbsUpStateRef.current) {
               window.dispatchEvent(new CustomEvent('visionos:gesture-thumbsup'));
@@ -1783,7 +1783,7 @@ export const RealARXREngine: React.FC<RealARXREngineProps> = ({
               >
                 <Scan className="h-4 w-4 text-cyan-300 animate-pulse" />
                 <span className="font-semibold text-cyan-100">
-                  {alqamiScanModeActive ? '⚡ Alqami AR Scan Active' : '⚡ Alqami AR Scan Mode'}
+                  {alqamiScanModeActive ? 'Alqami AR Scan Active' : 'Alqami AR Scan Mode'}
                 </span>
                 <span className="ml-auto text-[10px] text-cyan-300/80 uppercase font-mono tracking-wider">alqami 3</span>
               </button>

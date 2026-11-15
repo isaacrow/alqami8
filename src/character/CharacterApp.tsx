@@ -1,13 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Camera, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
 import { KeyTerminal } from './KeyTerminal';
-import { pageCharacter } from './characters';
+import { CHARACTERS, pageCharacter } from './characters';
 
 const C = pageCharacter();
+// Short names for the switcher.
+const SHORT = { jawahiri: { ar: 'الجواهري', en: 'al-Jawahiri' }, mutanabbi: { ar: 'المتنبي', en: 'al-Mutanabbi' }, waili: { ar: 'الوائلي', en: 'al-Waili' } } as const;
 import { GEMINI_VOICES, LiveConversation, LiveState, loadSettings, saveSettings, VoiceKind, VoiceSettings } from './liveVoice';
 import { Stage } from './stage';
 import { Gesture, VisitorTracker } from './tracking';
 
+import { Glyph, isGlyph } from '../components/shell/Glyph';
 type CameraMode = 'off' | 'front' | 'back';
 type Lang = 'ar' | 'en';
 
@@ -69,7 +72,7 @@ export const CharacterApp: React.FC = () => {
   const onGesture = useCallback(
     (g: Gesture) => {
       stage.current?.nod();
-      flash(g === 'wave' ? '👋' : '👍');
+      flash(g === 'wave' ? '' : '');
       live.current?.sendText(GESTURE_CUES[g]);
     },
     [flash]
@@ -281,8 +284,23 @@ export const CharacterApp: React.FC = () => {
       </header>
 
       {/* Two ways to see him: the sculpted bust that speaks, or the filmed 4D capture. */}
+      {/* Switch character: the three talking characters, each on its own page. */}
+      <nav aria-label={t('الشخصيات', 'Characters')} className="absolute top-[calc(env(safe-area-inset-top)+64px)] inset-x-0 z-30 flex justify-center pointer-events-none">
+        <div className="pointer-events-auto flex rounded-full bg-black/45 backdrop-blur border border-white/15 p-1 text-[12.5px] font-medium">
+          {Object.values(CHARACTERS).map((c) => (
+            <a
+              key={c.id}
+              href={`./${c.id}.html`}
+              aria-current={c.id === C.id ? 'page' : undefined}
+              className={`px-3.5 h-8 rounded-full flex items-center transition ${c.id === C.id ? 'bg-[#FFD60A] text-black' : 'text-white/80'}`}
+            >
+              {t(SHORT[c.id].ar, SHORT[c.id].en)}
+            </a>
+          ))}
+        </div>
+      </nav>
       {C.fourD && (
-      <div className="absolute top-[calc(env(safe-area-inset-top)+64px)] inset-x-0 z-30 flex justify-center pointer-events-none">
+      <div className="absolute top-[calc(env(safe-area-inset-top)+108px)] inset-x-0 z-30 flex justify-center pointer-events-none">
         <div className="pointer-events-auto flex rounded-full bg-black/45 backdrop-blur border border-white/15 p-1 text-[12.5px] font-medium">
           {([
             ['model', t('المجسّم', 'Bust')],
@@ -306,7 +324,7 @@ export const CharacterApp: React.FC = () => {
       )}
       {loadError && <p className="absolute inset-x-6 top-1/2 z-20 text-center text-rose-300 text-[13px]">{t('تعذّر تحميل المجسّم', 'The model could not load')}</p>}
 
-      {toast && <div className="absolute top-1/3 inset-x-0 z-30 text-center text-5xl drop-shadow-lg animate-bounce pointer-events-none">{toast}</div>}
+      {toast && <div className="absolute top-1/3 inset-x-0 z-30 text-center text-5xl drop-shadow-lg animate-bounce pointer-events-none">{isGlyph(toast) ? <Glyph e={toast} className="inline-block w-14 h-14 text-white" /> : toast}</div>}
 
       {/* Subtitles and controls */}
       <footer className="absolute bottom-0 inset-x-0 z-30 px-3 pb-[calc(env(safe-area-inset-bottom)+14px)] pt-10 bg-gradient-to-t from-black/80 via-black/45 to-transparent space-y-3">

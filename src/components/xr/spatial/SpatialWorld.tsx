@@ -22,6 +22,7 @@ import { assetUrl } from '../../../utils/assetUrl';
 import { ALQAMI_ARTIFACTS, type AlqamiArtifact } from '../../../data/alqamiArtifacts';
 import { ArRecognitionOverlay, useArRecognition } from './ArRecognition';
 
+import { Glyph, SVG_ICON } from '../../shell/Glyph';
 /* ──────────────────────────────────────────────────────────────────────────────
  * Spatial World — a visionOS-style "every window is its own object" renderer for
  * iPhone Safari WITHOUT WebXR and WITHOUT AR Quick Look.
@@ -1224,12 +1225,12 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
       el.innerHTML = `
         <button data-act="scale-down" title="Scale Down">−</button>
         <button data-act="scale-up" title="Scale Up">+</button>
-        <button data-act="lift" title="Lift onto Desk">⬆</button>
-        <button data-act="lower" title="Lower">⬇</button>
+        <button data-act="lift" title="Lift onto Desk">${SVG_ICON.up}</button>
+        <button data-act="lower" title="Lower">${SVG_ICON.down}</button>
         <button data-act="rotate" aria-label="Rotate">⟲</button>
         <span data-span="label">${itemLabel}</span>
         <button data-act="retry" title="Retry loading this model" hidden>↻</button>
-        <button data-act="rdf" title="View RDF Metadata & 3D Detection" style="color: #6ee7b7; font-weight: bold; background: rgba(16, 185, 129, 0.3); border: 1px solid rgba(52, 211, 153, 0.5); border-radius: 9999px; padding: 2px 8px; font-size: 11px; cursor: pointer;">📜 RDF</button>
+        <button data-act="rdf" title="View RDF Metadata & 3D Detection" style="color: #6ee7b7; font-weight: bold; background: rgba(16, 185, 129, 0.3); border: 1px solid rgba(52, 211, 153, 0.5); border-radius: 9999px; padding: 2px 8px; font-size: 11px; cursor: pointer;">${SVG_ICON.doc} RDF</button>
         <button data-act="remove" aria-label="Remove">✕</button>`;
       ornamentElement = el;
       const ornament = new CSS3DObject(el);
@@ -1787,7 +1788,7 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
             }`}
             title="Switch Mode: Vision Pro Heavy Glass vs 6DoF Physical Room Tracking"
           >
-            <span className="whitespace-nowrap">{trackingMode === 'vision-pro' ? '🥽' : '🌐'}<span className="hidden sm:inline"> {trackingMode === 'vision-pro' ? 'Vision Pro Solid' : '6DoF Room Track'}</span></span>
+            <span className="whitespace-nowrap"><Glyph e={trackingMode === 'vision-pro' ? '🥽' : '🌐'} /><span className="hidden sm:inline"> {trackingMode === 'vision-pro' ? 'Vision Pro Solid' : '6DoF Room Track'}</span></span>
           </button>
           {onToggleHandTracking && (
             <button
@@ -2005,7 +2006,7 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
                       : 'bg-white/10 hover:bg-white/15 border border-white/10 text-white/80'
                   }`}
                 >
-                  <span className="text-base">{cEnv.icon}</span>
+                  <span className="text-base"><Glyph e={cEnv.icon} /></span>
                   <span className="text-[11px] leading-tight">{cEnv.name}</span>
                 </button>
               ))}

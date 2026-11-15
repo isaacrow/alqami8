@@ -15,6 +15,7 @@ import {
 import { Lovbacken3DCanvas } from '../three/SpatialThreeCanvas';
 import { spatialSound } from '../../utils/spatialSound';
 
+import { Glyph } from '../shell/Glyph';
 interface IkeaSpatialAppProps {
   onPreviewInSpace: () => void;
 }
@@ -262,8 +263,8 @@ export const IkeaSpatialApp: React.FC<IkeaSpatialAppProps> = ({ onPreviewInSpace
                 <div className="text-[11px] text-white/75 flex items-center gap-1.5">
                   <span>12 reviews</span>
                   <span>•</span>
-                  <span className="tracking-tighter text-white">★★★★</span>
-                  <span className="text-white/35">★</span>
+                  <span className="tracking-tighter text-white"><Glyph e="★★★★" /></span>
+                  <span className="text-white/35"><Glyph e="★" /></span>
                 </div>
               </div>
               <div className="text-[13px] text-white/75 mt-0.5">
@@ -395,7 +396,7 @@ export const IkeaSpatialApp: React.FC<IkeaSpatialAppProps> = ({ onPreviewInSpace
             {/* Right 3D Blue Archway & Yellow Armchair Stage */}
             <div className="flex items-end gap-4 pr-6 z-10">
               <div className="w-28 h-40 rounded-t-full bg-[#0a275c] border border-white/10 flex items-center justify-center shadow-inner">
-                <span className="text-4xl">🪑</span>
+                <span className="text-4xl"><Glyph e="🪑" /></span>
               </div>
               <div className="w-16 h-20 rounded-xl bg-[#2764c9] flex items-center justify-center shadow-md">
                 <span className="w-5 h-5 rounded-full bg-amber-300 shadow-[0_0_16px_#fde047]" />
@@ -456,7 +457,7 @@ export const IkeaSpatialApp: React.FC<IkeaSpatialAppProps> = ({ onPreviewInSpace
                       <div className="w-6 h-16 bg-stone-500 rounded-b-lg" />
                     </div>
                   )}
-                  {prod.id === 'ekenaset' && <span className="text-5xl">🪑</span>}
+                  {prod.id === 'ekenaset' && <span className="text-5xl"><Glyph e="🪑" /></span>}
                   {prod.id === 'skruvby' && (
                     <div className="w-20 h-16 bg-sky-700/80 rounded-md border border-sky-900 shadow" />
                   )}
@@ -470,7 +471,7 @@ export const IkeaSpatialApp: React.FC<IkeaSpatialAppProps> = ({ onPreviewInSpace
                       <span className="text-[14px] font-bold">${prod.price}</span>
                       <span className="text-[10px] text-white/65"> / piece</span>
                       <div className="text-[10px] text-white/90 tracking-tighter">
-                        ★★★★<span className="text-white/35">★</span>
+                        <Glyph e="★★★★" /><span className="text-white/35"><Glyph e="★" /></span>
                       </div>
                     </div>
                     <div className="flex gap-1.5">

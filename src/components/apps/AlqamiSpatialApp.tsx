@@ -194,7 +194,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   const [isClosingPopOut, setIsClosingPopOut] = useState(false);
   const [isDissolvingForAR, setIsDissolvingForAR] = useState(false);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
-  // A phone paired as the PC's camera (📱 in the top controls): the object page can show the 3D object on it.
+  // A phone paired as the PC's camera (the phone button in the top controls): the object page can show the 3D object on it.
   const [phoneOn, setPhoneOn] = useState(() => Boolean(activePhone?.connected));
   const [sentToPhone, setSentToPhone] = useState(false);
   useEffect(() => {
@@ -328,7 +328,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
     onPreviewInSpace?.(art);
 
-    setDeployedToast(`✨ تم نشر ${art.title.ar} ثلاثي الأبعاد في غرفتك بجانب النافذة!`);
+    setDeployedToast(`تم نشر ${art.title.ar} ثلاثي الأبعاد في غرفتك بجانب النافذة!`);
     setTimeout(() => setDeployedToast(null), 3600);
 
     if (arDissolveTimerRef.current !== null) window.clearTimeout(arDissolveTimerRef.current);
@@ -606,14 +606,15 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
          ───────────────────────────────────────────────────────────── */}
       {view === 'catalog' && activeNav !== 'user' && (
         <div
-          className={`w-full h-full overflow-y-auto p-6 space-y-6 text-white custom-scrollbar pointer-events-auto transition-all duration-500 ${
+          className={`w-full h-full overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6 text-white custom-scrollbar pointer-events-auto transition-all duration-500 ${
             isPopOut3D ? 'opacity-15 blur-md scale-[0.97] pointer-events-none' : 'opacity-100'
           } ${
             isLeavingView ? 'ikea-scene-leave' : 'ikea-scene-enter'
           }`}
         >
           {/* Blue Architectural Hero Banner with DYNAMIC 3D MOVING ARTIFACT (Randomly Changing) */}
-          <div className="w-full min-h-[260px] md:min-h-[285px] rounded-[32px] bg-gradient-to-r from-[#124091] via-[#1c56b8] to-[#0f3478] p-6 md:p-8 flex items-center justify-between relative overflow-hidden shadow-2xl border border-white/20 ikea-hero-arrive">
+          {/* On a phone the banner stacks: the words, then the 3D object at full width (side by side it was cut off). */}
+          <div className="w-full min-h-[260px] md:min-h-[285px] rounded-[28px] sm:rounded-[32px] bg-gradient-to-r from-[#124091] via-[#1c56b8] to-[#0f3478] p-5 sm:p-6 md:p-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 relative overflow-hidden shadow-2xl border border-white/20 ikea-hero-arrive">
             <div className="z-10 max-w-sm space-y-1.5">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-blue-200">
                 {isAr ? 'اكتشف المقتنيات النادرة' : 'Discover authentic artifacts'}
@@ -640,10 +641,10 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
             </div>
 
             {/* Right: live 3D artifact in the banner with large presentation (as requested in img 3) */}
-            <div className="flex items-center gap-4 pr-2 z-10 h-full">
+            <div className="flex items-center justify-center gap-4 sm:pr-2 z-10 h-full">
               <div
                 onClick={randomizeBannerArtifact}
-                className="w-72 h-72 md:w-80 md:h-80 relative pointer-events-auto flex items-center justify-center cursor-pointer transition-transform active:scale-95"
+                className="w-full max-w-[300px] h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 relative pointer-events-auto flex items-center justify-center cursor-pointer transition-transform active:scale-95"
                 title={isAr ? 'انقر لتغيير المعروض ثلاثي الأبعاد عشوائياً' : 'Click to cycle random authentic artifact'}
               >
                 <AlqamiArtifact3DCanvas
@@ -658,7 +659,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
               {/* Glowing Orb & Alqami Logo Stage */}
               <div
                 onClick={randomizeBannerArtifact}
-                className="w-16 h-24 rounded-2xl bg-[#2764c9]/80 hover:bg-[#2764c9] border border-white/20 backdrop-blur-md flex flex-col items-center justify-center gap-2 shadow-lg cursor-pointer transition active:scale-95"
+                className="w-16 h-24 rounded-2xl bg-[#2764c9]/80 hover:bg-[#2764c9] border border-white/20 backdrop-blur-md hidden sm:flex flex-col items-center justify-center gap-2 shadow-lg cursor-pointer transition active:scale-95"
                 title={isAr ? 'تبديل عشوائي للمجسم' : 'Randomize 3D Artifact'}
               >
                 <img

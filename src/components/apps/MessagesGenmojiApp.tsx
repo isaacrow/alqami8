@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { spatialSound } from '../../utils/spatialSound';
 
+import { Glyph } from '../shell/Glyph';
 interface ChatMessage {
   id: string;
   sender: string;
@@ -44,7 +45,7 @@ export const MessagesGenmojiApp: React.FC<{
       id: '3',
       sender: 'Rody Albuerne',
       isMe: false,
-      text: "Don't tell Grandpa, but I got creative with the recipe. I might even like it more than the original. 😉",
+      text: "Don't tell Grandpa, but I got creative with the recipe. I might even like it more than the original.",
     },
     {
       id: '4',
@@ -202,7 +203,7 @@ export const MessagesGenmojiApp: React.FC<{
               }`}
             >
               <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center text-base font-bold shadow">
-                {pin.badge}
+                <Glyph e={pin.badge} />
               </div>
               <span className="text-[10px] text-white/85 truncate max-w-full font-medium">
                 {pin.name}
@@ -246,7 +247,7 @@ export const MessagesGenmojiApp: React.FC<{
         <div className="h-14 border-b border-white/10 px-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-amber-500/30 border border-amber-300/50 flex items-center justify-center text-sm">
-              🍝
+              <Glyph e="🍝" />
             </div>
             <div>
               <div className="text-[13px] font-semibold">Foodie Group</div>
@@ -289,10 +290,10 @@ export const MessagesGenmojiApp: React.FC<{
                 <div className="mb-1.5 w-52 h-36 rounded-2xl overflow-hidden border border-white/20 bg-stone-800 relative flex items-center justify-center shadow-lg">
                   <div className="w-28 h-28 rounded-full bg-stone-100 border-4 border-stone-300 flex items-center justify-center shadow-inner">
                     <div className="grid grid-cols-2 gap-1 text-2xl">
-                      <span>🥟</span>
-                      <span>🥟</span>
-                      <span>🥟</span>
-                      <span>🌿</span>
+                      <span><Glyph e="🥟" /></span>
+                      <span><Glyph e="🥟" /></span>
+                      <span><Glyph e="🥟" /></span>
+                      <span><Glyph e="🌿" /></span>
                     </div>
                   </div>
                 </div>
@@ -301,7 +302,7 @@ export const MessagesGenmojiApp: React.FC<{
               {/* Custom 3D Genmoji Sticker */}
               {m.genmoji && (
                 <div className="mb-1 w-24 h-24 rounded-full bg-gradient-to-br from-amber-300 via-yellow-500 to-amber-700 p-1 shadow-[0_12px_30px_rgba(245,158,11,0.5)] flex items-center justify-center border-2 border-white/60 animate-bounce">
-                  <div className="text-3xl">🥟🧄🌿</div>
+                  <div className="text-3xl"><Glyph e="🥟🧄🌿" /></div>
                 </div>
               )}
 
@@ -427,11 +428,11 @@ export const MessagesGenmojiApp: React.FC<{
                   >
                     <div className="grid grid-cols-2 gap-1 text-3xl drop-shadow">
                       {genmojiVariants[selectedVariant].items.map((it, i) => (
-                        <span key={i}>{it}</span>
+                        <span key={i}><Glyph e={it} /></span>
                       ))}
                     </div>
                     <span className="text-sm mt-0.5">
-                      {genmojiVariants[selectedVariant].garnish}
+                      <Glyph e={genmojiVariants[selectedVariant].garnish} />
                     </span>
                   </div>
 

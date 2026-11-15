@@ -23,14 +23,14 @@ export class TestInspectorHUD {
 
         <!-- Status Banner (Always Visible) -->
         <div id="inspector-status-badge" class="status-badge unknown">
-          <span class="status-icon">🔍</span>
+          <span class="status-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
           <span class="status-text">جاري المسح متعدد الزوايا...</span>
         </div>
 
         <!-- Quick Live 360° Angle Calibration & Auto-Sweep Bar -->
         <div style="display: flex; flex-direction: column; gap: 6px; background: rgba(0, 242, 254, 0.07); border: 1px solid rgba(0, 242, 254, 0.25); border-radius: 12px; padding: 8px 10px;">
           <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #00f2fe; font-weight: 600;">
-            <span>📸 تدريب 360° حي (Live Teach):</span>
+            <span>تدريب 360° حي (Live Teach):</span>
             <select id="live-teach-target" style="background: rgba(0,0,0,0.6); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 6px; font-size: 11px; padding: 2px 6px;">
               <option value="ART-006">ART-006 (رائد الفضاء الذهبي)</option>
               <option value="ART-002">ART-002 (صندوق براغ)</option>
@@ -44,7 +44,7 @@ export class TestInspectorHUD {
             <button class="btn-live-angle" data-angle="wide" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #fff; border-radius: 8px; padding: 5px 4px; font-size: 11px; font-weight: 600; cursor: pointer;">+ شامل</button>
           </div>
           <button id="btn-auto-sweep-360" style="width: 100%; background: linear-gradient(90deg, rgba(0, 242, 254, 0.22), rgba(10, 132, 255, 0.28)); border: 1px solid rgba(0, 242, 254, 0.55); color: #00f2fe; border-radius: 9px; padding: 6px 8px; font-size: 11px; font-weight: 700; cursor: pointer;">
-            🔄 مسح 360° تلقائي (6 ثوانٍ — التقط أثناء الدوران حول المجسم)
+            مسح 360° تلقائي (6 ثوانٍ — التقط أثناء الدوران حول المجسم)
           </button>
         </div>
 
@@ -129,7 +129,7 @@ export class TestInspectorHUD {
         if (!resolved) return;
         const angle = btn.getAttribute('data-angle');
         const origText = btn.textContent;
-        btn.textContent = '⏳...';
+        btn.textContent = '...';
         btn.disabled = true;
         try {
           await this.onLiveCaptureAngle(resolved.targetId, resolved.targetTitle, angle);
@@ -157,7 +157,7 @@ export class TestInspectorHUD {
       btnSweep.disabled = true;
       try {
         const res = await this.onAutoSweep360(resolved.targetId, resolved.targetTitle, ({ pct, captured, maxKeyframes }) => {
-          btnSweep.textContent = `🔄 جاري الدوران... ${pct}% (${captured}/${maxKeyframes} لقطات)`;
+          btnSweep.textContent = `جاري الدوران... ${pct}% (${captured}/${maxKeyframes} لقطات)`;
         });
         btnSweep.textContent = `✓ تم تسجيل ${res.capturedKeyframes} زوايا مختلفة بنجاح!`;
         setTimeout(() => {
@@ -191,7 +191,7 @@ export class TestInspectorHUD {
       artIdElem.textContent = `${best.id} • زاوية ${(best.matchedView || 'front').toUpperCase()} (${report.topScore}%)`;
     } else {
       badge.className = 'status-badge unknown';
-      badge.querySelector('.status-icon').textContent = '🔍';
+      badge.querySelector('.status-icon').innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
       badge.querySelector('.status-text').textContent = best
         ? `أقرب تطابق: ${best.id} [${best.matchedView}] (${report.topScore}% | خلفية ${report.negativeScore || 0}%)`
         : 'وجّه الكاميرا نحو المجسم من أي زاوية';

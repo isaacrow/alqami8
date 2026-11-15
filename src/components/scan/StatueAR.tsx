@@ -16,6 +16,7 @@ import { Direction, WorldPin } from '../../scan/worldPin';
 import { FlowTracker } from '../../scan/flowTracker';
 import { LabelLayout } from '../../scan/labelLayout';
 
+import { Glyph, isGlyph } from '../shell/Glyph';
 /**
  * Scan mode in a gallery: every catalogued object or statue in view gets its record floating on it.
  *  - recognition by sight from any side (the index holds renders of every 3D object from all around): the centre of
@@ -419,7 +420,7 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
         </div>
       )}
       {pointer && <span className="absolute w-5 h-5 -ml-2.5 -mt-2.5 rounded-full border-2 border-[#FFD60A] bg-[#FFD60A]/30" style={{ left: pointer.x, top: pointer.y }} />}
-      {toast && <span className="absolute top-1/3 inset-x-0 text-center text-4xl">{toast}</span>}
+      {toast && <span className="absolute top-1/3 inset-x-0 text-center text-4xl">{isGlyph(toast) ? <Glyph e={toast} className="inline-block w-12 h-12 text-white" /> : toast}</span>}
 
       <div className={`absolute top-[calc(env(safe-area-inset-top)+104px)] end-3 flex-col items-end gap-2 pointer-events-auto ${simple ? 'hidden' : 'flex'}`}>
         <button
@@ -455,7 +456,7 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
         <div dir="rtl" className="absolute top-[calc(env(safe-area-inset-top)+68px)] inset-x-3 z-40 pointer-events-auto rounded-2xl bg-black/75 backdrop-blur-md border border-violet-300/40 text-white p-3 shadow-2xl">
           <div className="flex items-start gap-2">
             <p className="flex-1 text-[10.5px] text-violet-200">
-              ✨ تخمين الذكاء الاصطناعي، ليس من الفهرس · AI guess, not from the catalogue ·{' '}
+              <Glyph e="✨" /> تخمين الذكاء الاصطناعي، ليس من الفهرس · AI guess, not from the catalogue ·{' '}
               <a href="privacy.html" className="underline">
                 الخصوصية · Privacy
               </a>
@@ -539,7 +540,7 @@ const TagChip: React.FC<{ target: SightTarget; angle: number | null; at: { x: nu
       >
         <span className="block text-[12.5px] font-semibold leading-tight truncate">{f.title}</span>
         <span className="block text-[10.5px] text-white/70 truncate">
-          {[f.date, side ? `👁 ${SIDE_NAMES[side].ar}` : null].filter(Boolean).join(' · ')}
+          {[f.date, side ? `${SIDE_NAMES[side].ar}` : null].filter(Boolean).join(' · ')}
         </span>
       </button>
     </>
@@ -620,14 +621,14 @@ const PinnedRecord: React.FC<{
           </button>
         </div>
         <div className={`mt-1.5 space-y-0.5 text-[11.5px] text-white/80 ${onPage ? 'hidden' : ''}`}>
-          {f.date && <p>📅 {f.date}</p>}
-          {f.material && <p className="truncate">🪨 {f.material}</p>}
-          {f.holder && <p className="truncate">🏛 {f.holder}</p>}
-          {f.dimensions && <p className="truncate">📏 {f.dimensions}</p>}
-          {f.text && <p className="line-clamp-3 text-white/85">✎ {f.text}</p>}
+          {f.date && <p><Glyph e="📅" /> {f.date}</p>}
+          {f.material && <p className="truncate"><Glyph e="🪨" /> {f.material}</p>}
+          {f.holder && <p className="truncate"><Glyph e="🏛" /> {f.holder}</p>}
+          {f.dimensions && <p className="truncate"><Glyph e="📏" /> {f.dimensions}</p>}
+          {f.text && <p className="line-clamp-3 text-white/85"><Glyph e="✎" /> {f.text}</p>}
           {side && (
             <p className="text-[#FFD60A]">
-              👁 تنظر إلى {SIDE_NAMES[side].ar} · {SIDE_NAMES[side].en}
+              <Glyph e="👁" /> تنظر إلى {SIDE_NAMES[side].ar} · {SIDE_NAMES[side].en}
             </p>
           )}
           {notes.map((n) => (

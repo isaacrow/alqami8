@@ -51,6 +51,7 @@ import type { MoonRecord } from '../../moon/moonApi';
 import { CoverPose, CoverTracker } from '../../pin/coverTracker';
 import { PinnedCard } from '../../pin/PinnedCard';
 
+import { Glyph } from '../shell/Glyph';
 interface AlqamiARKitObjectScannerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -606,8 +607,8 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
               >
                 <span className="block text-[14px] font-semibold leading-snug">{activeTarget.metadata.titleAr}</span>
                 {activeTarget.metadata.creatorAr && <span className="block text-[11.5px] text-white/70 truncate">{activeTarget.metadata.creatorAr}</span>}
-                {activeTarget.metadata.date && <span className="block mt-1 text-[11.5px] text-white/80">📅 {activeTarget.metadata.date}</span>}
-                {activeTarget.metadata.publisherAr && <span className="block text-[11.5px] text-white/80 truncate">🏛 {activeTarget.metadata.publisherAr}</span>}
+                {activeTarget.metadata.date && <span className="block mt-1 text-[11.5px] text-white/80"><Glyph e="📅" /> {activeTarget.metadata.date}</span>}
+                {activeTarget.metadata.publisherAr && <span className="block text-[11.5px] text-white/80 truncate"><Glyph e="🏛" /> {activeTarget.metadata.publisherAr}</span>}
                 <span className="block mt-1.5 text-[11px] text-[#FFD60A]">السجلّ الكامل · Full record ›</span>
               </button>
             )}
@@ -922,7 +923,7 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
               disabled={autoFill.state === 'busy'}
               className="w-full flex items-center gap-3 p-3 rounded-2xl bg-[#FFD60A] text-black text-start active:scale-[0.99] disabled:opacity-70"
             >
-              <span className="w-11 h-11 rounded-full bg-black/10 flex items-center justify-center text-[22px] shrink-0">{autoFill.state === 'busy' ? '…' : '📸'}</span>
+              <span className="w-11 h-11 rounded-full bg-black/10 flex items-center justify-center text-[22px] shrink-0">{autoFill.state === 'busy' ? '…' : <Glyph e="" />}</span>
               <span className="flex-1">
                 <span className="block text-[14px] font-bold">{autoFill.state === 'busy' ? 'يقرأ القطعة… · Reading the object…' : 'صوّرها واملأ السجل تلقائياً'}</span>
                 <span className="block text-[11px] opacity-75">اجعل القطعة في المربع ثم اضغط · Frame it, tap: the AI fills the fields, you check them</span>
