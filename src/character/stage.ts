@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { BustMotion, rigBust, VoiceFeatures } from './bustRig';
+import { BustMotion, BustRegions, rigBust, VoiceFeatures } from './bustRig';
 import { GyroCamera } from './gyro';
 import { PointCloud4D } from './pointCloud4d';
 
@@ -64,14 +64,14 @@ export class Stage {
     this.resize();
   }
 
-  async load(url: string, onProgress: (fraction: number) => void) {
+  async load(url: string, onProgress: (fraction: number) => void, regions?: BustRegions) {
     const gltf = await new GLTFLoader().loadAsync(url, (e) => e.total && onProgress(e.loaded / e.total));
     let mesh: THREE.Mesh | null = null;
     gltf.scene.traverse((o) => {
       if (!mesh && (o as THREE.Mesh).isMesh) mesh = o as THREE.Mesh;
     });
     if (!mesh) throw new Error('no mesh');
-    this.motion = new BustMotion(rigBust(mesh));
+    this.motion = new BustMotion(rigBust(mesh, regions));
     this.bust = gltf.scene;
     this.holder.add(gltf.scene);
   }
