@@ -43,6 +43,8 @@ export interface AlqamiArtifact {
    * Pins on the parts of a page (from alqami3's scan mode): points from 0 to 1 on the scan in enrol/artifact__<id>/
    * scan.jpg, which is also the page's tracking marker. Shown on the page in the camera once it is recognised.
    */
+  /** The page scan the pins are placed on, when the object's image is something else (e.g. a render of its 3D model). */
+  pageImage?: string;
   pagePins?: Array<{ x: number; y: number; title: { ar: string; en: string }; text?: { ar: string; en: string } }>;
   /** The published Moon record this object is catalogued as (mooon.site); Moon is then the source of its details. */
   moonRecordId?: string;
@@ -625,6 +627,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Majlis Library, Tehran (4662) • digital copy at the Library of al-Abbas Holy Shrine',
     },
     itemCode: 'MSS-QAB-1650',
+    pageImage: '/images/al-qabasat-scan.jpg',
     pagePins: [
       { x: 0.72, y: 0.22, title: { ar: "الترويسة المذهبة", en: "Illuminated headpiece" }, text: { ar: "ترويسة مزخرفة بالذهب واللازورد في رأس الصفحة الأولى؛ وفي الفهرسة: الورقة الأولى عليها زخرفة.", en: "A headpiece in gold and blue at the head of the first page; the record notes that the first leaf is illuminated." } },
       { x: 0.72, y: 0.42, title: { ar: "البسملة", en: "The basmala" }, text: { ar: "«بسم الله الرحمن الرحيم» في خرطوشة سحابية مذهبة.", en: "The basmala in a gilded cloud-band cartouche." } },

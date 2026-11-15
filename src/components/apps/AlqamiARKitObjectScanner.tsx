@@ -36,6 +36,7 @@ import {
 import { spatialSound } from '../../utils/spatialSound';
 import { ALQAMI_ARTIFACTS, AlqamiArtifact } from '../../data/alqamiArtifacts';
 import { CodeReader } from '../../scan/codeReader';
+import { objectUrl } from '../../object/links';
 import { resolveCode } from '../../scan/resolveCode';
 import { SightTarget } from '../../recognize/recognizer';
 import { StatueAR } from '../scan/StatueAR';
@@ -217,7 +218,8 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
   }, [lockedCode, activeTarget.id]);
 
   const downloadCatalogLabel = async () => {
-    const dataUrl = await QRCode.toDataURL(`ALQAMI:${activeTarget.id}`, {
+    // The object's web page: any phone camera opens it; this scanner reads it too (?artifact=<id>).
+    const dataUrl = await QRCode.toDataURL(objectUrl(activeTarget.id), {
       width: 720,
       margin: 2,
       errorCorrectionLevel: 'M',
