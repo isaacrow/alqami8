@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowUp, Play, Camera, Crosshair, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
+import { ArrowLeft, ArrowUp, BookOpen, Play, Camera, Crosshair, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
 import { KeyTerminal } from './KeyTerminal';
 import { CHARACTERS, pageCharacter } from './characters';
 
@@ -9,6 +9,7 @@ const SHORT = { jawahiri: { ar: 'الجواهري', en: 'al-Jawahiri' }, mutanab
 import { GEMINI_VOICES, LiveConversation, LiveState, loadSettings, saveSettings, VoiceKind, VoiceSettings } from './liveVoice';
 import { Stage } from './stage';
 import { VisualGyro } from './visualGyro';
+import { LectureSheet } from './LectureSheet';
 import { clock, LectureHit, loadLectures } from './lectureSearch';
 import { Gesture, VisitorTracker } from './tracking';
 
@@ -39,12 +40,14 @@ export const CharacterApp: React.FC = () => {
   const [loaded, setLoaded] = useState(0);
   const [loadError, setLoadError] = useState('');
   const [settings, setSettings] = useState<VoiceSettings>(loadSettings);
-  const [sheet, setSheet] = useState<'none' | 'settings' | 'about' | 'terminal'>(() => (location.hash === '#keys' ? 'terminal' : 'none'));
+  const [sheet, setSheet] = useState<'none' | 'settings' | 'about' | 'terminal' | 'lectures'>(() => (location.hash === '#keys' ? 'terminal' : 'none'));
   const [state, setState] = useState<LiveState>('idle');
   const [stateDetail, setStateDetail] = useState('');
   const [his, setHis] = useState('');
   /** The recorded lectures he drew on for this answer: shown as "listen to him" links. */
   const [sources, setSources] = useState<LectureHit[]>([]);
+  /** The passage the lectures window opens on (a "hear him" card), or null to open on the search. */
+  const [lectureClip, setLectureClip] = useState<LectureHit | null>(null);
   const [visitor, setVisitor] = useState('');
   const [typing, setTyping] = useState(false);
   const [typed, setTyped] = useState('');
@@ -136,6 +139,10 @@ export const CharacterApp: React.FC = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (live.current) live.current.muted = sheet === 'lectures' || muted;
+  }, [sheet, muted]);
 
   const stopCamera = () => {
     const v = video.current;
@@ -295,6 +302,18 @@ export const CharacterApp: React.FC = () => {
         <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className="h-10 px-3 rounded-full bg-white/10 backdrop-blur text-[13px] font-semibold">
           {lang === 'ar' ? 'EN' : 'ع'}
         </button>
+        {C.lectures && (
+          <button
+            onClick={() => {
+              setLectureClip(null);
+              setSheet('lectures');
+            }}
+            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center"
+            aria-label={t('محاضراته', 'His lectures')}
+          >
+            <BookOpen className="w-5 h-5" />
+          </button>
+        )}
         <button onClick={() => setSheet('about')} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center" aria-label={t('عنه', 'About him')}>
           <Info className="w-5 h-5" />
         </button>
@@ -384,13 +403,14 @@ export const CharacterApp: React.FC = () => {
         {sources.length > 0 && (
           <div className="flex gap-2 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none]">
             {sources.map((s) => (
-              <a
+              <button
                 key={s.url}
-                href={s.url}
-                target="_blank"
-                rel="noopener noreferrer"
+                onClick={() => {
+                  setLectureClip(s);
+                  setSheet('lectures');
+                }}
                 dir="rtl"
-                className="shrink-0 max-w-[78vw] flex items-center gap-2.5 rounded-2xl bg-white/15 backdrop-blur border border-white/15 pl-3 pr-2 py-2 active:scale-[0.98] transition"
+                className="shrink-0 max-w-[78vw] text-start flex items-center gap-2.5 rounded-2xl bg-white/15 backdrop-blur border border-white/15 pl-3 pr-2 py-2 active:scale-[0.98] transition"
               >
                 <span className="w-9 h-9 rounded-full bg-[#FFD60A] text-black flex items-center justify-center shrink-0">
                   <Play className="w-4 h-4 fill-current" />
@@ -399,7 +419,7 @@ export const CharacterApp: React.FC = () => {
                   <span className="block text-[11px] text-white/60">{t('اسمعه بصوته الحقيقي', 'Hear him in his own voice')} · {clock(s.start)}</span>
                   <span dir="auto" className="block text-[13px] font-semibold truncate">{s.title}</span>
                 </span>
-              </a>
+              </button>
             ))}
           </div>
         )}
@@ -483,6 +503,9 @@ export const CharacterApp: React.FC = () => {
 
       {sheet === 'settings' && <SettingsSheet lang={lang} settings={settings} onClose={() => setSheet('none')} onSave={(s) => (setSettings(s), saveSettings(s), setSheet('none'))} />}
       {sheet === 'terminal' && <KeyTerminal settings={settings} onClose={() => setSheet('none')} onSave={(s) => (setSettings(s), saveSettings(s))} />}
+      {sheet === 'lectures' && C.lectures && (
+        <LectureSheet url={C.lectures} lang={lang} name={t(C.nameAr, C.nameEn)} clip={lectureClip} onClose={() => setSheet('none')} />
+      )}
       {sheet === 'about' && <AboutSheet lang={lang} onClose={() => setSheet('none')} />}
     </div>
   );
