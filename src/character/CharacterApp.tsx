@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Camera, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Camera, Crosshair, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
 import { KeyTerminal } from './KeyTerminal';
 import { CHARACTERS, pageCharacter } from './characters';
 
@@ -46,6 +46,9 @@ export const CharacterApp: React.FC = () => {
   const [typed, setTyped] = useState('');
   const [muted, setMuted] = useState(false);
   const [toast, setToast] = useState('');
+  /** In the room: which way to turn the phone to find him (null when he is on screen). */
+  const [lost, setLost] = useState<{ x: number; y: number } | null>(null);
+  const [noMotion, setNoMotion] = useState(false);
   const [trackerReady, setTrackerReady] = useState(false);
   const [view, setViewState] = useState<'model' | '4d'>('model');
   const [viewLoading, setViewLoading] = useState(false);
@@ -93,6 +96,7 @@ export const CharacterApp: React.FC = () => {
     const debug = new URLSearchParams(location.search).has('debug') ? ((window as any).__debug = { stage: s, voice: null, bright: null, mouth: null, look: null, say: (url: string) => { live.current ??= new LiveConversation(loadSettings(), '', { onState: () => {}, onHisWords: () => {}, onVisitorWords: () => {} }); return live.current.playClip(url); } }) : null;
     let last = performance.now();
     let raf = 0;
+    let frameNo = 0;
     const loop = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
@@ -106,6 +110,10 @@ export const CharacterApp: React.FC = () => {
       const voice = debug?.voice != null ? { level: debug.voice, bright: debug.bright ?? 0.5, ...(debug.mouth ? { mouth: debug.mouth } : {}) } : live.current?.features(level, spectrum) ?? quiet;
       if (debug) (debug as { last?: unknown }).last = voice;
       s.frame(dt, voice, debug?.look ?? look);
+      if ((frameNo = (frameNo + 1) % 12) === 0) {
+        const off = s.offscreen();
+        setLost((prev) => (!off && !prev ? prev : off && prev && Math.abs(off.x - prev.x) + Math.abs(off.y - prev.y) < 0.15 ? prev : off));
+      }
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -132,6 +140,7 @@ export const CharacterApp: React.FC = () => {
     cameraMode.current = 'off';
     setCam(mode);
     await stage.current?.setMode(mode === 'back' ? 'ar' : 'studio');
+    setNoMotion(mode === 'back' && stage.current?.motionOk === false);
     if (mode === 'off') return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -324,6 +333,37 @@ export const CharacterApp: React.FC = () => {
       )}
       {loadError && <p className="absolute inset-x-6 top-1/2 z-20 text-center text-rose-300 text-[13px]">{t('تعذّر تحميل المجسّم', 'The model could not load')}</p>}
 
+      {/* In the room and he is off screen: an arrow to him, and a button that brings him in front of the phone. */}
+      {/* Motion refused: he would be stuck to the screen instead of standing in the room. */}
+      {ar && noMotion && (
+        <div className="absolute inset-x-4 top-[calc(env(safe-area-inset-top)+160px)] z-20 rounded-2xl bg-black/70 backdrop-blur border border-white/20 p-3 text-center">
+          <p className="text-[13px] leading-snug">{t('ليبقى في مكانه في غرفتك يحتاج الموقع إلى حركة الهاتف.', 'To stay put in your room he needs the phone’s motion.')}</p>
+          <button
+            onClick={async () => setNoMotion(!(await stage.current?.retryMotion()))}
+            className="mt-2 h-10 px-4 rounded-full bg-[#FFD60A] text-black text-[14px] font-bold"
+          >
+            {t('اسمح بحركة الهاتف', 'Allow motion')}
+          </button>
+          <p className="mt-2 text-[11px] text-white/55">{t('إن لم يظهر السؤال: أغلق الصفحة وافتحها من جديد في Safari.', 'No question shown? Close the page and open it again in Safari.')}</p>
+        </div>
+      )}
+      {ar && lost && !noMotion && (
+        <div className="absolute inset-0 z-20 pointer-events-none">
+          <div
+            className="absolute left-1/2 top-1/2 w-14 h-14 -ml-7 -mt-7 rounded-full bg-[#FFD60A] text-black flex items-center justify-center shadow-lg"
+            style={{ transform: `translate(${lost.x * 38}vw, ${-lost.y * 30}vh) rotate(${Math.atan2(lost.x, lost.y)}rad)` }}
+          >
+            <ArrowUp className="w-7 h-7" strokeWidth={2.6} />
+          </div>
+          <button
+            onClick={() => stage.current?.recenter()}
+            className="pointer-events-auto absolute left-1/2 -translate-x-1/2 top-[calc(env(safe-area-inset-top)+160px)] h-11 px-4 rounded-full bg-black/60 backdrop-blur border border-white/20 text-[14px] font-semibold flex items-center gap-2"
+          >
+            <Crosshair className="w-4 h-4" />
+            {t('أحضره أمامي', 'Bring him here')}
+          </button>
+        </div>
+      )}
       {toast && <div className="absolute top-1/3 inset-x-0 z-30 text-center text-5xl drop-shadow-lg animate-bounce pointer-events-none">{isGlyph(toast) ? <Glyph e={toast} className="inline-block w-14 h-14 text-white" /> : toast}</div>}
 
       {/* Subtitles and controls */}

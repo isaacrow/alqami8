@@ -28,6 +28,10 @@ export class Stage {
   private gyro = new GyroCamera();
   private needsPlacement = false;
   private t = 0;
+  /** When AR started, and whether he was placed before the phone said where it points (then he is placed again). */
+  private arStart = 0;
+  private placedBlind = false;
+  private probe = new THREE.Vector3();
   mode: StageMode = 'studio';
   /** Extra turn of his whole body, set by pinching or dragging. */
   bodyYaw = 0;
@@ -89,6 +93,9 @@ export class Stage {
     if (this.cloud) this.cloud.object.visible = view === '4d';
   }
 
+  /** False when the phone would not give its motion (permission refused): then he cannot stay put in the room. */
+  motionOk = true;
+
   async setMode(mode: StageMode) {
     this.mode = mode;
     this.ring.visible = mode === 'ar';
@@ -96,7 +103,9 @@ export class Stage {
       this.camera.position.set(0, 0, 0);
       this.camera.fov = 62;
       this.needsPlacement = true;
-      await this.gyro.start();
+      this.arStart = this.t;
+      this.placedBlind = false;
+      this.motionOk = await this.gyro.start();
     } else {
       this.gyro.stop();
       this.camera.quaternion.identity();
@@ -106,6 +115,36 @@ export class Stage {
       this.camera.fov = 32;
     }
     this.resize();
+  }
+
+  /** Ask for the phone's motion again (call from a tap): iPhone only shows the question on a tap. */
+  async retryMotion() {
+    this.motionOk = await this.gyro.start();
+    if (this.motionOk) this.needsPlacement = true;
+    return this.motionOk;
+  }
+
+  /** In AR: bring him back in front of the phone (the "bring him here" button). */
+  recenter() {
+    if (this.mode === 'ar') this.needsPlacement = true;
+  }
+
+  /**
+   * In AR, where he is when he is off screen: a direction on the screen (x right, y up) to point an arrow at, or null
+   * when he is in view.
+   */
+  offscreen(): { x: number; y: number } | null {
+    if (this.mode !== 'ar' || this.needsPlacement) return null;
+    this.camera.updateMatrixWorld();
+    const p = this.probe.copy(this.holder.position).add(new THREE.Vector3(0, 0.18 * this.arScale, 0));
+    const v = p.clone().project(this.camera);
+    if (v.z < 1 && Math.abs(v.x) < 0.95 && Math.abs(v.y) < 0.95) return null;
+    // As angles from where the phone points: behind the visitor reads as "turn left/right", never "up".
+    const local = this.camera.worldToLocal(p);
+    const yaw = Math.atan2(local.x, -local.z);
+    const pitch = Math.atan2(local.y, Math.hypot(local.x, local.z));
+    const n = Math.hypot(yaw, pitch) || 1;
+    return { x: yaw / n, y: pitch / n };
   }
 
   /** In AR: put him in front of where the phone points now. */
@@ -143,7 +182,15 @@ export class Stage {
     this.t += dt;
     if (this.mode === 'ar') {
       this.gyro.apply(this.camera);
-      if (this.needsPlacement && (this.gyro.available || this.t > 0.6)) this.placeInFront();
+      // Wait for the phone to say where it points (the first reading can take a moment). Placing him before it came
+      // left him wherever the phone's compass heading was not: usually off to the side or behind the visitor.
+      if (this.needsPlacement && (this.gyro.available || this.t - this.arStart > 2.5)) {
+        this.placeInFront();
+        this.placedBlind = !this.gyro.available;
+      } else if (this.placedBlind && this.gyro.available) {
+        this.placeInFront();
+        this.placedBlind = false;
+      }
       // Face the phone, hover gently.
       const p = this.holder.position;
       this.holder.rotation.y = Math.atan2(-p.x, -p.z) + this.bodyYaw;
