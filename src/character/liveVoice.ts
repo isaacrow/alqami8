@@ -36,6 +36,8 @@ export interface VoiceSettings {
   elevenVoiceId: string;
   /** Base URL of his cloned-voice server (POST /tts → 16-bit PCM). Empty = not used. */
   voiceServer: string;
+  /** Listen only while the talk button is held (for noisy galleries). */
+  holdOnly?: boolean;
 }
 
 export type VoiceKind = 'gemini' | 'cloned' | 'eleven';
@@ -122,23 +124,45 @@ export interface LiveHandlers {
   };
 }
 
-// Microphone → 16 kHz 16-bit PCM in 40 ms packets. Runs on the audio thread.
+// Microphone → 16 kHz 16-bit PCM in 40 ms packets. Runs on the audio thread: a 4th-order low-pass at 7 kHz (two
+// Butterworth biquads), then samples at exact 16 kHz times by linear interpolation.
 const WORKLET = `
+function biquad(fc, fs, q) {
+  const w = 2 * Math.PI * fc / fs, c = Math.cos(w), al = Math.sin(w) / (2 * q), a0 = 1 + al;
+  return { b0: (1 - c) / 2 / a0, b1: (1 - c) / a0, b2: (1 - c) / 2 / a0, a1: -2 * c / a0, a2: (1 - al) / a0, x1: 0, x2: 0, y1: 0, y2: 0 };
+}
+function run(f, x) {
+  const y = f.b0 * x + f.b1 * f.x1 + f.b2 * f.x2 - f.a1 * f.y1 - f.a2 * f.y2;
+  f.x2 = f.x1; f.x1 = x; f.y2 = f.y1; f.y1 = y;
+  return y;
+}
 class Down extends AudioWorkletProcessor {
-  constructor() { super(); this.ratio = sampleRate / 16000; this.acc = 0; this.sum = 0; this.n = 0; this.buf = new Int16Array(640); this.i = 0; }
+  constructor() {
+    super();
+    this.step = sampleRate / 16000;
+    this.f1 = biquad(7000, sampleRate, 0.5412);
+    this.f2 = biquad(7000, sampleRate, 1.3066);
+    this.prev = 0; this.pos = 0; this.t = 0;
+    this.buf = new Int16Array(640); this.i = 0;
+  }
   process(inputs) {
     const ch = inputs[0] && inputs[0][0];
     if (!ch) return true;
     for (let k = 0; k < ch.length; k++) {
-      this.sum += ch[k]; this.n++; this.acc++;
-      if (this.acc >= this.ratio) {
-        this.acc -= this.ratio;
-        const v = Math.max(-1, Math.min(1, this.sum / this.n));
-        this.sum = 0; this.n = 0;
+      const x = run(this.f2, run(this.f1, ch[k]));
+      // Output samples whose time falls between the previous input sample (pos - 1) and this one (pos).
+      while (this.t <= this.pos) {
+        const frac = this.t - (this.pos - 1);
+        const v = Math.max(-1, Math.min(1, this.prev + (x - this.prev) * frac));
         this.buf[this.i++] = v < 0 ? v * 0x8000 : v * 0x7fff;
         if (this.i === this.buf.length) { this.port.postMessage(this.buf.slice(0)); this.i = 0; }
+        this.t += this.step;
       }
+      this.prev = x;
+      this.pos++;
     }
+    // Keep the counters small.
+    if (this.pos > 1e6) { this.pos -= 1e6; this.t -= 1e6; }
     return true;
   }
 }
@@ -228,11 +252,62 @@ export class LiveConversation {
     const url = URL.createObjectURL(new Blob([WORKLET], { type: 'text/javascript' }));
     await this.ctx.audioWorklet.addModule(url);
     URL.revokeObjectURL(url);
-    const src = this.ctx.createMediaStreamSource(this.mic);
     this.micNode = new AudioWorkletNode(this.ctx, 'alqami-down16k');
-    src.connect(this.micNode);
     this.micNode.port.onmessage = (e: MessageEvent<Int16Array>) => this.sendMic(e.data);
+    this.attachMic();
+    this.watchInterruptions();
     this.connect(openingCue);
+  }
+
+  private micSource: MediaStreamAudioSourceNode | null = null;
+  private attachMic() {
+    if (!this.mic || !this.micNode) return;
+    this.micSource?.disconnect();
+    this.micSource = this.ctx.createMediaStreamSource(this.mic);
+    this.micSource.connect(this.micNode);
+    // iPhone ends the track when something else takes the microphone; ask for it again.
+    this.mic.getAudioTracks().forEach((t) => (t.onended = () => void this.recoverMic()));
+  }
+
+  private recovering = false;
+  /** The microphone or the audio was taken away (iPhone: a video, a call, the screen locked): take it back. */
+  private async recoverMic() {
+    if (this.closedByUs || this.recovering) return;
+    this.recovering = true;
+    try {
+      if (this.ctx.state !== 'running') await this.ctx.resume().catch(() => {});
+      const live = this.mic?.getAudioTracks().some((t) => t.readyState === 'live' && !t.muted);
+      if (!live) {
+        this.mic?.getTracks().forEach((t) => t.stop());
+        this.mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
+        this.attachMic();
+      }
+    } catch (e) {
+      console.warn('Microphone not back yet:', e);
+    } finally {
+      this.recovering = false;
+    }
+  }
+
+  private unwatch: (() => void) | null = null;
+  private watchInterruptions() {
+    const check = () => {
+      if (document.visibilityState === 'visible') void this.recoverMic();
+    };
+    // iPhone only lets audio resume from a touch: the next touch anywhere brings it back.
+    const touch = () => {
+      if (this.ctx.state !== 'running' || this.mic?.getAudioTracks().some((t) => t.readyState !== 'live')) void this.recoverMic();
+    };
+    this.ctx.onstatechange = () => {
+      if (this.ctx.state !== 'running' && !this.closedByUs) void this.recoverMic();
+    };
+    document.addEventListener('visibilitychange', check);
+    window.addEventListener('pointerdown', touch, true);
+    this.unwatch = () => {
+      document.removeEventListener('visibilitychange', check);
+      window.removeEventListener('pointerdown', touch, true);
+      this.ctx.onstatechange = null;
+    };
   }
 
   /**
@@ -296,7 +371,9 @@ export class LiveConversation {
             outputAudioTranscription: {},
             // Answer as soon as the visitor pauses.
             realtimeInputConfig: {
-              automaticActivityDetection: { startOfSpeechSensitivity: 'START_SENSITIVITY_HIGH', endOfSpeechSensitivity: 'END_SENSITIVITY_HIGH', prefixPaddingMs: 120, silenceDurationMs: 500 },
+              // Start on clear speech only (gallery noise should not open a turn); end after ~1 s of quiet, not 0.5 s:
+              // Arabic speakers pause mid-sentence, and the cut-off pieces were heard as Spanish or Portuguese.
+              automaticActivityDetection: { startOfSpeechSensitivity: 'START_SENSITIVITY_LOW', endOfSpeechSensitivity: 'END_SENSITIVITY_LOW', prefixPaddingMs: 300, silenceDurationMs: 1000 },
             },
             sessionResumption: this.resumeHandle ? { handle: this.resumeHandle } : {},
             contextWindowCompression: { slidingWindow: {} },
@@ -356,12 +433,65 @@ export class LiveConversation {
     this.connect();
   }
 
+  /** The microphone's loudness (0..1, the last 40 ms), for the level meter. */
+  micLevel = 0;
+  /** How loud his own voice comes back into the microphone, per unit of his output (learnt on this phone). */
+  private leak = 0.5;
+  /** Hold-to-talk: while held, the visitor's voice always goes through (and he stops talking). */
+  private holding = false;
+  /** Listen only while the talk button is held (for noisy galleries). */
+  holdOnly = false;
+  private silence = new Int16Array(640);
+  private outBuf = new Float32Array(512);
+
+  /** His voice's loudness at the speaker now (the analyser sits before the playback delay, close enough at 40 ms). */
+  private outLevel() {
+    this.analyser.getFloatTimeDomainData(this.outBuf);
+    let s = 0;
+    for (let i = 0; i < this.outBuf.length; i++) s += this.outBuf[i] * this.outBuf[i];
+    return Math.sqrt(s / this.outBuf.length);
+  }
+
   private sendMic(pcm: Int16Array) {
-    if (this.muted || this.ws?.readyState !== WebSocket.OPEN) return;
-    // While he speaks, the phone's speaker leaks into the microphone; only a voice clearly louder than that is let
-    // through, so the visitor can still interrupt him.
-    if (this.isSpeaking() && rms(pcm) < 0.07) return;
-    this.ws.send(JSON.stringify({ realtimeInput: { audio: { data: toBase64(new Uint8Array(pcm.buffer)), mimeType: 'audio/pcm;rate=16000' } } }));
+    const level = rms(pcm);
+    this.micLevel = level;
+    if (this.ws?.readyState !== WebSocket.OPEN) return;
+    let pass = !this.muted && (!this.holdOnly || this.holding);
+    if (pass && !this.holding && this.isSpeaking()) {
+      // His voice leaks from the speaker into the microphone. Learn how much on this phone (the quietest ratio seen
+      // while he talks is the leak alone), and let the visitor through only when clearly louder than that, so they
+      // can still interrupt him. The old fixed bar (0.07) was too high for a normal voice at arm's length.
+      const out = this.outLevel();
+      if (out > 0.01) {
+        const ratio = level / out;
+        this.leak = ratio < this.leak ? this.leak * 0.7 + ratio * 0.3 : this.leak * 0.995 + ratio * 0.005;
+        pass = level > Math.max(0.012, this.leak * out * 2.5);
+      }
+    }
+    // Always a steady stream: silence instead of a gap, so the speech detector and the transcription see continuous
+    // audio (dropped packets made the visitor's words arrive in broken pieces).
+    const send = pass ? pcm : this.silence;
+    this.ws.send(JSON.stringify({ realtimeInput: { audio: { data: toBase64(new Uint8Array(send.buffer)), mimeType: 'audio/pcm;rate=16000' } } }));
+  }
+
+  /** Hold-to-talk pressed: he stops, and the visitor's voice goes through whatever the echo gate thinks. */
+  press() {
+    this.holding = true;
+    if (this.isSpeaking()) this.flush();
+    void this.ctx.resume();
+  }
+  release() {
+    this.holding = false;
+  }
+
+  /** "Say it again": the visitor says he misunderstood them. */
+  sayAgain(lang: 'ar' | 'en') {
+    this.flush();
+    this.sendText(
+      lang === 'ar'
+        ? '[الزائر يقول إنك لم تفهم كلامه. اعتذر بجملة قصيرة جدًا بالعربية واطلب منه أن يعيد سؤاله.]'
+        : '[The visitor says you misunderstood them. Apologise in one very short sentence and ask them to repeat their question.]'
+    );
   }
 
   /** A typed question, or a gesture cue like "[the visitor waves]". */
@@ -569,6 +699,9 @@ export class LiveConversation {
     this.flush();
     this.ws?.close();
     this.ws = null;
+    this.unwatch?.();
+    this.unwatch = null;
+    this.micSource?.disconnect();
     this.micNode?.disconnect();
     this.mic?.getTracks().forEach((t) => t.stop());
     this.mic = null;
