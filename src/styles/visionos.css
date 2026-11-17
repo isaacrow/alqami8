@@ -1090,3 +1090,21 @@ textarea,
 .vision-glass.fixed {
   position: fixed;
 }
+
+/* Home grid: tiles pop in one after another when it opens. */
+.alq-tile {
+  animation: alq-pop 520ms cubic-bezier(0.2, 1.25, 0.35, 1) both;
+  animation-delay: calc(var(--i, 0) * 32ms + 80ms);
+}
+@keyframes alq-pop {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.55);
+    filter: blur(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .alq-tile {
+    animation: none;
+  }
+}

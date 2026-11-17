@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { AppId } from '../../types/spatial';
 import { spatialSound } from '../../utils/spatialSound';
+import { morph, navigateFrom, shrinkAway } from './viewTransition';
 
 interface HomeViewLauncherProps {
   lang?: 'ar' | 'en';
@@ -88,20 +89,35 @@ const MORE: HomeAppItem[] = [
   { key: 'quicklook', id: 'quicklook', ar: 'معاينة سريعة', en: 'Quick Look', bg: 'linear-gradient(180deg, #64748b 0%, #334155 100%)', Icon: Eye },
 ];
 
+
 export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({ isOpen, onLaunchApp, onOpenControlCenter, onToggleEnvironments, lang = 'ar' }) => {
   const [folderOpen, setFolderOpen] = useState(false);
   if (!isOpen) return null;
   const now = new Date();
   const name = (a: HomeAppItem) => (lang === 'ar' ? a.ar : a.en);
-  const open = (a: HomeAppItem) => {
+  // The tapped icon grows into what it opens: a page of the site, or a window here.
+  const open = (a: HomeAppItem, icon: HTMLElement | null) => {
     spatialSound.playPinchTap();
-    if (a.href) window.location.href = a.href;
-    else if (a.id) onLaunchApp(a.id);
+    if (a.href) navigateFrom(icon, a.href);
+    else if (a.id) {
+      const id = a.id;
+      morph(icon, () => onLaunchApp(id), `[data-window-id="${id}"]`, 'open', id);
+    }
   };
+  const openFolder = (tileIcon: HTMLElement | null) => morph(tileIcon, () => setFolderOpen(true), '[data-folder-panel]');
+  const closeFolder = () => shrinkAway(document.querySelector<HTMLElement>('[data-folder-panel]'), () => setFolderOpen(false));
 
-  const tile = (a: HomeAppItem) => (
-    <button key={a.key} onMouseEnter={() => spatialSound.playHover()} onClick={() => open(a)} className="group flex flex-col items-center gap-1.5 min-w-0">
+  // Tiles pop in one after another (--i is the tile's place).
+  const tile = (a: HomeAppItem, i: number) => (
+    <button
+      key={a.key}
+      style={{ ['--i' as string]: i }}
+      onMouseEnter={() => spatialSound.playHover()}
+      onClick={(e) => open(a, e.currentTarget.querySelector<HTMLElement>('[data-icon]'))}
+      className="alq-tile group flex flex-col items-center gap-1.5 min-w-0"
+    >
       <div
+        data-icon
         style={{ background: a.bg }}
         className="w-[62px] h-[62px] sm:w-[72px] sm:h-[72px] rounded-[20px] flex items-center justify-center shadow-[0_14px_30px_rgba(0,0,0,0.4),inset_0_2px_2px_rgba(255,255,255,0.45)] border border-white/25 transition-transform duration-200 group-hover:scale-105 group-active:scale-95"
       >
@@ -135,8 +151,12 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({ isOpen, onLa
           <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className="grid grid-cols-4 gap-x-3 gap-y-5">
             {MAIN.map(tile)}
             {/* The rest, in one folder. */}
-            <button onClick={() => setFolderOpen(true)} className="group flex flex-col items-center gap-1.5 min-w-0">
-              <div className="w-[62px] h-[62px] sm:w-[72px] sm:h-[72px] rounded-[20px] bg-white/20 backdrop-blur-md border border-white/25 p-2 grid grid-cols-3 gap-1 shadow-[0_14px_30px_rgba(0,0,0,0.35)] group-active:scale-95 transition-transform">
+            <button
+              style={{ ['--i' as string]: MAIN.length }}
+              onClick={(e) => openFolder(e.currentTarget.querySelector<HTMLElement>('[data-icon]'))}
+              className="alq-tile group flex flex-col items-center gap-1.5 min-w-0"
+            >
+              <div data-icon className="w-[62px] h-[62px] sm:w-[72px] sm:h-[72px] rounded-[20px] bg-white/20 backdrop-blur-md border border-white/25 p-2 grid grid-cols-3 gap-1 shadow-[0_14px_30px_rgba(0,0,0,0.35)] group-active:scale-95 transition-transform">
                 {MORE.slice(0, 9).map((a) => (
                   <span key={a.key} style={{ background: a.bg }} className="rounded-[5px] flex items-center justify-center">
                     <a.Icon className="w-2.5 h-2.5 text-white" strokeWidth={2.4} />
@@ -184,14 +204,14 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({ isOpen, onLa
       </div>
 
       {folderOpen && (
-        <div className="fixed inset-0 z-[70] bg-black/45 backdrop-blur-xl flex items-center justify-center p-5" onClick={() => setFolderOpen(false)}>
-          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-[460px] max-h-[80dvh] overflow-y-auto rounded-[32px] vision-glass p-5">
+        <div className="fixed inset-0 z-[70] bg-black/45 backdrop-blur-xl flex items-center justify-center p-5" onClick={closeFolder}>
+          <div data-folder-panel onClick={(e) => e.stopPropagation()} className="w-full max-w-[460px] max-h-[80dvh] overflow-y-auto rounded-[32px] vision-glass p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[17px] font-semibold text-white flex items-center gap-2">
                 <Folder className="w-4 h-4" />
                 {lang === 'ar' ? 'المزيد' : 'More'}
               </h2>
-              <button onClick={() => setFolderOpen(false)} aria-label="Close" className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center text-white">
+              <button onClick={closeFolder} aria-label="Close" className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center text-white">
                 <X className="w-4 h-4" />
               </button>
             </div>

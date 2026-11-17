@@ -1,0 +1,178 @@
+/*
+ * How ALQAMI moves from one thing to another (View Transitions). Injected into the <head> of every page by
+ * vite.config.ts (alqamiTransitions), so the old page and the new one both have it before they draw.
+ *
+ *  - Any page change: the old page sinks back and blurs, the new one rises into place.
+ *  - open:      the tapped icon grows into the window or page ("app-morph").
+ *  - close / to-home: the window or page shrinks into the middle and fades.
+ *  - next / prev: one character to the next slides sideways; the top bar stays, the yellow pill glides.
+ *  - home-open / home-close: the home grid zooms in from behind / the view zooms through it.
+ */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: 300ms cubic-bezier(0.4, 0, 1, 1) both alq-sink;
+}
+::view-transition-new(root) {
+  animation: 500ms cubic-bezier(0.16, 1, 0.3, 1) 40ms both alq-rise;
+}
+@keyframes alq-sink {
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(10px);
+  }
+}
+@keyframes alq-rise {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+    filter: blur(12px);
+  }
+}
+
+/* An icon growing into its window or page. */
+::view-transition-group(app-morph) {
+  animation-duration: 560ms;
+  animation-timing-function: cubic-bezier(0.2, 0.9, 0.15, 1);
+  border-radius: 30px;
+  overflow: hidden;
+}
+::view-transition-old(app-morph),
+::view-transition-new(app-morph) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation-duration: 560ms;
+}
+::view-transition-old(app-morph) {
+  animation-name: alq-fade-out;
+}
+::view-transition-new(app-morph) {
+  animation-name: alq-fade-in;
+}
+@keyframes alq-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes alq-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+/* Behind a growing icon the rest of the screen only dims, so the eye stays on the icon. */
+html:active-view-transition-type(open)::view-transition-old(root) {
+  animation: 420ms ease both alq-dim;
+}
+html:active-view-transition-type(open)::view-transition-new(root) {
+  animation: 420ms ease both alq-fade-in;
+}
+@keyframes alq-dim {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+    filter: blur(6px) brightness(0.7);
+  }
+}
+
+/* A window closing, or a page going back home: it shrinks into the middle. */
+html:active-view-transition-type(close)::view-transition-old(app-morph),
+html:active-view-transition-type(to-home)::view-transition-old(app-morph) {
+  animation: 340ms cubic-bezier(0.4, 0, 1, 1) both alq-shrink;
+}
+html:active-view-transition-type(close)::view-transition-group(app-morph),
+html:active-view-transition-type(to-home)::view-transition-group(app-morph) {
+  animation: none;
+}
+@keyframes alq-shrink {
+  to {
+    opacity: 0;
+    transform: scale(0.62);
+    filter: blur(8px);
+  }
+}
+
+/* Character to character (the switcher reads right to left: next is further left). */
+html:active-view-transition-type(next)::view-transition-old(root) {
+  animation: 360ms cubic-bezier(0.4, 0, 0.2, 1) both alq-out-right;
+}
+html:active-view-transition-type(next)::view-transition-new(root) {
+  animation: 520ms cubic-bezier(0.16, 1, 0.3, 1) both alq-in-left;
+}
+html:active-view-transition-type(prev)::view-transition-old(root) {
+  animation: 360ms cubic-bezier(0.4, 0, 0.2, 1) both alq-out-left;
+}
+html:active-view-transition-type(prev)::view-transition-new(root) {
+  animation: 520ms cubic-bezier(0.16, 1, 0.3, 1) both alq-in-right;
+}
+@keyframes alq-out-right {
+  to {
+    opacity: 0;
+    transform: translateX(30%) scale(0.96);
+  }
+}
+@keyframes alq-out-left {
+  to {
+    opacity: 0;
+    transform: translateX(-30%) scale(0.96);
+  }
+}
+@keyframes alq-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30%) scale(0.96);
+  }
+}
+@keyframes alq-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30%) scale(0.96);
+  }
+}
+::view-transition-group(char-pill) {
+  animation-duration: 460ms;
+  animation-timing-function: cubic-bezier(0.3, 1.35, 0.5, 1);
+}
+::view-transition-group(char-header),
+::view-transition-group(char-switch) {
+  animation-duration: 300ms;
+}
+
+/* The home grid: zooms in from behind the windows; leaving it, the view zooms through. */
+html:active-view-transition-type(home-open)::view-transition-old(root) {
+  animation: 300ms cubic-bezier(0.4, 0, 1, 1) both alq-sink;
+}
+html:active-view-transition-type(home-open)::view-transition-new(root) {
+  animation: 520ms cubic-bezier(0.16, 1, 0.3, 1) both alq-home-in;
+}
+html:active-view-transition-type(home-close)::view-transition-old(root) {
+  animation: 320ms cubic-bezier(0.4, 0, 1, 1) both alq-home-out;
+}
+html:active-view-transition-type(home-close)::view-transition-new(root) {
+  animation: 480ms cubic-bezier(0.16, 1, 0.3, 1) 60ms both alq-rise;
+}
+@keyframes alq-home-in {
+  from {
+    opacity: 0;
+    transform: scale(1.14);
+    filter: blur(16px);
+  }
+}
+@keyframes alq-home-out {
+  to {
+    opacity: 0;
+    transform: scale(1.12);
+    filter: blur(14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

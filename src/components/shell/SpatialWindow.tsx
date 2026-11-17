@@ -2,6 +2,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import React, { useState, useRef, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { spatialSound } from '../../utils/spatialSound';
+import { isMorphing, shrinkAway } from './viewTransition';
 
 interface SpatialWindowProps {
   id: string;
@@ -63,7 +64,7 @@ export const SpatialWindow: React.FC<SpatialWindowProps> = ({
     width: typeof window === 'undefined' ? 1280 : window.innerWidth,
     height: typeof window === 'undefined' ? 800 : window.innerHeight,
   }));
-  const [hasAppeared, setHasAppeared] = useState(false);
+  const [hasAppeared, setHasAppeared] = useState(() => isMorphing(id));
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [closeHovered, setCloseHovered] = useState(false);
@@ -189,6 +190,7 @@ export const SpatialWindow: React.FC<SpatialWindowProps> = ({
 
   return (
     <div
+      data-window-id={id}
       onPointerDown={onFocus}
       style={{
         width: `${renderedWidth}px`,
@@ -290,7 +292,8 @@ export const SpatialWindow: React.FC<SpatialWindowProps> = ({
           onClick={(e) => {
             e.stopPropagation();
             spatialSound.playPinchTap();
-            onClose();
+            // The window shrinks away.
+            shrinkAway(e.currentTarget.closest<HTMLElement>('[data-window-id]'), onClose);
           }}
           className={`rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-xl border border-white/30 ${
             closeHovered

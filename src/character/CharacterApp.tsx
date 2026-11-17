@@ -295,7 +295,7 @@ export const CharacterApp: React.FC = () => {
       <div ref={mount} className="absolute inset-0 z-10" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} />
 
       {/* Top bar */}
-      <header className="absolute top-0 inset-x-0 z-30 flex items-center gap-2 px-3 pt-[calc(env(safe-area-inset-top)+10px)] pb-2 bg-gradient-to-b from-black/60 to-transparent">
+      <header style={{ viewTransitionName: 'char-header' }} className="absolute top-0 inset-x-0 z-30 flex items-center gap-2 px-3 pt-[calc(env(safe-area-inset-top)+10px)] pb-2 bg-gradient-to-b from-black/60 to-transparent">
         <a href="./" className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center" aria-label={t('رجوع', 'Back')}>
           <ArrowLeft className={`w-5 h-5 ${lang === 'ar' ? 'rotate-180' : ''}`} />
         </a>
@@ -331,13 +331,14 @@ export const CharacterApp: React.FC = () => {
 
       {/* Two ways to see him: the sculpted bust that speaks, or the filmed 4D capture. */}
       {/* Switch character: the three talking characters, each on its own page. */}
-      <nav aria-label={t('الشخصيات', 'Characters')} className="absolute top-[calc(env(safe-area-inset-top)+64px)] inset-x-0 z-30 flex justify-center pointer-events-none">
+      <nav style={{ viewTransitionName: 'char-switch' }} aria-label={t('الشخصيات', 'Characters')} className="absolute top-[calc(env(safe-area-inset-top)+64px)] inset-x-0 z-30 flex justify-center pointer-events-none">
         <div className="pointer-events-auto flex rounded-full bg-black/45 backdrop-blur border border-white/15 p-1 text-[12.5px] font-medium">
           {Object.values(CHARACTERS).map((c) => (
             <a
               key={c.id}
               href={`./${c.id}.html`}
               aria-current={c.id === C.id ? 'page' : undefined}
+              style={c.id === C.id ? { viewTransitionName: 'char-pill' } : undefined}
               className={`px-3.5 h-8 rounded-full flex items-center transition ${c.id === C.id ? 'bg-[#FFD60A] text-black' : 'text-white/80'}`}
             >
               {t(SHORT[c.id].ar, SHORT[c.id].en)}
