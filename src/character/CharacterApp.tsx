@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowUp, BookOpen, Play, Camera, Crosshair, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
+import { ArrowLeft, ArrowUp, BookOpen, Play, RotateCcw, Camera, Crosshair, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
 import { KeyTerminal } from './KeyTerminal';
 import { CHARACTERS, pageCharacter } from './characters';
 
@@ -52,6 +52,9 @@ export const CharacterApp: React.FC = () => {
   const [typing, setTyping] = useState(false);
   const [typed, setTyped] = useState('');
   const [muted, setMuted] = useState(false);
+  /** The microphone's loudness (0..1) for the meter, and whether the talk button is held. */
+  const [micLevel, setMicLevel] = useState(0);
+  const [holding, setHolding] = useState(false);
   const [toast, setToast] = useState('');
   /** In the room: which way to turn the phone to find him (null when he is on screen). */
   const [lost, setLost] = useState<{ x: number; y: number } | null>(null);
@@ -121,6 +124,7 @@ export const CharacterApp: React.FC = () => {
       const voice = debug?.voice != null ? { level: debug.voice, bright: debug.bright ?? 0.5, ...(debug.mouth ? { mouth: debug.mouth } : {}) } : live.current?.features(level, spectrum) ?? quiet;
       if (debug) (debug as { last?: unknown }).last = voice;
       s.frame(dt, voice, debug?.look ?? look);
+      if (frameNo % 3 === 0 && live.current) setMicLevel(live.current.micLevel);
       if ((frameNo = (frameNo + 1) % 12) === 0) {
         const off = s.offscreen();
         setLost((prev) => (!off && !prev ? prev : off && prev && Math.abs(off.x - prev.x) + Math.abs(off.y - prev.y) < 0.15 ? prev : off));
@@ -143,6 +147,9 @@ export const CharacterApp: React.FC = () => {
   useEffect(() => {
     if (live.current) live.current.muted = sheet === 'lectures' || muted;
   }, [sheet, muted]);
+  useEffect(() => {
+    if (live.current) live.current.holdOnly = Boolean(settings.holdOnly);
+  }, [settings.holdOnly, state]);
 
   const stopCamera = () => {
     const v = video.current;
@@ -446,6 +453,47 @@ export const CharacterApp: React.FC = () => {
           </form>
         )}
 
+        {connected && (
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => live.current?.sayAgain(lang)}
+              className="h-10 px-3.5 rounded-full bg-white/15 backdrop-blur border border-white/20 text-[13px] flex items-center gap-1.5 active:scale-95 transition"
+            >
+              <RotateCcw className="w-4 h-4" />
+              {t('لم يفهمني', 'He got me wrong')}
+            </button>
+            {/* Hold to talk: he stops, and the voice goes straight through (for noisy rooms, or to interrupt him). The bar
+                is the microphone's level, so the visitor sees they are heard. */}
+            <button
+              onPointerDown={(e) => {
+                e.currentTarget.setPointerCapture(e.pointerId);
+                live.current?.press();
+                setHolding(true);
+              }}
+              onPointerUp={() => {
+                live.current?.release();
+                setHolding(false);
+              }}
+              onPointerCancel={() => {
+                live.current?.release();
+                setHolding(false);
+              }}
+              onContextMenu={(e) => e.preventDefault()}
+              className={`relative h-10 ps-3 pe-4 rounded-full border text-[13px] font-semibold flex items-center gap-2 select-none touch-none overflow-hidden transition ${holding ? 'bg-[#FFD60A] text-black border-[#FFD60A] scale-105' : 'bg-white/15 backdrop-blur border-white/20'}`}
+            >
+              <span className="flex items-end gap-[2px] h-4" aria-hidden="true">
+                {[0.35, 0.6, 1, 0.6, 0.35].map((k, i) => (
+                  <span
+                    key={i}
+                    className={`w-[3px] rounded-full transition-[height] duration-75 ${holding ? 'bg-black' : muted ? 'bg-white/30' : 'bg-[#FFD60A]'}`}
+                    style={{ height: `${Math.max(3, Math.min(16, 3 + micLevel * 160 * k))}px` }}
+                  />
+                ))}
+              </span>
+              {holding ? t('أسمعك… ارفع إصبعك عند الانتهاء', 'Listening… let go when done') : settings.holdOnly ? t('اضغط مطوّلًا وتكلّم', 'Hold and speak') : t('اضغط وتكلّم', 'Hold to talk')}
+            </button>
+          </div>
+        )}
         <div className="flex items-center justify-center gap-3">
           <RoundButton label={cam === 'off' ? t('الكاميرا', 'Camera') : t('أطفئ', 'Off')} onClick={() => setCamera(cam === 'off' ? 'front' : 'off')}>
             {cam === 'off' ? <Camera className="w-5 h-5" /> : <CameraOff className="w-5 h-5" />}
@@ -567,6 +615,15 @@ const SettingsSheet: React.FC<{ lang: Lang; settings: VoiceSettings; onClose: ()
           <input type="password" autoComplete="off" dir="ltr" value={s.elevenKey} onChange={(e) => setS({ ...s, elevenKey: e.target.value.trim() })} className={field} placeholder={t('مفتاح ElevenLabs', 'ElevenLabs key')} />
           <input dir="ltr" value={s.elevenVoiceId} onChange={(e) => setS({ ...s, elevenVoiceId: e.target.value.trim() })} className={field} placeholder={t('معرّف الصوت', 'Voice ID')} />
         </div>
+        <label className="flex items-start gap-3 rounded-2xl bg-white/[0.06] border border-white/10 p-3">
+          <input type="checkbox" checked={Boolean(s.holdOnly)} onChange={(e) => setS({ ...s, holdOnly: e.target.checked })} className="mt-1 w-5 h-5 accent-[#FFD60A]" />
+          <span>
+            <span className="block font-medium">{t('يسمعني فقط عند الضغط', 'Listen only while I hold the button')}</span>
+            <span className="block text-[12px] text-white/55 mt-0.5">
+              {t('للقاعات المزدحمة: لا يسمع إلا وأنت تضغط زر «اضغط مطوّلًا وتكلّم».', 'For busy rooms: he hears you only while you hold the talk button.')}
+            </span>
+          </span>
+        </label>
         <button onClick={() => onSave(s)} className="w-full h-12 rounded-full bg-[#FFD60A] text-black font-semibold">
           {t('حفظ', 'Save')}
         </button>
