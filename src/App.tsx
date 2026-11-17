@@ -47,6 +47,7 @@ const ChromaticWaveWallpaper = lazy(() => import('./components/effects/Chromatic
 import { PhoneCameraButton } from './remoteCam/PhoneCameraButton';
 
 import { Glyph, isGlyph } from './components/shell/Glyph';
+import { sceneChange } from './components/shell/viewTransition';
 const IkeaSpatialApp = lazy(() =>
   import('./components/apps/IkeaSpatialApp').then((module) => ({ default: module.IkeaSpatialApp }))
 );
@@ -1076,7 +1077,7 @@ export function App() {
         <button
           onClick={() => {
             spatialSound.playPinchTap();
-            setHomeOpen(!homeOpen);
+            sceneChange(() => setHomeOpen(!homeOpen), homeOpen ? 'home-close' : 'home-open');
             setControlCenterOpen(false);
           }}
           className={`vision-btn h-8 w-8 rounded-full vision-ornament flex items-center justify-center text-white ${homeOpen ? 'ring-2 ring-white/80' : ''}`}

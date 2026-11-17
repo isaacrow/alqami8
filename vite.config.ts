@@ -85,9 +85,25 @@ const offlineManifest: Plugin = {
   },
 };
 
+/**
+ * Every page gets the page-change animations in its <head> (src/styles/pageTransitions.css and .js), inline, so both the
+ * old page and the new one have them before they draw — what cross-page View Transitions need.
+ */
+const alqamiTransitions: Plugin = {
+  name: 'alqami-transitions',
+  async transformIndexHtml() {
+    const css = await readFile(resolve(__dirname, 'src/styles/pageTransitions.css'), 'utf8');
+    const js = await readFile(resolve(__dirname, 'src/styles/pageTransitions.js'), 'utf8');
+    return [
+      { tag: 'style', attrs: { id: 'alqami-transitions' }, children: css, injectTo: 'head' },
+      { tag: 'script', children: js, injectTo: 'head' },
+    ];
+  },
+};
+
 export default defineConfig({
   base: './',
-  plugins: [threeForMindAR, react(), usdzContentType, basicSsl(), offlineManifest],
+  plugins: [threeForMindAR, react(), usdzContentType, basicSsl(), offlineManifest, alqamiTransitions],
   build: {
     rollupOptions: {
       // jawahiri.html is the talking character (src/character). object.html is an object's own page, opened by its QR
