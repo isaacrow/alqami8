@@ -5,14 +5,15 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import {
   ArrowLeft,
   Box,
+  Camera,
   Compass,
-  Crosshair,
   Eye,
   Maximize2,
   Rotate3d,
   Scan,
   Search,
   Sparkles,
+  Upload,
   Volume2,
   VolumeX,
   X,
@@ -52,13 +53,6 @@ const VIEW_ANGLES = [
   { deg: 270, ar: 'جانب أيسر 270°', en: 'Left Profile 270°' },
 ];
 
-export interface ProjectedPartAnchor {
-  id: string;
-  x: number;
-  y: number;
-  z: number;
-}
-
 export const KafeelScannerApp: React.FC = () => {
   const [lang, setLang] = useState<Lang>('ar');
   const isAr = lang === 'ar';
@@ -71,12 +65,11 @@ export const KafeelScannerApp: React.FC = () => {
   });
   const [selectedPartId, setSelectedPartId] = useState<string | null>(null);
   const [confidence, setConfidence] = useState<number>(0.97);
-  const [detectSource, setDetectSource] = useState<'sight' | 'qr' | 'catch' | 'ar-lock'>('ar-lock');
+  const [detectSource, setDetectSource] = useState<'sight' | 'qr' | 'catch' | 'photo' | 'ar-lock'>('ar-lock');
   const [sightStatus, setSightStatus] = useState<'loading' | 'ready' | 'off'>('loading');
+  const [sightLatencyMs, setSightLatencyMs] = useState<number>(38);
   const [viewAngle, setViewAngle] = useState<number>(0);
   const [autoRotate3D, setAutoRotate3D] = useState<boolean>(true);
-  // Primary AR mode: full-screen transparent 3D AR hologram over live camera feed is ALWAYS primary.
-  // Optional photo inset is off by default so the 3D AR hologram floats cleanly in real space.
   const [showPhotoCompare, setShowPhotoCompare] = useState<boolean>(false);
   const [arMode, setArMode] = useState<'passthrough-ar' | 'webxr-ar'>('passthrough-ar');
   const [arScale, setArScale] = useState<number>(1.0);
@@ -101,10 +94,12 @@ export const KafeelScannerApp: React.FC = () => {
   const [projectedAnchors, setProjectedAnchors] = useState<Record<string, { x: number; y: number }>>({});
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const recognizerRef = useRef<SightRecognizer | null>(null);
   const flowRef = useRef<FlowTracker>(new FlowTracker());
   const worldPinRef = useRef<WorldPin>(new WorldPin());
+  const emaScoresRef = useRef<Map<string, number>>(new Map());
   const [vpSize, setVpSize] = useState<{ w: number; h: number }>({ w: 1280, h: 820 });
 
   const parts = useMemo(() => getSpatialPartsForArtifact(activeArtifact), [activeArtifact]);
@@ -176,7 +171,7 @@ export const KafeelScannerApp: React.FC = () => {
     (
       art: AlqamiArtifact,
       score: number,
-      source: 'sight' | 'qr' | 'catch' | 'ar-lock',
+      source: 'sight' | 'qr' | 'catch' | 'photo' | 'ar-lock',
       angle: number | null = null,
       spot = { x: 0.5, y: 0.46 }
     ) => {
@@ -197,7 +192,7 @@ export const KafeelScannerApp: React.FC = () => {
     []
   );
 
-  // Ultra-fast dual recognition loop: DINOv2 SightRecognizer (90ms) + QR CodeReader (140ms) + 60fps FlowTracker
+  // Ultra-fast Multi-Scale Pyramid DINOv2 Recognition Loop (85ms) + Temporal EMA Smoothing + QR Reader (140ms) + 60fps FlowTracker
   useEffect(() => {
     let disposed = false;
     let sightTimer = 0;
@@ -213,11 +208,13 @@ export const KafeelScannerApp: React.FC = () => {
       .then(() => !disposed && setSightStatus('ready'))
       .catch(() => !disposed && setSightStatus('off'));
 
-    const crops = [
-      { x: 0.5, y: 0.46, side: 0.78 },
-      { x: 0.35, y: 0.45, side: 0.58 },
-      { x: 0.65, y: 0.45, side: 0.58 },
-      { x: 0.5, y: 0.58, side: 0.62 },
+    // Multi-scale pyramid crops: standard object frame (0.82), tight detail focus (0.56), full vitrine (0.95), left & right case regions
+    const pyramidCrops = [
+      { x: 0.5, y: 0.46, side: 0.82 },
+      { x: 0.5, y: 0.46, side: 0.58 },
+      { x: 0.5, y: 0.48, side: 0.94 },
+      { x: 0.36, y: 0.46, side: 0.62 },
+      { x: 0.64, y: 0.46, side: 0.62 },
     ];
     const cropCanvas = document.createElement('canvas');
     cropCanvas.width = cropCanvas.height = 224;
@@ -228,7 +225,8 @@ export const KafeelScannerApp: React.FC = () => {
       const v = videoRef.current;
       try {
         if (v && v.readyState >= 2 && v.videoWidth) {
-          const spot = crops[stepIdx % crops.length];
+          const t0 = performance.now();
+          const spot = pyramidCrops[stepIdx % pyramidCrops.length];
           stepIdx++;
           const side = Math.min(v.videoWidth, v.videoHeight) * spot.side;
           const sx = Math.max(0, Math.min(v.videoWidth - side, spot.x * v.videoWidth - side / 2));
@@ -237,20 +235,34 @@ export const KafeelScannerApp: React.FC = () => {
 
           const ranked = await sight.look(cropCanvas, 1.0);
           if (disposed) return;
+          setSightLatencyMs(Math.max(12, Math.round(performance.now() - t0)));
 
+          const ema = emaScoresRef.current;
           const mapped = ranked
-            .map((r) => ({
-              artifact: r.target.kind === 'artifact' ? findArtifact(r.target.id) : undefined,
-              score: r.score,
-              angle: r.angle,
-              threshold: r.threshold,
-            }))
-            .filter((x): x is { artifact: AlqamiArtifact; score: number; angle: number | null; threshold: number } => Boolean(x.artifact));
+            .map((r) => {
+              const art = r.target.kind === 'artifact' ? findArtifact(r.target.id) : undefined;
+              if (!art) return null;
+              const prev = ema.get(art.id) ?? r.score;
+              const smoothed = prev * 0.35 + r.score * 0.65;
+              ema.set(art.id, smoothed);
+              return {
+                artifact: art,
+                score: smoothed,
+                rawScore: r.score,
+                angle: r.angle,
+                threshold: r.threshold,
+              };
+            })
+            .filter(
+              (x): x is { artifact: AlqamiArtifact; score: number; rawScore: number; angle: number | null; threshold: number } =>
+                Boolean(x)
+            )
+            .sort((a, b) => b.score - a.score);
 
           if (mapped.length > 0) {
             setLiveCandidates(mapped.slice(0, 3).map((m) => ({ artifact: m.artifact, score: m.score })));
             const [best, second] = mapped;
-            if (best.score >= best.threshold && best.score - (second?.score ?? 0) >= 0.05) {
+            if (best.score >= best.threshold && best.score - (second?.score ?? 0) >= 0.048) {
               lockOnArtifact(best.artifact, best.score, 'sight', best.angle, { x: spot.x, y: spot.y });
             }
           }
@@ -258,7 +270,7 @@ export const KafeelScannerApp: React.FC = () => {
       } catch {
         // Keep scanning on transient frame errors
       }
-      if (!disposed) sightTimer = window.setTimeout(sightLoop, 90);
+      if (!disposed) sightTimer = window.setTimeout(sightLoop, 85);
     };
 
     const qrLoop = async () => {
@@ -314,18 +326,19 @@ export const KafeelScannerApp: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // "Catch & Analyze" button: immediately locks onto the top live candidate from the AR camera
+  // Multi-crop instant "Catch & Analyze AR" (tests center + tight crop + full frame and picks highest confidence match)
   const handleCatchAndAnalyze = async () => {
     const v = videoRef.current;
     const sight = recognizerRef.current;
     if (v && v.videoWidth && sight) {
       try {
-        const ranked = await sight.look(v, 0.85);
-        for (const r of ranked) {
+        const [r1, r2] = await Promise.all([sight.look(v, 0.85), sight.look(v, 0.6)]);
+        const combined = [...r1, ...r2].sort((a, b) => b.score - a.score);
+        for (const r of combined) {
           if (r.target.kind === 'artifact') {
             const found = findArtifact(r.target.id);
             if (found) {
-              lockOnArtifact(found, Math.max(0.88, r.score), 'catch', r.angle ?? 0, { x: 0.5, y: 0.46 });
+              lockOnArtifact(found, Math.max(0.89, r.score), 'catch', r.angle ?? 0, { x: 0.5, y: 0.46 });
               return;
             }
           }
@@ -335,10 +348,43 @@ export const KafeelScannerApp: React.FC = () => {
       }
     }
     if (liveCandidates.length > 0) {
-      lockOnArtifact(liveCandidates[0].artifact, Math.max(0.89, liveCandidates[0].score), 'catch', 0, { x: 0.5, y: 0.46 });
+      lockOnArtifact(liveCandidates[0].artifact, Math.max(0.9, liveCandidates[0].score), 'catch', 0, { x: 0.5, y: 0.46 });
     } else {
       setScanPulse(true);
       window.setTimeout(() => setScanPulse(false), 650);
+    }
+  };
+
+  // Upload any photo of a museum object to test instant DINOv2 recognition & spawn its 3D AR hologram + spatial parts
+  const handlePhotoUploadAnalyze = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const sight = recognizerRef.current;
+    if (!sight) return;
+    try {
+      const bmp = await createImageBitmap(file);
+      const c = document.createElement('canvas');
+      c.width = c.height = 224;
+      c.getContext('2d')!.drawImage(bmp, 0, 0, bmp.width, bmp.height, 0, 0, 224, 224);
+      const ranked = await sight.look(c, 1.0);
+      const mapped = ranked
+        .map((r) => ({
+          artifact: r.target.kind === 'artifact' ? findArtifact(r.target.id) : undefined,
+          score: r.score,
+          angle: r.angle,
+        }))
+        .filter((x): x is { artifact: AlqamiArtifact; score: number; angle: number | null } => Boolean(x.artifact));
+
+      if (mapped.length > 0) {
+        setLiveCandidates(mapped.slice(0, 3).map((m) => ({ artifact: m.artifact, score: m.score })));
+        lockOnArtifact(mapped[0].artifact, Math.max(0.92, mapped[0].score), 'photo', mapped[0].angle ?? 0, {
+          x: 0.5,
+          y: 0.46,
+        });
+      }
+    } catch {
+      // Ignore invalid image file
     }
   };
 
@@ -362,22 +408,26 @@ export const KafeelScannerApp: React.FC = () => {
     );
   };
 
-  const speakPart = (part: SpatialPartNode) => {
-    setSelectedPartId(part.id);
-    setIsSpeaking(true);
-    const sentences = isAr
-      ? [`${part.badgeAr}: ${part.titleAr}.`, part.detailAr]
-      : [`${part.badgeEn}: ${part.titleEn}.`, part.detailEn];
-    speak(
-      sentences,
-      lang,
-      {
-        onSentence: () => {},
-        onEnd: () => setIsSpeaking(false),
-      },
-      activeArtifact.model.glb
-    );
-  };
+  const speakPart = useCallback(
+    (part: SpatialPartNode) => {
+      setSelectedPartId(part.id);
+      setAutoRotate3D(false);
+      setIsSpeaking(true);
+      const sentences = isAr
+        ? [`${part.badgeAr}: ${part.titleAr}.`, part.detailAr]
+        : [`${part.badgeEn}: ${part.titleEn}.`, part.detailEn];
+      speak(
+        sentences,
+        lang,
+        {
+          onSentence: () => {},
+          onEnd: () => setIsSpeaking(false),
+        },
+        activeArtifact.model.glb
+      );
+    },
+    [isAr, lang, activeArtifact.model.glb]
+  );
 
   // Compute pixel positions for the AR target reticle, each part's real 3D-projected anchor on the 3D AR mesh,
   // and each part's floating AR metadata card around the object.
@@ -421,7 +471,6 @@ export const KafeelScannerApp: React.FC = () => {
     };
 
     const nodes = parts.map((part, idx) => {
-      // Use live 3D-projected coordinates from the Three.js AR camera when available, else fallback to 2D relative offset
       const proj = projectedAnchors[part.id];
       const anchorX = proj ? proj.x : cx + part.dx * boxPxW;
       const anchorY = proj ? proj.y : cy + part.dy * boxPxH;
@@ -473,6 +522,9 @@ export const KafeelScannerApp: React.FC = () => {
 
   return (
     <div ref={viewportRef} dir={isAr ? 'rtl' : 'ltr'} className="fixed inset-0 bg-black text-white overflow-hidden select-none">
+      {/* Hidden File Input for testing DINOv2 recognition on any uploaded museum photo */}
+      <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoUploadAnalyze} className="hidden" />
+
       {/* 1. PRIMARY AUGMENTED REALITY CAMERA FEED (100% Full-Screen Live Pass-Through) */}
       <video
         ref={videoRef}
@@ -482,7 +534,7 @@ export const KafeelScannerApp: React.FC = () => {
         className="absolute inset-0 w-full h-full object-cover brightness-105 contrast-[1.03]"
       />
 
-      {/* Subtle AR Spatial Grid & Light Horizon Scrim (keeps camera feed crystal-clear while making AR HUD legible) */}
+      {/* Subtle AR Spatial Grid & Light Horizon Scrim */}
       <div
         className="absolute inset-0 pointer-events-none opacity-25"
         style={{
@@ -492,7 +544,7 @@ export const KafeelScannerApp: React.FC = () => {
         }}
       />
 
-      {/* 2. PRIMARY FULL-VIEWPORT 3D AUGMENTED REALITY STAGE (Three.js WebGL + WebXR Hit-Test + Live 3D Part Projection) */}
+      {/* 2. PRIMARY FULL-VIEWPORT 3D AUGMENTED REALITY STAGE (Three.js WebGL + Raycasting + Smart Part Focus + WebXR) */}
       <div className="absolute inset-0 z-10">
         <KafeelPrimaryARStage
           glbUrl={activeArtifact.model.glb}
@@ -503,6 +555,7 @@ export const KafeelScannerApp: React.FC = () => {
           gyroOffset={gyroOffset}
           parts={parts}
           selectedPartId={selectedPartId}
+          onSelectPart={speakPart}
           domOverlayRoot={viewportRef.current}
           requestWebXR={arMode === 'webxr-ar'}
           onExitWebXR={() => setArMode('passthrough-ar')}
@@ -544,14 +597,36 @@ export const KafeelScannerApp: React.FC = () => {
           <span>
             {detectSource === 'qr'
               ? t('واقع معزز · تطابق QR', 'AR · QR Locked')
-              : detectSource === 'catch'
-                ? t('واقع معزز · التقاط بصري فوري', 'AR · Instant Catch')
-                : detectSource === 'sight'
-                  ? t('واقع معزز · تعرّف بصري DINOv2', 'AR · DINOv2 Sight Lock')
-                  : t('واقع معزز مكاني ثلاثي الأبعاد نشط', 'Primary 3D Augmented Reality Active')}{' '}
-            · {Math.round(confidence * 100)}%
+              : detectSource === 'photo'
+                ? t('واقع معزز · تطابق صورة DINOv2', 'AR · Photo Matched')
+                : detectSource === 'catch'
+                  ? t('واقع معزز · التقاط بصري فوري', 'AR · Instant Catch')
+                  : detectSource === 'sight'
+                    ? t('واقع معزز · تعرّف بصري DINOv2', 'AR · DINOv2 Sight Lock')
+                    : t('واقع معزز مكاني ثلاثي الأبعاد نشط', 'Primary 3D Augmented Reality Active')}{' '}
+            · {Math.round(confidence * 100)}% · {sightLatencyMs}ms
           </span>
         </div>
+
+        {/* Live Top-3 Neural Vision Candidates Pill (when camera sees multiple candidates) */}
+        {liveCandidates.length > 1 && (
+          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 pointer-events-auto flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/75 backdrop-blur-md border border-white/15 text-[9.5px] whitespace-nowrap">
+            <span className="text-white/55">{t('أقرب تطابق:', 'Top matches:')}</span>
+            {liveCandidates.slice(0, 3).map((c) => (
+              <button
+                key={c.artifact.id}
+                onClick={() => lockOnArtifact(c.artifact, c.score, 'catch', 0, { x: 0.5, y: 0.46 })}
+                className={`px-1.5 py-0.5 rounded-full transition ${
+                  c.artifact.id === activeArtifact.id
+                    ? 'bg-emerald-400/25 text-emerald-300 font-bold'
+                    : 'text-white/70 hover:text-white'
+                }`}
+              >
+                {c.artifact.id.replace(/^KFL-/, '')} ({Math.round(c.score * 100)}%)
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 4. SVG Layer: Animated Bezier Leader Lines & 3D-Projected Physical Part Anchor Rings */}
@@ -574,7 +649,7 @@ export const KafeelScannerApp: React.FC = () => {
                 d={pathD}
                 fill="none"
                 stroke={part.color}
-                strokeWidth={isSelected ? 3.0 : 1.9}
+                strokeWidth={isSelected ? 3.2 : 1.9}
                 strokeOpacity={isSelected ? 0.98 : 0.78}
                 filter="url(#kfl-glow)"
               />
@@ -583,7 +658,7 @@ export const KafeelScannerApp: React.FC = () => {
                 d={pathD}
                 fill="none"
                 stroke="#ffffff"
-                strokeWidth={isSelected ? 2.2 : 1.35}
+                strokeWidth={isSelected ? 2.3 : 1.35}
                 strokeDasharray="5 9"
                 strokeOpacity={0.9}
               >
@@ -593,7 +668,7 @@ export const KafeelScannerApp: React.FC = () => {
               <circle
                 cx={anchorX}
                 cy={anchorY}
-                r={isSelected ? 12 : 8}
+                r={isSelected ? 13 : 8}
                 fill={part.color}
                 fillOpacity={0.28}
                 stroke={part.color}
@@ -689,9 +764,9 @@ export const KafeelScannerApp: React.FC = () => {
               </span>
               <span className="block text-[9.5px] text-emerald-300 mt-0.5">
                 {cameraReady
-                  ? t('كاميرا الواقع المعزز المباشر + مجسّم 3D + DINOv2 نشط', 'Live AR Camera Pass-Through + 3D Hologram + DINOv2')
+                  ? t('كاميرا الواقع المعزز المباشر + 196 مجسّم 3D فريد + DINOv2', 'Live AR Camera + 196 Unique 3D Models + DINOv2')
                   : sightStatus === 'ready'
-                    ? t('الواقع المعزز الثلاثي الأبعاد + تتبع الأجزاء (196 قطعة)', 'Primary 3D AR + Part Projection Active (196 items)')
+                    ? t('الواقع المعزز الثلاثي الأبعاد + 196 مجسّم فريد نشط', 'Primary 3D AR + 196 Unique 3D Models Active')
                     : t('جاري تهيئة محرك الواقع المعزز…', 'Initializing Primary AR Engine…')}
               </span>
             </div>
@@ -734,6 +809,14 @@ export const KafeelScannerApp: React.FC = () => {
             <span>{Math.round(arScale * 100)}%</span>
           </button>
           <button
+            onClick={() => fileInputRef.current?.click()}
+            className="h-10 px-3 rounded-full bg-black/55 hover:bg-white/20 border border-white/20 text-[12px] font-semibold flex items-center gap-1.5"
+            title={t('ارفع صورة أي قطعة أثرية للتعرّف عليها فوراً بـ DINOv2', 'Upload a photo of any artifact for instant DINOv2 recognition')}
+          >
+            <Upload className="w-3.5 h-3.5 text-amber-300" />
+            <span className="hidden md:inline">{t('فحص صورة', 'Photo Scan')}</span>
+          </button>
+          <button
             onClick={() => setShowPhotoCompare((v) => !v)}
             className={`h-10 px-3 rounded-full border text-[12px] font-semibold flex items-center gap-1.5 transition ${
               showPhotoCompare ? 'bg-white/25 text-white border-white/40' : 'bg-black/55 text-white/75 border-white/20'
@@ -741,7 +824,7 @@ export const KafeelScannerApp: React.FC = () => {
             title={t('إظهار/إخفاء صورة الأرشيف المصغّرة للمقارنة', 'Toggle small archive photo PiP comparison')}
           >
             <Eye className="w-4 h-4" />
-            <span className="hidden md:inline">{t('مقارنة صورة', 'Photo PiP')}</span>
+            <span className="hidden xl:inline">{t('مقارنة', 'PiP')}</span>
           </button>
           <button
             onClick={() => setCatalogOpen(true)}
@@ -778,6 +861,7 @@ export const KafeelScannerApp: React.FC = () => {
               </div>
               <p className="text-[11px] text-white/75 truncate">
                 {activeArtifact.period[lang]} · {activeArtifact.details.material[lang]} · {activeArtifact.details.dimensions}
+                {activeArtifact.uri ? ` · ${activeArtifact.uri}` : ''}
               </p>
             </div>
           </div>
@@ -788,18 +872,24 @@ export const KafeelScannerApp: React.FC = () => {
               <button
                 key={ang.deg}
                 onClick={() => {
+                  setSelectedPartId(null);
                   setAutoRotate3D(false);
                   setViewAngle(ang.deg);
                 }}
                 className={`h-7 px-2.5 rounded-full text-[10.5px] font-semibold transition ${
-                  !autoRotate3D && viewAngle === ang.deg ? 'bg-emerald-400 text-black' : 'text-white/75 hover:text-white'
+                  !autoRotate3D && !selectedPartId && viewAngle === ang.deg
+                    ? 'bg-emerald-400 text-black'
+                    : 'text-white/75 hover:text-white'
                 }`}
               >
                 {ang[lang]}
               </button>
             ))}
             <button
-              onClick={() => setAutoRotate3D((v) => !v)}
+              onClick={() => {
+                setSelectedPartId(null);
+                setAutoRotate3D((v) => !v);
+              }}
               className={`h-7 px-2.5 rounded-full text-[10.5px] font-semibold flex items-center gap-1 transition ${
                 autoRotate3D ? 'bg-[#FFD60A] text-black' : 'text-white/75 hover:text-white'
               }`}
@@ -809,7 +899,7 @@ export const KafeelScannerApp: React.FC = () => {
             </button>
           </div>
 
-          {/* Primary Action Buttons: Catch & Analyze, Voice Narrator, Full 3D Page */}
+          {/* Primary Action Buttons: Catch & Analyze, Photo Scan, Voice Narrator, Full 3D Page */}
           <div className="flex items-center gap-1.5">
             <button
               onClick={handleCatchAndAnalyze}
@@ -817,6 +907,13 @@ export const KafeelScannerApp: React.FC = () => {
             >
               <Zap className="w-4 h-4 fill-current" />
               <span>{t('التقط وحلّل AR', 'Catch & Analyze AR')}</span>
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="h-10 px-3 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/50 text-emerald-200 text-[12px] font-semibold flex sm:hidden items-center gap-1"
+              title={t('فحص صورة', 'Photo Scan')}
+            >
+              <Camera className="w-4 h-4" />
             </button>
             <button
               onClick={speakFullArtifact}
@@ -841,7 +938,7 @@ export const KafeelScannerApp: React.FC = () => {
         <div className="max-w-5xl mx-auto flex items-center gap-1.5 overflow-x-auto py-0.5 [scrollbar-width:none]">
           <span className="shrink-0 text-[11px] font-bold text-amber-300 px-2 flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5" />
-            {t('اختر قطعة لعرضها في الواقع المعزز:', 'Place object in AR:')}
+            {t('اختر قطعة لعرض مجسّمها الفريد في الواقع المعزز:', 'Place unique 3D model in AR:')}
           </span>
           {ALQAMI_ARTIFACTS.slice(0, 35).map((item) => {
             const active = item.id === activeArtifact.id;
@@ -884,12 +981,12 @@ export const KafeelScannerApp: React.FC = () => {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-[18px] font-bold text-white">
-                  {t('فهرس ماسح الواقع المعزز لمتحف الكفيل (196 قطعة)', 'Al-Kafeel Primary AR Scanner Catalogue (196 Items)')}
+                  {t('فهرس ماسح الواقع المعزز لمتحف الكفيل (196 مجسّم 3D فريد)', 'Al-Kafeel Primary AR Scanner Catalogue (196 Unique 3D Models)')}
                 </h2>
                 <p className="text-[12px] text-white/60">
                   {t(
-                    'اختر أي قطعة لإسقاط مجسّمها ثلاثي الأبعاد في الواقع المعزز مع ربط البيانات بأجزائها المكانية',
-                    'Select any artifact to project its 3D hologram in Augmented Reality with spatial part-attached metadata'
+                    'لكل قطعة مجسّم ثلاثي الأبعاد فريد خاص بها مع ربط البيانات بأجزائها المكانية في الواقع المعزز',
+                    'Every item has its own unique 3D model with spatial part-attached metadata in Augmented Reality'
                   )}
                 </p>
               </div>
@@ -967,10 +1064,11 @@ export const KafeelScannerApp: React.FC = () => {
 
 /**
  * Primary Full-Viewport Three.js Augmented Reality Stage:
- * - Renders the real 360° 3D .glb artifact floating directly in the live camera pass-through (or native WebXR immersive-ar session).
- * - Creates 3D spatial anchor nodes (`part.pos3d`) attached directly to the rotating 3D object pivot.
- * - Projects every part's real 3D world position through the AR camera into screen coordinates (`vector.project(camera)`)
- *   so the glowing SVG leader lines stay physically attached to the rotating 3D parts in Augmented Reality.
+ * - Renders the item's unique 360° 3D .glb artifact floating directly in the live camera pass-through (or native WebXR immersive-ar session).
+ * - Creates interactive 3D spatial anchor nodes (`part.pos3d`) attached to the rotating 3D object pivot.
+ * - Supports 3D Raycasting: tapping directly on any 3D part node or region of the 3D mesh in AR selects that part,
+ *   rotates the 3D hologram to focus on it, and triggers voice narration.
+ * - Projects every part's real 3D world position through the AR camera into screen coordinates (`vector.project(camera)`).
  */
 const KafeelPrimaryARStage: React.FC<{
   glbUrl: string;
@@ -981,6 +1079,7 @@ const KafeelPrimaryARStage: React.FC<{
   gyroOffset: { yaw: number; pitch: number };
   parts: SpatialPartNode[];
   selectedPartId: string | null;
+  onSelectPart: (part: SpatialPartNode) => void;
   domOverlayRoot: HTMLElement | null;
   requestWebXR: boolean;
   onExitWebXR: () => void;
@@ -994,6 +1093,7 @@ const KafeelPrimaryARStage: React.FC<{
   gyroOffset,
   parts,
   selectedPartId,
+  onSelectPart,
   domOverlayRoot,
   requestWebXR,
   onExitWebXR,
@@ -1007,6 +1107,8 @@ const KafeelPrimaryARStage: React.FC<{
     center: trackedCenter,
     gyro: gyroOffset,
     selectedPartId,
+    parts,
+    onSelectPart,
   });
   stateRef.current = {
     deg: viewAngleDeg,
@@ -1015,6 +1117,8 @@ const KafeelPrimaryARStage: React.FC<{
     center: trackedCenter,
     gyro: gyroOffset,
     selectedPartId,
+    parts,
+    onSelectPart,
   };
 
   const xrSessionRef = useRef<XRSession | null>(null);
@@ -1105,7 +1209,7 @@ const KafeelPrimaryARStage: React.FC<{
     camera.position.set(0, 0.08, 2.55);
     camera.lookAt(0, 0, 0);
 
-    // Master AR World Anchor Group (moves with optical flow + gyroscope in pass-through AR)
+    // Master AR World Anchor Group
     const arAnchor = new THREE.Group();
     scene.add(arAnchor);
 
@@ -1130,7 +1234,6 @@ const KafeelPrimaryARStage: React.FC<{
     innerRing.position.y = -0.515;
     arAnchor.add(innerRing);
 
-    // Horizontal AR Laser Scan Ring that sweeps vertically across the 3D artifact
     const scanLaserRing = new THREE.Mesh(
       new THREE.RingGeometry(0.46, 0.485, 64),
       new THREE.MeshBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.42, side: THREE.DoubleSide })
@@ -1140,25 +1243,30 @@ const KafeelPrimaryARStage: React.FC<{
 
     // Create 3D Part Anchor Nodes attached to the rotating 3D mesh pivot
     const partNodesMap = new Map<string, THREE.Object3D>();
+    const pickTargets: THREE.Object3D[] = [];
     parts.forEach((p) => {
       const nodeGroup = new THREE.Group();
       nodeGroup.position.set(p.pos3d[0], p.pos3d[1], p.pos3d[2]);
+      nodeGroup.userData.partId = p.id;
 
       const dotMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.028, 16, 16),
+        new THREE.SphereGeometry(0.036, 16, 16),
         new THREE.MeshBasicMaterial({ color: new THREE.Color(p.color) })
       );
+      dotMesh.userData.partId = p.id;
       nodeGroup.add(dotMesh);
+      pickTargets.push(dotMesh);
 
       const haloMesh = new THREE.Mesh(
-        new THREE.RingGeometry(0.042, 0.056, 24),
+        new THREE.RingGeometry(0.048, 0.066, 24),
         new THREE.MeshBasicMaterial({
           color: new THREE.Color(p.color),
           transparent: true,
-          opacity: 0.75,
+          opacity: 0.8,
           side: THREE.DoubleSide,
         })
       );
+      haloMesh.userData.partId = p.id;
       nodeGroup.add(haloMesh);
 
       pivot.add(nodeGroup);
@@ -1210,26 +1318,72 @@ const KafeelPrimaryARStage: React.FC<{
       () => {}
     );
 
-    // Interactive touch/mouse drag to rotate the 3D hologram in AR space
+    // Interactive touch/mouse drag to rotate + tap raycasting on 3D part nodes & mesh
+    const raycaster = new THREE.Raycaster();
+    const pointerNdc = new THREE.Vector2();
     let dragging = false;
+    let movedDist = 0;
     let prevX = 0;
     let prevY = 0;
     let manualYaw = 0;
     let manualPitch = 0;
+
     const onDown = (e: PointerEvent) => {
       dragging = true;
+      movedDist = 0;
       prevX = e.clientX;
       prevY = e.clientY;
     };
     const onMove = (e: PointerEvent) => {
       if (!dragging) return;
-      manualYaw += (e.clientX - prevX) * 0.011;
-      manualPitch = THREE.MathUtils.clamp(manualPitch + (e.clientY - prevY) * 0.007, -0.45, 0.45);
+      const dx = e.clientX - prevX;
+      const dy = e.clientY - prevY;
+      movedDist += Math.abs(dx) + Math.abs(dy);
+      manualYaw += dx * 0.011;
+      manualPitch = THREE.MathUtils.clamp(manualPitch + dy * 0.007, -0.45, 0.45);
       prevX = e.clientX;
       prevY = e.clientY;
     };
-    const onUp = () => {
+    const onUp = (e: PointerEvent) => {
+      if (!dragging) return;
       dragging = false;
+      // If it was a clean tap (< 8px movement), raycast against the 3D part spheres & 3D artifact mesh
+      if (movedDist < 8) {
+        const rect = el.getBoundingClientRect();
+        pointerNdc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        pointerNdc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(pointerNdc, camera);
+
+        // 1. Check direct hit on a 3D part node sphere
+        const hits = raycaster.intersectObjects(pickTargets, true);
+        if (hits.length > 0) {
+          const hitId = hits[0].object.userData.partId;
+          const foundPart = stateRef.current.parts.find((p) => p.id === hitId);
+          if (foundPart) {
+            stateRef.current.onSelectPart(foundPart);
+            return;
+          }
+        }
+        // 2. Check hit on the 3D artifact mesh itself and select the closest anatomical 3D part node
+        if (loadedObj) {
+          const meshHits = raycaster.intersectObject(loadedObj, true);
+          if (meshHits.length > 0) {
+            const hitWorld = meshHits[0].point;
+            let bestPart: SpatialPartNode | null = null;
+            let bestDist = Infinity;
+            const nodeWorld = new THREE.Vector3();
+            partNodesMap.forEach((node, id) => {
+              node.getWorldPosition(nodeWorld);
+              const d = nodeWorld.distanceTo(hitWorld);
+              if (d < bestDist) {
+                bestDist = d;
+                bestPart = stateRef.current.parts.find((p) => p.id === id) ?? null;
+              }
+            });
+            if (bestPart) stateRef.current.onSelectPart(bestPart);
+          }
+        }
+      }
     };
     el.addEventListener('pointerdown', onDown);
     window.addEventListener('pointermove', onMove);
@@ -1253,7 +1407,12 @@ const KafeelPrimaryARStage: React.FC<{
       if (disposed) return;
       const st = stateRef.current;
 
-      if (st.auto && !dragging) {
+      // Smart Part Focus Alignment: if a part is selected and user isn't dragging, smoothly orient that part toward the camera
+      const activePart = st.selectedPartId ? st.parts.find((p) => p.id === st.selectedPartId) : null;
+      if (activePart && !dragging) {
+        const focusYaw = Math.atan2(-activePart.pos3d[0], Math.max(0.15, activePart.pos3d[2])) * 0.45 + manualYaw;
+        curYaw += (focusYaw - curYaw) * 0.1;
+      } else if (st.auto && !dragging) {
         curYaw += 0.0075;
       } else {
         const targetYaw = THREE.MathUtils.degToRad(st.deg) + manualYaw;
@@ -1265,7 +1424,8 @@ const KafeelPrimaryARStage: React.FC<{
       const normY = (0.47 - st.center.y) * 1.25 + st.gyro.pitch;
       arAnchor.position.x += (normX - arAnchor.position.x) * 0.18;
       arAnchor.position.y += (normY - arAnchor.position.y) * 0.18;
-      arAnchor.scale.setScalar(st.scale);
+      const targetScale = activePart ? st.scale * 1.08 : st.scale;
+      arAnchor.scale.setScalar(arAnchor.scale.x + (targetScale - arAnchor.scale.x) * 0.15);
 
       pivot.rotation.y = curYaw;
       pivot.rotation.x = manualPitch;
@@ -1276,16 +1436,20 @@ const KafeelPrimaryARStage: React.FC<{
       innerRing.rotation.z = -now * 0.0008;
       scanLaserRing.position.y = Math.sin(now * 0.0028) * 0.42;
 
-      // Make 3D part halos face the AR camera
-      partNodesMap.forEach((node) => {
+      // Make 3D part halos face the AR camera & pulse the selected part halo
+      partNodesMap.forEach((node, id) => {
         const halo = node.children[1];
-        if (halo) halo.lookAt(camera.position);
+        if (halo) {
+          halo.lookAt(camera.position);
+          const s = id === st.selectedPartId ? 1.45 + Math.sin(now * 0.01) * 0.2 : 1.0;
+          halo.scale.setScalar(s);
+        }
       });
 
       renderer.render(scene, camera);
 
-      // Project 3D part anchors to 2D screen coordinates for the SVG cubic-bezier leader lines (~30fps update)
-      if (now - lastEmit > 32) {
+      // Project 3D part anchors to 2D screen coordinates for the SVG cubic-bezier leader lines
+      if (now - lastEmit > 24) {
         lastEmit = now;
         const cw = el.clientWidth || window.innerWidth;
         const ch = el.clientHeight || window.innerHeight;

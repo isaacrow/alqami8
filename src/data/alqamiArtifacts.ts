@@ -29,6 +29,8 @@ export interface AlqamiArtifact {
     en: string;
   };
   itemCode: string;
+  /** Canonical heritage URI (e.g. museum.alkafeel.net/subjects/<id> or alqami.net/artifact/<slug>) */
+  uri?: string;
   image: string;
   model: {
     glb: string;
@@ -93,6 +95,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Central Library of Astan Quds Razavi • Alqami Repository',
     },
     itemCode: '1022 هـ / هـ',
+    uri: 'https://alqami.net/artifact/nahj-al-balagha',
     image: '/images/model-nahj_al_balagha.png',
     model: {
       glb: '/models/nahj_al_balagha.glb',
@@ -164,6 +167,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Military Museum Collection • Alqami',
     },
     itemCode: 'HLM-OTT-15',
+    uri: 'https://alqami.net/artifact/old-islamic-helmet',
     image: '/images/model-Old_Islamic_Helmet.png',
     model: {
       glb: '/models/Old_Islamic_Helmet.glb',
@@ -223,6 +227,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Alqami Islamic Arms & Armour Collection',
     },
     itemCode: 'SWD-OTT-16',
+    uri: 'https://alqami.net/artifact/zulfiqar-sword',
     image: '/images/model-Zulfiqar_Sword.png',
     model: {
       glb: '/models/Zulfiqar_Sword.glb',
@@ -282,6 +287,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'British Museum • Alqami Spatial Vault',
     },
     itemCode: 'MAP-BAB-001',
+    uri: 'https://alqami.net/artifact/babylonian-map-of-the-world',
     image: '/images/model-babylonian_map_of_the_world_tablet_-_imago_mundi.png',
     model: {
       glb: '/models/babylonian_map_of_the_world_tablet_-_imago_mundi.glb',
@@ -340,6 +346,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Mesopotamian Collection • Alqami',
     },
     itemCode: 'TAB-BAB-S264',
+    uri: 'https://alqami.net/artifact/old-babylonian-cuneiform-tablet',
     image: '/images/model-old-babylonian_cuneiform_tablet_s264.png',
     model: {
       glb: '/models/old-babylonian_cuneiform_tablet_s264.glb',
@@ -398,6 +405,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Islamic Metalwork Collection • Alqami',
     },
     itemCode: 'BWL-SAQ-18',
+    uri: 'https://alqami.net/artifact/saqakhane-sacred-bowl',
     image: '/images/model-saqakhane_bowl.png',
     model: {
       glb: '/models/saqakhane_bowl.glb',
@@ -456,6 +464,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Museum of Islamic Art Collection',
     },
     itemCode: 'MHR-KAS-14',
+    uri: 'https://alqami.net/artifact/prayer-niche-mihrab',
     image: '/images/model-prayer_niche_mihrab.png',
     model: {
       glb: '/models/prayer_niche_mihrab.glb',
@@ -514,6 +523,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Alqami Antiquities Vault',
     },
     itemCode: 'STL-HAM-1750',
+    uri: 'https://alqami.net/artifact/stela-of-hammurabi',
     image: '/images/model-stela_of_hammurabi_replica.png',
     model: {
       glb: '/models/stela_of_hammurabi_replica.glb',
@@ -572,6 +582,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'National Ceramic Arts Museum • Alqami',
     },
     itemCode: 'BWL-NIS-10',
+    uri: 'https://alqami.net/artifact/ancient-ceramic-bowl',
     image: '/images/model-bowl.png',
     model: {
       glb: '/models/bowl.glb',
@@ -630,6 +641,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Majlis Library, Tehran (4662) • digital copy at the Library of al-Abbas Holy Shrine',
     },
     itemCode: 'MSS-QAB-1650',
+    uri: 'https://alqami.net/artifact/al-qabasat-mir-damad',
     pageImage: '/images/al-qabasat-scan.jpg',
     pagePins: [
       { x: 0.72, y: 0.22, title: { ar: "الترويسة المذهبة", en: "Illuminated headpiece" }, text: { ar: "ترويسة مزخرفة بالذهب واللازورد في رأس الصفحة الأولى؛ وفي الفهرسة: الورقة الأولى عليها زخرفة.", en: "A headpiece in gold and blue at the head of the first page; the record notes that the first leaf is illuminated." } },
@@ -698,6 +710,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Majlis Library, Tehran (4175) • digital copy at the Library of al-Abbas Holy Shrine',
     },
     itemCode: 'MSS-QUR-1009',
+    uri: 'https://alqami.net/artifact/quran-1009ah-haydar-ali',
     pagePins: [
       { x: 0.72, y: 0.47, title: { ar: "سورة الفاتحة", en: "Surat al-Fatiha" }, text: { ar: "فاتحة الكتاب في الصفحة اليمنى، بخط النسخ على أرضية مذهبة.", en: "The Opening sura on the right-hand page, in Naskh on a gilded ground." } },
       { x: 0.33, y: 0.48, title: { ar: "أول سورة البقرة", en: "Opening of Surat al-Baqara" }, text: { ar: "«الم ۝ ذلك الكتاب لا ريب فيه هدى للمتقين...»", en: "The first verses of al-Baqara on the left-hand page." } },
@@ -761,6 +774,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Library of al-Abbas Holy Shrine, Karbala',
     },
     itemCode: 'MSS-QUR-KUF',
+    uri: 'https://alqami.net/artifact/kufic-quran-leaves',
     pagePins: [
       { x: 0.72, y: 0.385, title: { ar: "فاصلة آية مذهبة", en: "Gold verse separator" }, text: { ar: "فُصل بين الآيات بوردة أو ورقة منقوشة بماء الذهب.", en: "Verses are separated by a rosette or leaf in gold." } },
       { x: 0.42, y: 0.17, title: { ar: "نقاط الإعراب الحمراء", en: "Red vowel dots" }, text: { ar: "النقاط الحمراء للإعراب أُدخلت لاحقًا، بعد تاريخ الكتابة.", en: "The red dots marking the vowels were added later than the writing." } },
@@ -830,6 +844,7 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       en: 'Alqami Cloud Repository',
     },
     itemCode: 'MSH-ALQ-3D',
+    uri: 'https://alqami.net/artifact/alqami-3d-heritage-sculpture',
     image: '/images/model-meshy-model.png',
     model: {
       glb: '/models/meshy-model.glb',

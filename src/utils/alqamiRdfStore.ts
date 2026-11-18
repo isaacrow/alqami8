@@ -210,9 +210,9 @@ export function getArtifactRdfMetadata(idOrSlug: string): RdfParsedMetadata {
   const rdfFileName = mapping?.rdfFile;
 
   const subjNum = artifact.id.startsWith('KFL-') ? artifact.id.match(/(\d+)$/)?.[1] : undefined;
-  const defaultUri = subjNum
-    ? `https://museum.alkafeel.net/subjects/${subjNum}`
-    : `https://alqami.net/artifact/${artifact.slug}`;
+  const defaultUri =
+    artifact.uri ||
+    (subjNum ? `https://museum.alkafeel.net/subjects/${subjNum}` : `https://alqami.net/artifact/${artifact.slug}`);
 
   const rawTtl =
     (ttlFileName && (backendRdf as Record<string, string>)[ttlFileName]) ||

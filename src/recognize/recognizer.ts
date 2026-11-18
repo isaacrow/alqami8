@@ -25,6 +25,7 @@ export class SightRecognizer {
   private decider: Decider | null = null;
   private ready: Promise<void> | null = null;
   private entries: IndexEntry[] = [];
+  private thresholds = new Map<string, number>();
 
   /** The model this phone uses (WebGPU after a self-test, else WASM): see backend.ts. */
   backend = '';
@@ -53,6 +54,8 @@ export class SightRecognizer {
       };
       const { entries } = await loadRecognitionIndex(b.key, reembed);
       this.entries = entries;
+      this.thresholds.clear();
+      for (const e of entries) this.thresholds.set(e.key, e.threshold);
       this.decider = new Decider(entries);
     })();
     return this.ready;
@@ -78,8 +81,8 @@ export class SightRecognizer {
     const query = await this.embedder!.embed(source, crop);
     if (!query) return [];
     return rank(query, this.entries)
-      .slice(0, 3)
-      .map((c) => ({ target: targetOf(c.key), key: c.key, score: c.score, angle: c.angle ?? null, threshold: this.entries.find((e) => e.key === c.key)?.threshold ?? 0.76 }));
+      .slice(0, 5)
+      .map((c) => ({ target: targetOf(c.key), key: c.key, score: c.score, angle: c.angle ?? null, threshold: this.thresholds.get(c.key) ?? 0.76 }));
   }
 
   reset() {

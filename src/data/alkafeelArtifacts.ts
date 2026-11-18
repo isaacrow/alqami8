@@ -1,4 +1,4 @@
-// Auto-generated with 183 unique 360-degree 3D GLB models for all Al-Kafeel Museum items
+// Auto-generated with 183 smooth multi-side 360-degree 3D GLB models and URIs for all Al-Kafeel Museum items
 import type { AlqamiArtifact } from './alqamiArtifacts';
 
 export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
@@ -33,7 +33,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2126",
     "image": "./images/alkafeel/kfl-2126.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2126.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2126.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -54,7 +54,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "نصل السيف مصنوع من سبيكة الجوهر عليه كتابة مذهبه (هذا حسام م...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2126, Museum No. 997). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel / Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2126"
   },
   {
     "id": "KFL-SWD-2127",
@@ -87,7 +88,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2127",
     "image": "./images/alkafeel/kfl-2127.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2127.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2127.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -108,7 +109,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "نصل السيف من سبيكة الجوهر عليه كتابات مذهبه تحمل اسم الصانع(...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2127, Museum No. 998). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel / Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2127"
   },
   {
     "id": "KFL-SWD-2128",
@@ -141,7 +143,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2128",
     "image": "./images/alkafeel/kfl-2128.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2128.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2128.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -162,7 +164,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "النصل من الجوهر الواقية من الحديد عليها كتابات اما القبضة فم...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2128, Museum No. 999). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel / Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2128"
   },
   {
     "id": "KFL-SWD-2129",
@@ -195,7 +198,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2129",
     "image": "./images/alkafeel/kfl-2129.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2129.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2129.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -216,7 +219,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "نصل السيف من سبيكة الجوهر متعرج على الطراز المغولي عليه طره...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2129, Museum No. 1001). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel / Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2129"
   },
   {
     "id": "KFL-SWD-2135",
@@ -249,7 +253,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2135",
     "image": "./images/alkafeel/kfl-2135.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2135.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2135.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -270,7 +274,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "نصل السيف من سبيكة الجوهر الصلب اما المقبض فهو من الحديد علي...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2135, Museum No. 1002). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel / Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2135"
   },
   {
     "id": "KFL-SWD-2191",
@@ -303,7 +308,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2191",
     "image": "./images/alkafeel/kfl-2191.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2191.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2191.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -324,7 +329,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "النصل من الجوهر عليه كتابات مذهبه تحمل اسم السلطان وسنة الصن...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2191, Museum No. 1000). Section: Bladed Weapons (Swords). Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2191"
   },
   {
     "id": "KFL-SWD-2244",
@@ -357,7 +363,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2244",
     "image": "./images/alkafeel/kfl-2244.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2244.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2244.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -378,7 +384,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "نصل السيف مصنوع من حديد جوهر الأربعين درجة ( كيرك نيردبان )...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2244, Museum No. 2244). Section: Bladed Weapons (Swords). Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2244"
   },
   {
     "id": "KFL-SWD-2313",
@@ -411,7 +418,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2313",
     "image": "./images/alkafeel/kfl-2313.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2313.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2313.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -432,7 +439,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "السيف مصنوع في القرن التاسع عشر وهو من نوع (يلمانلي) وتعد زخ...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2313, Museum No. 1017). Section: Bladed Weapons (Swords). Materials: Steel."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2313"
   },
   {
     "id": "KFL-SWD-2174",
@@ -465,7 +473,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2174",
     "image": "./images/alkafeel/kfl-2174.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2174.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2174.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -486,7 +494,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "نصل السكين من سبيكة الجوهر وعليه نقوش نباتيه مذهبه ذكر فيها...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2174, Museum No. 74). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel / Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2174"
   },
   {
     "id": "KFL-SWD-2175",
@@ -519,7 +528,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2175",
     "image": "./images/alkafeel/kfl-2175.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2175.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2175.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -540,7 +549,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "نصل السكين من سبيكة الجوهر والمقبض متضرر في اعلاه نقوش نباتي...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2175, Museum No. 78). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel / Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2175"
   },
   {
     "id": "KFL-SWD-2176",
@@ -573,7 +583,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2176",
     "image": "./images/alkafeel/kfl-2176.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2176.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2176.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -594,7 +604,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "النصل من الحديد عليه نقوش وزخارف نباتيه وعليه نقش على شكل تا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2176, Museum No. 80). Section: Bladed Weapons (Swords). Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2176"
   },
   {
     "id": "KFL-SWD-2177",
@@ -627,7 +638,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2177",
     "image": "./images/alkafeel/kfl-2177.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2177.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2177.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -648,7 +659,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "نصل السكين من سبيكة الجوهر الصلب عليه نقوش نباتيه مذهبه من ا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2177, Museum No. 2177). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel / Gold / Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2177"
   },
   {
     "id": "KFL-SWD-2178",
@@ -681,7 +693,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2178",
     "image": "./images/alkafeel/kfl-2178.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2178.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2178.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -702,7 +714,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "نصل السكين من الحديد في نهاية النصل من جهة القبضة قطعة معدني...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2178, Museum No. 77). Section: Bladed Weapons (Swords). Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2178"
   },
   {
     "id": "KFL-SWD-2179",
@@ -735,7 +748,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2179",
     "image": "./images/alkafeel/kfl-2179.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2179.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2179.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -756,7 +769,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "خنجر مصنوع من الحديد عليه نقوش حيوانية ونباتية وعليه وقفيه ح...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2179, Museum No. 61). Section: Bladed Weapons (Swords). Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2179"
   },
   {
     "id": "KFL-SWD-2180",
@@ -789,7 +803,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2180",
     "image": "./images/alkafeel/kfl-2180.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2180.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2180.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -810,7 +824,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "نصل الخنجر مصنوع من سبيكة الجوهر عليه نقوش مذهبه متضررة اما...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2180, Museum No. 62). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel / Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2180"
   },
   {
     "id": "KFL-SWD-2181",
@@ -843,7 +858,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2181",
     "image": "./images/alkafeel/kfl-2181.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2181.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2181.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -864,7 +879,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "نصل الخنجر من سبيكة الجوهر الصلب عليه نقوش حيوانية اما القبض...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2181, Museum No. 60). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel / Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2181"
   },
   {
     "id": "KFL-SWD-2218",
@@ -897,7 +913,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2218",
     "image": "./images/alkafeel/kfl-2218.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2218.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2218.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -918,7 +934,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "خنجر كان يستخدمه القادة ، نصله مصنوع من حديد الجوهر ، ذو حد...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2218, Museum No. 110). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2218"
   },
   {
     "id": "KFL-SWD-2219",
@@ -951,7 +968,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2219",
     "image": "./images/alkafeel/kfl-2219.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2219.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2219.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -972,7 +989,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "خنجر نصله ذو حدين و مصنوع من حديد الجوهر و المقبض مصنوع من ح...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2219, Museum No. 114). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2219"
   },
   {
     "id": "KFL-SWD-2220",
@@ -1005,7 +1023,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2220",
     "image": "./images/alkafeel/kfl-2220.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2220.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2220.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1026,7 +1044,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "خنجر نصله ذو حدين و مصنوع من حديد الجوهر ، المقبض مصنوع من ح...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2220, Museum No. 104). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel / Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2220"
   },
   {
     "id": "KFL-SWD-2221",
@@ -1059,7 +1078,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2221",
     "image": "./images/alkafeel/kfl-2221.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2221.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2221.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1080,7 +1099,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "خنجر نصله ذو حدين و مصنوع من حديد الجوهر المقبض مصنوع من حجر...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2221, Museum No. 109). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2221"
   },
   {
     "id": "KFL-SWD-2222",
@@ -1113,7 +1133,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2222",
     "image": "./images/alkafeel/kfl-2222.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2222.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2222.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1134,7 +1154,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "خنجر خطر ( الكاتار ) نصله ذو حدين و مصنوع من حديد الجوهر ، ع...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2222, Museum No. 117). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2222"
   },
   {
     "id": "KFL-SWD-2223",
@@ -1167,7 +1188,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2223",
     "image": "./images/alkafeel/kfl-2223.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2223.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2223.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1188,7 +1209,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "خنجر خطر ( الكاتار ) نصله ذو حدين و مصنوع من حديد الجوهر ، ع...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2223, Museum No. 118). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2223"
   },
   {
     "id": "KFL-SWD-2182",
@@ -1221,7 +1243,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2182",
     "image": "./images/alkafeel/kfl-2182.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2182.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2182.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1242,7 +1264,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مصنوع من الحديد النصل على شكل نصف دائرة منقوش عليه كتابات ون...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2182, Museum No. 2182). Section: Bladed Weapons (Swords). Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2182"
   },
   {
     "id": "KFL-SWD-2183",
@@ -1275,7 +1298,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2183",
     "image": "./images/alkafeel/kfl-2183.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2183.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2183.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1296,7 +1319,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "النصل مصنوع من مادة الحديد على شكل نصف دائرة اعلاه تجسيم على...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2183, Museum No. 2183). Section: Bladed Weapons (Swords). Materials: Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2183"
   },
   {
     "id": "KFL-SWD-2184",
@@ -1329,7 +1353,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2184",
     "image": "./images/alkafeel/kfl-2184.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2184.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2184.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1350,7 +1374,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "طبرزون مصنوع من مادة الحديد اما نصل الطبرزون فهو على شكل نصف...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2184, Museum No. 2184). Section: Bladed Weapons (Swords). Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2184"
   },
   {
     "id": "KFL-SWD-2185",
@@ -1383,7 +1408,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2185",
     "image": "./images/alkafeel/kfl-2185.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2185.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2185.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1404,7 +1429,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "طبرزون مصنوع من الحديد النصل على شكل نصف دائرة عليها نقوش نب...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2185, Museum No. 2185). Section: Bladed Weapons (Swords). Materials: Gold / Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2185"
   },
   {
     "id": "KFL-SWD-2201",
@@ -1437,7 +1463,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2201",
     "image": "./images/alkafeel/kfl-2201.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2201.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2201.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1458,7 +1484,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "هراوة مصنوعة من الحديد في اعلاها مجسم على شكل رأس حيوان (رأس...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2201, Museum No. 2201). Section: Bladed Weapons (Swords). Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2201"
   },
   {
     "id": "KFL-SWD-2202",
@@ -1491,7 +1518,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2202",
     "image": "./images/alkafeel/kfl-2202.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2202.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2202.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1512,7 +1539,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "هراوة مصنوعة من الحديد في اعلاها مجسم على شكل رأس انسان يبرز...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2202, Museum No. 2202). Section: Bladed Weapons (Swords). Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2202"
   },
   {
     "id": "KFL-SWD-2266",
@@ -1545,7 +1573,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2266",
     "image": "./images/alkafeel/kfl-2266.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2266.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2266.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1566,7 +1594,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "يطغان عثماني عليه نقوش كتابية و نباتية المقبض مصنوع من الفضة...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2266, Museum No. 322). Section: Bladed Weapons (Swords). Materials: Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2266"
   },
   {
     "id": "KFL-SWD-2267",
@@ -1599,7 +1628,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2267",
     "image": "./images/alkafeel/kfl-2267.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2267.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2267.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1620,7 +1649,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "يطغان مصنوع من حديد الجوهر والبرنج عليه نقوش نباتية وكتابية",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2267, Museum No. 321). Section: Bladed Weapons (Swords). Materials: Damascus Wootz Steel."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2267"
   },
   {
     "id": "KFL-SWD-2268",
@@ -1653,7 +1683,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2268",
     "image": "./images/alkafeel/kfl-2268.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2268.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2268.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1674,7 +1704,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "يطغان عليه ختم ونقوش نباتية و كتابية المقبض مغطى بالزخارف ال...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2268, Museum No. 323). Section: Bladed Weapons (Swords). Materials: Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2268"
   },
   {
     "id": "KFL-GUN-2208",
@@ -1707,7 +1738,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2208",
     "image": "./images/alkafeel/kfl-2208.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2208.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2208.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1728,7 +1759,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "بندقية قديمة تعمل بآلية الفتيل المجمر بدن البندقية مصنوع من...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2208, Museum No. 2208). Section: Historical Firearms. Materials: Copper/Brass / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2208"
   },
   {
     "id": "KFL-GUN-2209",
@@ -1761,7 +1793,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2209",
     "image": "./images/alkafeel/kfl-2209.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2209.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2209.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1782,7 +1814,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "بندقية قديمة تعمل بآلية الفتيل المجمر البدن من الخشب اما الس...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2209, Museum No. 2209). Section: Historical Firearms. Materials: Copper/Brass / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2209"
   },
   {
     "id": "KFL-GUN-2210",
@@ -1815,7 +1848,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2210",
     "image": "./images/alkafeel/kfl-2210.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2210.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2210.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1836,7 +1869,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "بندقيه قديمة تعمل بآلية حجر القدح بدن البندقية مصنوع من الخش...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2210, Museum No. 2210). Section: Historical Firearms. Materials: Copper/Brass / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2210"
   },
   {
     "id": "KFL-GUN-2211",
@@ -1869,7 +1903,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2211",
     "image": "./images/alkafeel/kfl-2211.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2211.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2211.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1890,7 +1924,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "بندقية قديمة تعمل بآلية حجر القدح بدن البندقية مصنوع من الخش...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2211, Museum No. 2211). Section: Historical Firearms. Materials: Copper/Brass / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2211"
   },
   {
     "id": "KFL-GUN-2212",
@@ -1923,7 +1958,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2212",
     "image": "./images/alkafeel/kfl-2212.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2212.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2212.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1944,7 +1979,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "بندقية قديمة تعمل بآلية حجر القدح بدن البندقية مصنوع من الخش...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2212, Museum No. 2212). Section: Historical Firearms. Materials: Copper/Brass / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2212"
   },
   {
     "id": "KFL-GUN-2213",
@@ -1977,7 +2013,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2213",
     "image": "./images/alkafeel/kfl-2213.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2213.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2213.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -1998,7 +2034,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "بندقية قديمة تعمل بآلية الكبسولة المقبض والحاضن من الخشب مطع...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2213, Museum No. 2213). Section: Historical Firearms. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2213"
   },
   {
     "id": "KFL-GUN-2214",
@@ -2031,7 +2068,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2214",
     "image": "./images/alkafeel/kfl-2214.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2214.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2214.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2052,7 +2089,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "بندقية قديمة أم السركي ذات خمس اطلاقات تعمل بآلية السحب النا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2214, Museum No. 2214). Section: Historical Firearms. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2214"
   },
   {
     "id": "KFL-GUN-2169",
@@ -2085,7 +2123,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2169",
     "image": "./images/alkafeel/kfl-2169.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2169.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2169.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2106,7 +2144,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مسدس يعمل بآليه القدح مصنوع من الحديد والخشب عليه نقوش وكتاب...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2169, Museum No. 2169). Section: Historical Firearms. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2169"
   },
   {
     "id": "KFL-GUN-2170",
@@ -2139,7 +2178,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2170",
     "image": "./images/alkafeel/kfl-2170.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2170.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2170.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2160,7 +2199,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مسدس يعمل بآلية حجر القدح مصنوع من الحديد والخشب مطعم بالعاج...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2170, Museum No. 2170). Section: Historical Firearms. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2170"
   },
   {
     "id": "KFL-GUN-2171",
@@ -2193,7 +2233,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2171",
     "image": "./images/alkafeel/kfl-2171.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2171.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2171.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2214,7 +2254,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مسدس قديم يعمل بآلية الكبسولة بدن المسدس من الخشب محلى بقطع...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2171, Museum No. 2171). Section: Historical Firearms. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2171"
   },
   {
     "id": "KFL-GUN-2172",
@@ -2247,7 +2288,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2172",
     "image": "./images/alkafeel/kfl-2172.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2172.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2172.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2268,7 +2309,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مسدس قديم يعمل بآلية الكبسولة البدن مصنوع من الخشب مطعم بقطع...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2172, Museum No. 2172). Section: Historical Firearms. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2172"
   },
   {
     "id": "KFL-GUN-2173",
@@ -2301,7 +2343,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2173",
     "image": "./images/alkafeel/kfl-2173.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2173.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2173.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2322,7 +2364,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مسدس قديم يعمل بآلية الكبسولة القبضة من الخشب السبطانة والبد...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2173, Museum No. 2173). Section: Historical Firearms. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2173"
   },
   {
     "id": "KFL-GUN-2238",
@@ -2355,7 +2398,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2238",
     "image": "./images/alkafeel/kfl-2238.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2238.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2238.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2376,7 +2419,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مسدس مصنوع من الحديد والخشب ( الصاج ) يعمل بألية الكبسولة وب...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2238, Museum No. 2238). Section: Historical Firearms. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2238"
   },
   {
     "id": "KFL-GUN-2248",
@@ -2409,7 +2453,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2248",
     "image": "./images/alkafeel/kfl-2248.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2248.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2248.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2430,7 +2474,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مسدس مصنوع من الحديد والخشب الصاج يعمل بألية الكبسولة وبذخير...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2248, Museum No. 2248). Section: Historical Firearms. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2248"
   },
   {
     "id": "KFL-MSS-2198",
@@ -2463,7 +2508,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2198",
     "image": "./images/alkafeel/kfl-2198.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2198.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2198.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2484,7 +2529,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صفحة من المصحف الشريف (مجلد واحد )، ثلاثون ورقة في كل ورقة ك...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2198, Museum No. 2198). Section: Manuscripts & Rare Texts. Materials: Leather / Handmade Paper."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2198"
   },
   {
     "id": "KFL-MSS-2199",
@@ -2517,7 +2563,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2199",
     "image": "./images/alkafeel/kfl-2199.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2199.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2199.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2538,7 +2584,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صفحة من المصحف الشريف المنسوب للامام علي بن الحسين زين العاب...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2199, Museum No. 2199). Section: Manuscripts & Rare Texts. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2199"
   },
   {
     "id": "KFL-MSS-2200",
@@ -2571,7 +2618,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2200",
     "image": "./images/alkafeel/kfl-2200.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2200.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2200.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2592,7 +2639,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صفحتان من الجزء الاول للمصحف الشريف المنسوب لابن البواب ،...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2200, Museum No. 2200). Section: Manuscripts & Rare Texts. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2200"
   },
   {
     "id": "KFL-MSS-2215",
@@ -2625,7 +2673,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2215",
     "image": "./images/alkafeel/kfl-2215.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2215.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2215.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2646,7 +2694,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صفحة من الصفحات التي كتبها العلامة محمد تقي المجلسي - الاول...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2215, Museum No. 2215). Section: Manuscripts & Rare Texts. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2215"
   },
   {
     "id": "KFL-MSS-2216",
@@ -2679,7 +2728,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2216",
     "image": "./images/alkafeel/kfl-2216.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2216.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2216.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2700,7 +2749,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "الصفحة الاولى والاخيرة من كتاب القانون للشيخ الرئيس ابي علي...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2216, Museum No. 2216). Section: Manuscripts & Rare Texts. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2216"
   },
   {
     "id": "KFL-CON-2149",
@@ -2733,7 +2783,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2149",
     "image": "./images/alkafeel/kfl-2149.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2149.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2149.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2754,7 +2804,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مسكوكة ذهبية تعود الى القرن الثاني الهجري في عهد المهدي العب...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2149, Museum No. 2149). Section: Coins & Numismatics. Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2149"
   },
   {
     "id": "KFL-CON-2150",
@@ -2787,7 +2838,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2150",
     "image": "./images/alkafeel/kfl-2150.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2150.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2150.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2808,7 +2859,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مسكوكة ذهبيه تعود الى القرن الخامس الهجري في العهد الخليفة ا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2150, Museum No. 2150). Section: Coins & Numismatics. Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2150"
   },
   {
     "id": "KFL-CON-2168",
@@ -2841,7 +2893,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2168",
     "image": "./images/alkafeel/kfl-2168.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2168.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2168.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2862,7 +2914,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مسكوكة فضية ضربت بمدينة شيراز في عهد الخليفة القادر باللته س...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2168, Museum No. 2168). Section: Coins & Numismatics. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2168"
   },
   {
     "id": "KFL-CON-2236",
@@ -2895,7 +2948,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2236",
     "image": "./images/alkafeel/kfl-2236.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2236.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2236.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2916,7 +2969,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مسكوكة مصنوعة من الفضة دائرية الشكل ، ضربت بعد تولّي الإمام...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2236, Museum No. 2236). Section: Coins & Numismatics. Materials: Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2236"
   },
   {
     "id": "KFL-CON-2256",
@@ -2949,7 +3003,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2256",
     "image": "./images/alkafeel/kfl-2256.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2256.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2256.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -2970,7 +3024,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "دينار الخليفة العباسي الواثق بالله ضرب بمصر سنة 227 هـ ، نقش...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2256, Museum No. 2256). Section: Coins & Numismatics. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2256"
   },
   {
     "id": "KFL-CON-2269",
@@ -3003,7 +3058,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2269",
     "image": "./images/alkafeel/kfl-2269.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2269.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2269.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3024,7 +3079,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "عملة ورقية عراقية فئة ربع دينار صادرة بموجب القانون رقم 42 ل...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2269, Museum No. 2269). Section: Coins & Numismatics. Materials: Handmade Paper."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2269"
   },
   {
     "id": "KFL-CON-2270",
@@ -3057,7 +3113,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2270",
     "image": "./images/alkafeel/kfl-2270.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2270.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2270.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3078,7 +3134,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "عملة ورقية ملكية عراقية قوامها نصف دينار ورقة نقدية صادقة بم...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2270, Museum No. 2270). Section: Coins & Numismatics. Materials: Handmade Paper."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2270"
   },
   {
     "id": "KFL-CON-2271",
@@ -3111,7 +3168,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2271",
     "image": "./images/alkafeel/kfl-2271.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2271.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2271.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3132,7 +3189,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "عملة ورقية عراقية لونها ازرق فئة واحد دينار موزعة على الاركا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2271, Museum No. 2271). Section: Coins & Numismatics. Materials: Handmade Paper."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2271"
   },
   {
     "id": "KFL-CON-2275",
@@ -3165,7 +3223,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2275",
     "image": "./images/alkafeel/kfl-2275.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2275.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2275.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3186,7 +3244,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "عملة ورقية لدولة روسيا لونها ارجواني فئة خمسة وعشرون روبل وف...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2275, Museum No. 2275). Section: Coins & Numismatics. Materials: Handmade Paper."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2275"
   },
   {
     "id": "KFL-KSH-2165",
@@ -3219,7 +3278,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2165",
     "image": "./images/alkafeel/kfl-2165.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2165.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2165.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3240,7 +3299,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "كشكول مصنوع من جوز الهند مطعم بأحجار كريمة زرقاء عليه كتابا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2165, Museum No. 2165). Section: Heritage Engraved Kashkuls. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2165"
   },
   {
     "id": "KFL-KSH-2166",
@@ -3273,7 +3333,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2166",
     "image": "./images/alkafeel/kfl-2166.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2166.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2166.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3294,7 +3354,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "كشكول مصنوع من جوز الهند عليه كتابات ونقوش نباتية وحيوانية و...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2166, Museum No. 2166). Section: Heritage Engraved Kashkuls. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2166"
   },
   {
     "id": "KFL-KSH-2167",
@@ -3327,7 +3388,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2167",
     "image": "./images/alkafeel/kfl-2167.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2167.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2167.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3348,7 +3409,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "كشكول مصنوع من جوز الهند عليه كتابات وزخارف ونقوش نباتية وحي...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2167, Museum No. 2167). Section: Heritage Engraved Kashkuls. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2167"
   },
   {
     "id": "KFL-KSH-2228",
@@ -3381,7 +3443,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2228",
     "image": "./images/alkafeel/kfl-2228.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2228.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2228.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3402,7 +3464,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "كشكول مصنوع من النحاس يحوي على وحدة زخرفية ذات عناصر نباتية...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2228, Museum No. 2228). Section: Heritage Engraved Kashkuls. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2228"
   },
   {
     "id": "KFL-KSH-2237",
@@ -3435,7 +3498,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2237",
     "image": "./images/alkafeel/kfl-2237.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2237.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2237.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3456,7 +3519,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "كشكول مصنوع من ثمرة جوز الهند بيضوي الشكل ذو لون بني يوجد...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2237, Museum No. 2237). Section: Heritage Engraved Kashkuls. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2237"
   },
   {
     "id": "KFL-KSH-2318",
@@ -3489,7 +3553,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2318",
     "image": "./images/alkafeel/kfl-2318.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2318.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2318.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3510,7 +3574,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "كشكول مصنوع من النحاس بيضوي الشكل زُين سطحه بنقوش وزخارف نبا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2318, Museum No. 2318). Section: Heritage Engraved Kashkuls. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2318"
   },
   {
     "id": "KFL-CND-2148",
@@ -3543,7 +3608,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2148",
     "image": "./images/alkafeel/kfl-2148.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2148.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2148.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3564,7 +3629,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "شمعدان فضي دائري الشكل عليه نقوش وزخارف ومقرنصات وفي وسطه كت...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2148, Museum No. 2148). Section: Heritage Candlesticks. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2148"
   },
   {
     "id": "KFL-CND-2151",
@@ -3597,7 +3663,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2151",
     "image": "./images/alkafeel/kfl-2151.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2151.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2151.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3618,7 +3684,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "شمعدان نحاسي قديم مطلي بالقصدير مخروطي الشكل من الاسفل والاع...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2151, Museum No. 2151). Section: Heritage Candlesticks. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2151"
   },
   {
     "id": "KFL-CND-2152",
@@ -3651,7 +3718,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2152",
     "image": "./images/alkafeel/kfl-2152.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2152.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2152.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3672,7 +3739,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "شمعدان مصنوع من الفضة على شكل شجرة تتفرع منها 9 حاملات للشمو...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2152, Museum No. 2152). Section: Heritage Candlesticks. Materials: Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2152"
   },
   {
     "id": "KFL-CND-2153",
@@ -3705,7 +3773,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2153",
     "image": "./images/alkafeel/kfl-2153.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2153.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2153.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3726,7 +3794,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "شمعدان نحاسي مطعم بالمينا مصور",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2153, Museum No. 2153). Section: Heritage Candlesticks. Materials: Copper/Brass / Enamel."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2153"
   },
   {
     "id": "KFL-CND-2154",
@@ -3759,7 +3828,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2154",
     "image": "./images/alkafeel/kfl-2154.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2154.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2154.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3780,7 +3849,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "شمعدان نحاسي القاعدة دائرية الشكل وسطه على شكل مجسم مربع الش...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2154, Museum No. 2154). Section: Heritage Candlesticks. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2154"
   },
   {
     "id": "KFL-CND-2155",
@@ -3813,7 +3883,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2155",
     "image": "./images/alkafeel/kfl-2155.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2155.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2155.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3834,7 +3904,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "شمعدان ذهبي دائري الشكل عليه نقوش وزخارف نباتيه",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2155, Museum No. 2155). Section: Heritage Candlesticks. Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2155"
   },
   {
     "id": "KFL-CND-2310",
@@ -3867,7 +3938,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2310",
     "image": "./images/alkafeel/kfl-2310.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2310.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2310.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3888,7 +3959,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "تحفية ( شمعدان ) مصنوع من النحاس الاحمر مطلي بالقصدير يتكون...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2310, Museum No. 2310). Section: Heritage Candlesticks. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2310"
   },
   {
     "id": "KFL-KUF-2144",
@@ -3921,7 +3993,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2144",
     "image": "./images/alkafeel/kfl-2144.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2144.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2144.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3942,7 +4014,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "كفان على شكل مشبك مصنوعان من الذهب مثبتان على قاعدة مصنوعة م...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2144, Museum No. 2144). Section: Sacred Shrine Hands (Kuffuf). Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2144"
   },
   {
     "id": "KFL-KUF-2145",
@@ -3975,7 +4048,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2145",
     "image": "./images/alkafeel/kfl-2145.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2145.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2145.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -3996,7 +4069,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "كف مصنوع من الذهب مطعم بأحجار كريمة حمراء عليه نقوش وزخارف ن...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2145, Museum No. 2145). Section: Sacred Shrine Hands (Kuffuf). Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2145"
   },
   {
     "id": "KFL-KUF-2146",
@@ -4029,7 +4103,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2146",
     "image": "./images/alkafeel/kfl-2146.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2146.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2146.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4050,7 +4124,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "كف مصنوع من الذهب مثبت عليه بروش يحتوي على احجار كريمة بيضاء...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2146, Museum No. 2146). Section: Sacred Shrine Hands (Kuffuf). Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2146"
   },
   {
     "id": "KFL-KUF-2147",
@@ -4083,7 +4158,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2147",
     "image": "./images/alkafeel/kfl-2147.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2147.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2147.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4104,7 +4179,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "كف من الفضة وعليه في اطراف الاصابع كفوف ذهبية صغيرة وفي وسط...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2147, Museum No. 2147). Section: Sacred Shrine Hands (Kuffuf). Materials: Gold / Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2147"
   },
   {
     "id": "KFL-KUF-2249",
@@ -4137,7 +4213,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2249",
     "image": "./images/alkafeel/kfl-2249.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2249.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2249.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4158,7 +4234,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "كف مصنوع من البرونز عليه سنة الوقف ( 1208 ) يتوسط راحة الكف...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2249, Museum No. 2249). Section: Sacred Shrine Hands (Kuffuf). Materials: Bronze."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2249"
   },
   {
     "id": "KFL-STP-2224",
@@ -4191,7 +4268,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2224",
     "image": "./images/alkafeel/kfl-2224.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2224.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2224.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4212,7 +4289,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "طابع احتلال الموصل التي اصدرت في عام 1919 م ، الموشحة على ال...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2224, Museum No. 2224). Section: Historical Postage Stamps. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2224"
   },
   {
     "id": "KFL-STP-2225",
@@ -4245,7 +4323,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2225",
     "image": "./images/alkafeel/kfl-2225.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2225.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2225.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4266,7 +4344,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "الطابع البريدي لمدينة بغداد تحت الاحتلال البريطاني لعام 1917...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2225, Museum No. 2225). Section: Historical Postage Stamps. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2225"
   },
   {
     "id": "KFL-STP-2226",
@@ -4299,7 +4378,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2226",
     "image": "./images/alkafeel/kfl-2226.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2226.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2226.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4320,7 +4399,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "أول طابع بريدي في العالم ، أصدر عام 1840 م ، يحمل صورة ملكة...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2226, Museum No. 2226). Section: Historical Postage Stamps. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2226"
   },
   {
     "id": "KFL-STP-2227",
@@ -4353,7 +4433,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2227",
     "image": "./images/alkafeel/kfl-2227.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2227.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2227.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4374,7 +4454,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "طابع بريدي بريطاني نصف آنة ، أصدر في الهند عام 1882-1890 م ،...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2227, Museum No. 2227). Section: Historical Postage Stamps. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2227"
   },
   {
     "id": "KFL-STP-2309",
@@ -4407,7 +4488,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2309",
     "image": "./images/alkafeel/kfl-2309.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2309.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2309.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4428,7 +4509,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "طابع بريدي فئة (1 روبية) صدر في العام 1923 ويحمل صورة الملك...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2309, Museum No. 2309). Section: Historical Postage Stamps. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2309"
   },
   {
     "id": "KFL-JWL-2229",
@@ -4461,7 +4543,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2229",
     "image": "./images/alkafeel/kfl-2229.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2229.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2229.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4482,7 +4564,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "بروش مصنوع من الذهب على شكل زخرفة نباتية مطعم بالألماس و الي...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2229, Museum No. 2229). Section: Jewelry & Precious Ornaments. Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2229"
   },
   {
     "id": "KFL-JWL-2230",
@@ -4515,7 +4598,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2230",
     "image": "./images/alkafeel/kfl-2230.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2230.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2230.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4536,7 +4619,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "بروش مصنوع من الذهب على شكل نجمة و هلال مطعم بأحجار الزجاج و...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2230, Museum No. 2230). Section: Jewelry & Precious Ornaments. Materials: Gold / Glass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2230"
   },
   {
     "id": "KFL-JWL-2231",
@@ -4569,7 +4653,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2231",
     "image": "./images/alkafeel/kfl-2231.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2231.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2231.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4590,7 +4674,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "بروش مصنوع من الذهب و مطعم بالألماس",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2231, Museum No. 2231). Section: Jewelry & Precious Ornaments. Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2231"
   },
   {
     "id": "KFL-JWL-2232",
@@ -4623,7 +4708,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2232",
     "image": "./images/alkafeel/kfl-2232.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2232.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2232.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4644,7 +4729,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "بروش مصنوع من النحاس الأصفر مطعم بالاحجار الكريمة و الالماس...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2232, Museum No. 2232). Section: Jewelry & Precious Ornaments. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2232"
   },
   {
     "id": "KFL-JWL-2282",
@@ -4677,7 +4763,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2282",
     "image": "./images/alkafeel/kfl-2282.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2282.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2282.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4698,7 +4784,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "بروش مصاغ من الذهب يوجد فيه ست طرر على شكل دائري من الفضة مط...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2282, Museum No. 2282). Section: Jewelry & Precious Ornaments. Materials: Gold / Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2282"
   },
   {
     "id": "KFL-JWL-2234",
@@ -4731,7 +4818,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2234",
     "image": "./images/alkafeel/kfl-2234.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2234.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2234.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4752,7 +4839,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "تاج مصنوع من النحاس مطلي بالذهب عليه زخارف نباتية و هندسية ب...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2234, Museum No. 2234). Section: Jewelry & Precious Ornaments. Materials: Gold / Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2234"
   },
   {
     "id": "KFL-JWL-2279",
@@ -4785,7 +4873,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2279",
     "image": "./images/alkafeel/kfl-2279.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2279.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2279.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4806,7 +4894,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "تاج مصاغ من الذهب عيار 21 عليه زخارف نباتية وهندسية مخرمة تت...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2279, Museum No. 2279). Section: Jewelry & Precious Ornaments. Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2279"
   },
   {
     "id": "KFL-JWL-2283",
@@ -4839,7 +4928,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2283",
     "image": "./images/alkafeel/kfl-2283.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2283.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2283.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4860,7 +4949,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "حافضة قرأن أو حرز مصاغة من الذهب مربعة الشكل ( مضلعة ) عليها...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2283, Museum No. 2283). Section: Jewelry & Precious Ornaments. Materials: Gold / Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2283"
   },
   {
     "id": "KFL-JWL-2284",
@@ -4893,7 +4983,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2284",
     "image": "./images/alkafeel/kfl-2284.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2284.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2284.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4914,7 +5004,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "جزء من قلادة مصاغة من الفضة و مطلية بالذهب عليها نقش نباتي م...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2284, Museum No. 2284). Section: Jewelry & Precious Ornaments. Materials: Gold / Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2284"
   },
   {
     "id": "KFL-MTL-2239",
@@ -4947,7 +5038,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2239",
     "image": "./images/alkafeel/kfl-2239.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2239.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2239.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -4968,7 +5059,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صفرية دائرية الشكل مصنوعة من النحاس الأحمر مطلية بالقصدير ،...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2239, Museum No. 2239). Section: Inlaid Metalware & Vessels. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2239"
   },
   {
     "id": "KFL-MTL-2243",
@@ -5001,7 +5093,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2243",
     "image": "./images/alkafeel/kfl-2243.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2243.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2243.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5022,7 +5114,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "آنية من النحاس الأحمر المطلي بالقصدير ، عليها عبارات و رسوم...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2243, Museum No. 2243). Section: Inlaid Metalware & Vessels. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2243"
   },
   {
     "id": "KFL-MTL-2250",
@@ -5055,7 +5148,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2250",
     "image": "./images/alkafeel/kfl-2250.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2250.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2250.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5076,7 +5169,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "آنية معدنية مصنوعة من الفضة أسطوانية الشكل عليها نقوش نباتية...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2250, Museum No. 2250). Section: Inlaid Metalware & Vessels. Materials: Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2250"
   },
   {
     "id": "KFL-MTL-2312",
@@ -5109,7 +5203,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2312",
     "image": "./images/alkafeel/kfl-2312.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2312.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2312.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5130,7 +5224,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "آنية ( صينية ) مصنوعة من النحاس الأحمر دائرية الشكل من الفتر...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2312, Museum No. 2312). Section: Inlaid Metalware & Vessels. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2312"
   },
   {
     "id": "KFL-MTL-2314",
@@ -5163,7 +5258,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2314",
     "image": "./images/alkafeel/kfl-2314.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2314.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2314.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5184,7 +5279,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "انية مصنوعة من النحاس الاصفر دائرية الشكل حافتها محززة عليها...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2314, Museum No. 2314). Section: Inlaid Metalware & Vessels. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2314"
   },
   {
     "id": "KFL-MTL-2240",
@@ -5217,7 +5313,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2240",
     "image": "./images/alkafeel/kfl-2240.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2240.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2240.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5238,7 +5334,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "إبريق مصنوع من النحاس مطلي بالقصدير عليه زخارف هندسية و نبات...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2240, Museum No. 2240). Section: Inlaid Metalware & Vessels. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2240"
   },
   {
     "id": "KFL-MTL-2241",
@@ -5271,7 +5368,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2241",
     "image": "./images/alkafeel/kfl-2241.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2241.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2241.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5292,7 +5389,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "إبريق مصنوع من النحاس الأحمر مطلي بالقصدير توجد عليه زخارف ه...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2241, Museum No. 2241). Section: Inlaid Metalware & Vessels. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2241"
   },
   {
     "id": "KFL-MTL-2246",
@@ -5325,7 +5423,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2246",
     "image": "./images/alkafeel/kfl-2246.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2246.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2246.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5346,7 +5444,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "تحفية ( إبريق ) مصنوع من النحاس الأحمر مطلي بالقصدير ، القاع...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2246, Museum No. 2246). Section: Inlaid Metalware & Vessels. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2246"
   },
   {
     "id": "KFL-MTL-2254",
@@ -5379,7 +5478,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2254",
     "image": "./images/alkafeel/kfl-2254.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2254.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2254.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5400,7 +5499,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "وعاء ماء ( طاسة ) مصنوع من النحاس الاحمر المطلي بالقصدير ذو...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2254, Museum No. 2254). Section: Inlaid Metalware & Vessels. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2254"
   },
   {
     "id": "KFL-MTL-2255",
@@ -5433,7 +5533,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2255",
     "image": "./images/alkafeel/kfl-2255.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2255.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2255.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5454,7 +5554,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "وعاء ماء ( طاسة ) مصنوعة من النحاس الأحمر المطلي بالقصدير ذو...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2255, Museum No. 2255). Section: Inlaid Metalware & Vessels. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2255"
   },
   {
     "id": "KFL-GLS-2242",
@@ -5487,7 +5588,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2242",
     "image": "./images/alkafeel/kfl-2242.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2242.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2242.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5508,7 +5609,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "لالة مصنوعة مصنوعة من البرونز و الرخام و معدن النحاس الأصفر...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2242, Museum No. 2242). Section: Antique Glassware. Materials: Copper/Brass / Bronze."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2242"
   },
   {
     "id": "KFL-CLK-2139",
@@ -5541,7 +5643,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2139",
     "image": "./images/alkafeel/kfl-2139.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2139.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2139.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5562,7 +5664,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "ساعة منضديه قديمة دقاقه انكليزية الصنع مؤطره باطار من الخشب...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2139, Museum No. 2139). Section: Antique Clocks & Timepieces. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2139"
   },
   {
     "id": "KFL-CLK-2140",
@@ -5595,7 +5698,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2140",
     "image": "./images/alkafeel/kfl-2140.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2140.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2140.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5616,7 +5719,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "ساعة منضدية مغلفة بالخشب وعليها نقوش من البرونز ومطعمة بالزج...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2140, Museum No. 2140). Section: Antique Clocks & Timepieces. Materials: Wood / Bronze."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2140"
   },
   {
     "id": "KFL-CLK-2141",
@@ -5649,7 +5753,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2141",
     "image": "./images/alkafeel/kfl-2141.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2141.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2141.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5670,7 +5774,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "ساعة جدارية مغلفة بالخشب من نوع ( صاج ) وعليها نقوش نباتية ،...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2141, Museum No. 2141). Section: Antique Clocks & Timepieces. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2141"
   },
   {
     "id": "KFL-VAS-2258",
@@ -5703,7 +5808,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2258",
     "image": "./images/alkafeel/kfl-2258.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2258.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2258.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5724,7 +5829,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مزهرية مصنوعة من النحاس مطلية بالقصدير تحتوي على وحدات زخرفي...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2258, Museum No. 2258). Section: Heritage Vases. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2258"
   },
   {
     "id": "KFL-VAS-2265",
@@ -5757,7 +5863,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2265",
     "image": "./images/alkafeel/kfl-2265.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2265.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2265.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5778,7 +5884,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مزهرية عليها نقوش نباتية في غاية الدقة كتب عليها تاريخ الوقف...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2265, Museum No. 2265). Section: Heritage Vases. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2265"
   },
   {
     "id": "KFL-TXT-2136",
@@ -5811,7 +5918,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2136",
     "image": "./images/alkafeel/kfl-2136.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2136.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2136.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5832,7 +5939,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "سجادة يدوية ترمز الى صور الرسول الاعظم محمد (ص) وهي من السجا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2136, Museum No. 2136). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2136"
   },
   {
     "id": "KFL-TXT-2137",
@@ -5865,7 +5973,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2137",
     "image": "./images/alkafeel/kfl-2137.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2137.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2137.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5886,7 +5994,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "سجادة يدوية من الطراز الممتاز عليها نقوش وزخارف نباتية وحيوا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2137, Museum No. 2137). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2137"
   },
   {
     "id": "KFL-TXT-2156",
@@ -5919,7 +6028,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2156",
     "image": "./images/alkafeel/kfl-2156.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2156.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2156.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5940,7 +6049,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "سجادة يدوية من الطراز الممتاز ترمز الى صورة الامام علي (عليه...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2156, Museum No. 2156). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2156"
   },
   {
     "id": "KFL-TXT-2157",
@@ -5973,7 +6083,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2157",
     "image": "./images/alkafeel/kfl-2157.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2157.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2157.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -5994,7 +6104,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "سجادة يدوية من الطراز الممتاز عليها رسوم حيوانية ونباتية كذل...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2157, Museum No. 2157). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2157"
   },
   {
     "id": "KFL-TXT-2158",
@@ -6027,7 +6138,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2158",
     "image": "./images/alkafeel/kfl-2158.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2158.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2158.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6048,7 +6159,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "سجادة يدوية من الطراز الممتاز عليها نقوش وزخارف نباتية وتتوس...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2158, Museum No. 2158). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2158"
   },
   {
     "id": "KFL-TXT-2161",
@@ -6081,7 +6193,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2161",
     "image": "./images/alkafeel/kfl-2161.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2161.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2161.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6102,7 +6214,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "سجادة يدوية من الطراز الممتاز مصوره عليها مثبت الوقفيه لاابي...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2161, Museum No. 2161). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2161"
   },
   {
     "id": "KFL-TXT-2162",
@@ -6135,7 +6248,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2162",
     "image": "./images/alkafeel/kfl-2162.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2162.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2162.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6156,7 +6269,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "سجادة ايرانية نوع تبريز نقشه القبه دار عمرها يقدر ب(70) سنة...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2162, Museum No. 2162). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2162"
   },
   {
     "id": "KFL-TXT-2163",
@@ -6189,7 +6303,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2163",
     "image": "./images/alkafeel/kfl-2163.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2163.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2163.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6210,7 +6324,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "سجادة ايرانية نوع بيجار نقشة ماي درهم يقدر عمرها ب(75) وهي م...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2163, Museum No. 2163). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2163"
   },
   {
     "id": "KFL-TXT-2164",
@@ -6243,7 +6358,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2164",
     "image": "./images/alkafeel/kfl-2164.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2164.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2164.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6264,7 +6379,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "سجادة ايرانية مصورة نادرة (كاشان) ترمز صورتها الى ابا الفضل...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2164, Museum No. 2164). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2164"
   },
   {
     "id": "KFL-TXT-2233",
@@ -6297,7 +6413,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2233",
     "image": "./images/alkafeel/kfl-2233.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2233.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2233.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6318,7 +6434,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "سجادة من نوع كرمان عليها نقوش نباتية و حيوانية تتوسطها صورة...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2233, Museum No. 2233). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2233"
   },
   {
     "id": "KFL-TXT-2257",
@@ -6351,7 +6468,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2257",
     "image": "./images/alkafeel/kfl-2257.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2257.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2257.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6372,7 +6489,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "سجادة نوع كاشان عليها نقوش و زخارف نباتية و حيوانية يتوسطها...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2257, Museum No. 2257). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2257"
   },
   {
     "id": "KFL-TXT-2203",
@@ -6405,7 +6523,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2203",
     "image": "./images/alkafeel/kfl-2203.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2203.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2203.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6426,7 +6544,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "راية حمراء مكتوب عليها ( ياقمر بني هاشم ) رفعت في الانتفاضة...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2203, Museum No. 2203). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2203"
   },
   {
     "id": "KFL-TXT-2204",
@@ -6459,7 +6578,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2204",
     "image": "./images/alkafeel/kfl-2204.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2204.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2204.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6480,7 +6599,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "علم شمس الملوك لناصر الدين شاه القاجاري وهي في الاصل برده مل...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2204, Museum No. 2204). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2204"
   },
   {
     "id": "KFL-TXT-2205",
@@ -6513,7 +6633,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2205",
     "image": "./images/alkafeel/kfl-2205.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2205.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2205.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6534,7 +6654,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "علم مصنوع من قماش الكتان والقديفة ومطرز يدويا بنقوش وزخارف ن...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2205, Museum No. 2205). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2205"
   },
   {
     "id": "KFL-TXT-2206",
@@ -6567,7 +6688,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2206",
     "image": "./images/alkafeel/kfl-2206.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2206.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2206.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6588,7 +6709,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "علم مصنوع من قماش القديفة و الخيوط المعدنية مطرز عليه نقوش و...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2206, Museum No. 2206). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2206"
   },
   {
     "id": "KFL-TXT-2207",
@@ -6621,7 +6743,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2207",
     "image": "./images/alkafeel/kfl-2207.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2207.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2207.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6642,7 +6764,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "علم يتكون من ثلات أجزاء ، الجزء الأول مصنوع من قماش وخيوط مع...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2207, Museum No. 2207). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2207"
   },
   {
     "id": "KFL-TXT-2308",
@@ -6675,7 +6798,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2308",
     "image": "./images/alkafeel/kfl-2308.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2308.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2308.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6696,7 +6819,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "علم يعود الى العهد القاجاري مثلّث الشكل وبلون أخضر، يحيط به...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2308, Museum No. 2308). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2308"
   },
   {
     "id": "KFL-TXT-2311",
@@ -6729,7 +6853,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2311",
     "image": "./images/alkafeel/kfl-2311.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2311.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2311.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6750,7 +6874,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "علم مصنوع من قماش القديفة عليه زخارف نباتية ويظهر في وسطه شع...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2311, Museum No. 2311). Section: Textiles & Sacred Carpets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2311"
   },
   {
     "id": "KFL-LCK-2142",
@@ -6783,7 +6908,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2142",
     "image": "./images/alkafeel/kfl-2142.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2142.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2142.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6804,7 +6929,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "قفل قديم مصنوع من الحديد عليه نقوش وزخارف وكتب عليه عمل (أبو...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2142, Museum No. 2142). Section: Historical Shrine Locks. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2142"
   },
   {
     "id": "KFL-LCK-2143",
@@ -6837,7 +6963,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2143",
     "image": "./images/alkafeel/kfl-2143.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2143.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2143.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6858,7 +6984,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "قفل قديم مصنوع من الحديد عليه أثار ونقوش قديمة",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2143, Museum No. 2143). Section: Historical Shrine Locks. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2143"
   },
   {
     "id": "KFL-LCK-2259",
@@ -6891,7 +7018,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2259",
     "image": "./images/alkafeel/kfl-2259.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2259.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2259.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6912,7 +7039,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "قفل مصنوع من الحديد مكون من جزئين ، الجزء الاول على شكل دائر...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2259, Museum No. 2259). Section: Historical Shrine Locks. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2259"
   },
   {
     "id": "KFL-ZYR-2186",
@@ -6945,7 +7073,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2186",
     "image": "./images/alkafeel/kfl-2186.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2186.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2186.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -6966,7 +7094,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "زيارة قديمة تعود لحضرة ابي الفضل العباس (عليه السلام) مؤطره...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2186, Museum No. 2186). Section: Sacred Ziyarat Tablets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2186"
   },
   {
     "id": "KFL-ZYR-2187",
@@ -6999,7 +7128,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2187",
     "image": "./images/alkafeel/kfl-2187.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2187.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2187.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7020,7 +7149,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "زيارة قديمة تعود لحضرة ابي الفضل العباس (عليه السلام) مؤطره...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2187, Museum No. 2187). Section: Sacred Ziyarat Tablets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2187"
   },
   {
     "id": "KFL-ZYR-2188",
@@ -7053,7 +7183,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2188",
     "image": "./images/alkafeel/kfl-2188.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2188.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2188.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7074,7 +7204,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "زيارة قديمة تعود الى حضرة ابي الفضل العباس (عليه السلام) الا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2188, Museum No. 2188). Section: Sacred Ziyarat Tablets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2188"
   },
   {
     "id": "KFL-ZYR-2189",
@@ -7107,7 +7238,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2189",
     "image": "./images/alkafeel/kfl-2189.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2189.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2189.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7128,7 +7259,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "زيارة قديمة تعود لحضرة ابي الفضل العباس (عليه السلام) الاطار...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2189, Museum No. 2189). Section: Sacred Ziyarat Tablets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2189"
   },
   {
     "id": "KFL-ZYR-2190",
@@ -7161,7 +7293,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2190",
     "image": "./images/alkafeel/kfl-2190.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2190.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2190.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7182,7 +7314,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "زيارة قديمة تعود لحضرة ابي الفضل العباس (عليه السلام) مؤطره...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2190, Museum No. 2190). Section: Sacred Ziyarat Tablets. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2190"
   },
   {
     "id": "KFL-QHL-2260",
@@ -7215,7 +7348,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2260",
     "image": "./images/alkafeel/kfl-2260.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2260.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2260.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7236,7 +7369,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "حاملة مصحف ( رحلة ) مصنوعة من الخشب المطعم بالاربيسك على الج...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2260, Museum No. 2260). Section: Illuminated Quran Holders. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2260"
   },
   {
     "id": "KFL-QHL-2261",
@@ -7269,7 +7403,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2261",
     "image": "./images/alkafeel/kfl-2261.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2261.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2261.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7290,7 +7424,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "حاملة مصحف ( رحلة ) مصنوعة من الخشب المطعم بالاربيسك على الج...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2261, Museum No. 2261). Section: Illuminated Quran Holders. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2261"
   },
   {
     "id": "KFL-QRB-2159",
@@ -7323,7 +7458,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2159",
     "image": "./images/alkafeel/kfl-2159.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2159.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2159.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7344,7 +7479,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "قربة صغيرة مصنوعة من الفضة ( عليها طلاء ذهب ) عليها نقوش ن...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2159, Museum No. 2159). Section: Heritage Water Flasks (Qirab). Materials: Gold / Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2159"
   },
   {
     "id": "KFL-QRB-2160",
@@ -7377,7 +7513,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2160",
     "image": "./images/alkafeel/kfl-2160.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2160.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2160.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7398,7 +7534,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "قربة ماء مصنوعة من الفضة عليها نقوش نباتية تتوسط احد وجهيها...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2160, Museum No. 2160). Section: Heritage Water Flasks (Qirab). Materials: Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2160"
   },
   {
     "id": "KFL-QRB-2192",
@@ -7431,7 +7568,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2192",
     "image": "./images/alkafeel/kfl-2192.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2192.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2192.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7452,7 +7589,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "قربة مصنوعة من الجلد تستخدم للماء واللبن",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2192, Museum No. 2192). Section: Heritage Water Flasks (Qirab). Materials: Leather."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2192"
   },
   {
     "id": "KFL-MDL-2272",
@@ -7485,7 +7623,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2272",
     "image": "./images/alkafeel/kfl-2272.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2272.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2272.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7506,7 +7644,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "وسام ملكي مدني سنة الاصدار ( 1345 ) في عهد الملك فيصل الأول...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2272, Museum No. 2272). Section: Historical Medals & Orders. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2272"
   },
   {
     "id": "KFL-MDL-2273",
@@ -7539,7 +7678,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2273",
     "image": "./images/alkafeel/kfl-2273.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2273.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2273.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7560,7 +7699,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "ميدالية نوط الخدمة العامة تعود لعهد الملكية ( الملك فيصل ) ف...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2273, Museum No. 2273). Section: Historical Medals & Orders. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2273"
   },
   {
     "id": "KFL-MDL-2274",
@@ -7593,7 +7733,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2274",
     "image": "./images/alkafeel/kfl-2274.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2274.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2274.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7614,7 +7754,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "نوط الشرطة للخدمة العامة مصنوع من النحاس بشكل شعاعي موضوع عل...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2274, Museum No. 2274). Section: Historical Medals & Orders. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2274"
   },
   {
     "id": "KFL-LNT-2247",
@@ -7647,7 +7788,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2247",
     "image": "./images/alkafeel/kfl-2247.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2247.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2247.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7668,7 +7809,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "قنديل مصنوع من الذهب على الطراز النادري ، عليه نقوش وزخارف ن...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2247, Museum No. 2247). Section: Shrine Lanterns & Lamps. Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2247"
   },
   {
     "id": "KFL-LNT-2285",
@@ -7701,7 +7843,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2285",
     "image": "./images/alkafeel/kfl-2285.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2285.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2285.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7722,7 +7864,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "قنديل اضاءة مجوف ومخرم ذو شكل كمثري مصنوع من النحاس الأحمر ا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2285, Museum No. 2285). Section: Shrine Lanterns & Lamps. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2285"
   },
   {
     "id": "KFL-SCP-2235",
@@ -7755,7 +7898,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2235",
     "image": "./images/alkafeel/kfl-2235.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2235.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2235.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7776,7 +7919,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صولجان مصنوع من الخشب مغلف بالفضة على هيئة قطع اسطوانية ، ع...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2235, Museum No. 2235). Section: Ceremonial Maces & Scepters. Materials: Silver / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2235"
   },
   {
     "id": "KFL-SCP-2262",
@@ -7809,7 +7953,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2262",
     "image": "./images/alkafeel/kfl-2262.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2262.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2262.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7830,7 +7974,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صولجان مصنوع من الخشب مغلف بالفضة على هيئة قطع عليها نقش نبا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2262, Museum No. 2262). Section: Ceremonial Maces & Scepters. Materials: Silver / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2262"
   },
   {
     "id": "KFL-SCP-2263",
@@ -7863,7 +8008,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2263",
     "image": "./images/alkafeel/kfl-2263.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2263.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2263.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7884,7 +8029,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صولجان مصنوع من الخشب مغلف بالارابيسك عليه نقوش هندسية ونبات...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2263, Museum No. 2263). Section: Ceremonial Maces & Scepters. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2263"
   },
   {
     "id": "KFL-SCP-2264",
@@ -7917,7 +8063,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2264",
     "image": "./images/alkafeel/kfl-2264.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2264.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2264.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7938,7 +8084,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صولجان مصنوع من الخشب راسه على هيئة صفيحة اسطوانية مجوفة مصن...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2264, Museum No. 2264). Section: Ceremonial Maces & Scepters. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2264"
   },
   {
     "id": "KFL-PNT-2276",
@@ -7971,7 +8118,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2276",
     "image": "./images/alkafeel/kfl-2276.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2276.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2276.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -7992,7 +8139,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "لوحة اطارها مصنوع من الاربيسك كتب عليه اية قرانية ، بسم الله...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2276, Museum No. 2276). Section: Heritage Paintings & Calligraphy. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2276"
   },
   {
     "id": "KFL-PNT-2277",
@@ -8025,7 +8173,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2277",
     "image": "./images/alkafeel/kfl-2277.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2277.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2277.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8046,7 +8194,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "لوحة نحاسية مكتوب عليها ( آية الكرسي ) مؤطرة بإطار مصنوع من...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2277, Museum No. 2277). Section: Heritage Paintings & Calligraphy. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2277"
   },
   {
     "id": "KFL-PNT-2278",
@@ -8079,7 +8228,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2278",
     "image": "./images/alkafeel/kfl-2278.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2278.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2278.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8100,7 +8249,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "لوحة من النحاس الاحمر كتب فيها الاية الكريمة (وان يكاد ........",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2278, Museum No. 2278). Section: Heritage Paintings & Calligraphy. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2278"
   },
   {
     "id": "KFL-ARM-2130",
@@ -8133,7 +8283,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2130",
     "image": "./images/alkafeel/kfl-2130.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2130.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2130.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8154,7 +8304,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "الوجه مزين بستة فصوص محززة ولها قواعد دائرية ويحتوي على قطعة...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2130, Museum No. 2130). Section: Defensive Armor & Shields. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2130"
   },
   {
     "id": "KFL-ARM-2131",
@@ -8187,7 +8338,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2131",
     "image": "./images/alkafeel/kfl-2131.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2131.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2131.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8208,7 +8359,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مصنوع من الخشب ومغلف بقطعة من الجلد يحتوي وجه الدرع على اربع...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2131, Museum No. 2131). Section: Defensive Armor & Shields. Materials: Wood / Leather."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2131"
   },
   {
     "id": "KFL-ARM-2132",
@@ -8241,7 +8393,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2132",
     "image": "./images/alkafeel/kfl-2132.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2132.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2132.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8262,7 +8414,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "درع دائري مصنوع من الجلد الطبيعي عليه زخارف ونقوش وكتابات وك...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2132, Museum No. 2132). Section: Defensive Armor & Shields. Materials: Leather."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2132"
   },
   {
     "id": "KFL-ARM-2133",
@@ -8295,7 +8448,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2133",
     "image": "./images/alkafeel/kfl-2133.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2133.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2133.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8316,7 +8469,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "درع دائري الشكل مصنوع من اغصان الاشجار المغطاة بخيوط النسيج...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2133, Museum No. 2133). Section: Defensive Armor & Shields. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2133"
   },
   {
     "id": "KFL-ARM-2134",
@@ -8349,7 +8503,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2134",
     "image": "./images/alkafeel/kfl-2134.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2134.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2134.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8370,7 +8524,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "درع دائري الشكل مصنوع من الجلد عليه اثار منقوش على شكل هلال...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2134, Museum No. 2134). Section: Defensive Armor & Shields. Materials: Leather."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2134"
   },
   {
     "id": "KFL-ARM-2315",
@@ -8403,7 +8558,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2315",
     "image": "./images/alkafeel/kfl-2315.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2315.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2315.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8424,7 +8579,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "درع يُحمل باليد استُخدم للحماية ويعود إلى منطقة باكستان في ا...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2315, Museum No. 2315). Section: Defensive Armor & Shields. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2315"
   },
   {
     "id": "KFL-ARM-2138",
@@ -8457,7 +8613,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2138",
     "image": "./images/alkafeel/kfl-2138.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2138.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2138.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8478,7 +8634,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "لامة حرب متكاملة قديمة متكونه من قطعتين داخلية وخارجية مصنوع...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2138, Museum No. 2138). Section: Defensive Armor & Shields. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2138"
   },
   {
     "id": "KFL-ARM-2280",
@@ -8511,7 +8668,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2280",
     "image": "./images/alkafeel/kfl-2280.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2280.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2280.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8532,7 +8689,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "درع زردي وهو من الدروع البتراء مصنوع من الحديد والنحاس على ش...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2280, Museum No. 2280). Section: Defensive Armor & Shields. Materials: Copper/Brass."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2280"
   },
   {
     "id": "KFL-ARM-2281",
@@ -8565,7 +8723,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2281",
     "image": "./images/alkafeel/kfl-2281.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2281.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2281.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8586,7 +8744,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "درع زردي وهو من الدروع البتراء، مصنوع من الحديد على شكل قميص...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2281, Museum No. 2281). Section: Defensive Armor & Shields. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2281"
   },
   {
     "id": "KFL-ARM-2286",
@@ -8619,7 +8778,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2286",
     "image": "./images/alkafeel/kfl-2286.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2286.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2286.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8640,7 +8799,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "خوذة مقاتل مصنوعة من الحديد دائرية ( نصف كروية الشكل ) . يو...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2286, Museum No. 2286). Section: Defensive Armor & Shields. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2286"
   },
   {
     "id": "KFL-DOR-2287",
@@ -8673,7 +8833,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2287",
     "image": "./images/alkafeel/kfl-2287.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2287.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2287.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8694,7 +8854,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "الباب الفضي لمدخل السرداب الشريف لمرقد المولى أبي الفضل العب...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2287, Museum No. 2287). Section: Historical Sanctuary Doors. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2287"
   },
   {
     "id": "KFL-DOR-2288",
@@ -8727,7 +8888,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2288",
     "image": "./images/alkafeel/kfl-2288.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2288.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2288.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8748,7 +8909,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "باب مقام الكف الايسر المصنوع من الخشب و المغلف بالنحاس والمش...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2288, Museum No. 2288). Section: Historical Sanctuary Doors. Materials: Copper/Brass / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2288"
   },
   {
     "id": "KFL-SHR-2289",
@@ -8781,7 +8943,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2289",
     "image": "./images/alkafeel/kfl-2289.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2289.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2289.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8802,7 +8964,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "جزء ضريح ( رمانة ضريح ) مصنوعة من الذهب والقاعدة من الخشب عل...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2289, Museum No. 2289). Section: Sacred Shrine Architecture Parts. Materials: Gold / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2289"
   },
   {
     "id": "KFL-SHR-2290",
@@ -8835,7 +8998,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2290",
     "image": "./images/alkafeel/kfl-2290.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2290.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2290.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8856,7 +9019,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "جزء ضريح ( رمانة ضريح ) مصنوعة من الذهب والقاعدة من الخشب عل...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2290, Museum No. 2290). Section: Sacred Shrine Architecture Parts. Materials: Gold / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2290"
   },
   {
     "id": "KFL-SHR-2291",
@@ -8889,7 +9053,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2291",
     "image": "./images/alkafeel/kfl-2291.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2291.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2291.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8910,7 +9074,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "جزء ضريح ( رمانة ضريح ) مصنوعة من الذهب والقاعدة من الخشب عل...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2291, Museum No. 2291). Section: Sacred Shrine Architecture Parts. Materials: Gold / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2291"
   },
   {
     "id": "KFL-SHR-2292",
@@ -8943,7 +9108,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2292",
     "image": "./images/alkafeel/kfl-2292.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2292.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2292.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -8964,7 +9129,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "جزء ضريح ( رمانة ضريح ) مصنوعة من الذهب والقاعدة من الخشب عل...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2292, Museum No. 2292). Section: Sacred Shrine Architecture Parts. Materials: Gold / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2292"
   },
   {
     "id": "KFL-MSC-2293",
@@ -8997,7 +9163,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2293",
     "image": "./images/alkafeel/kfl-2293.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2293.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2293.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9018,7 +9184,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "انية زينة من الخزف على شكل صحن طعام مزينة بالزخارف النباتية...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2293, Museum No. 2293). Section: Miscellaneous Museum Relics. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2293"
   },
   {
     "id": "KFL-MSC-2294",
@@ -9051,7 +9218,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2294",
     "image": "./images/alkafeel/kfl-2294.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2294.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2294.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9072,7 +9239,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مصباح منضدي كهربائي مصنوع من النحاس و مطلي بالبرونز مكون من...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2294, Museum No. 2294). Section: Miscellaneous Museum Relics. Materials: Copper/Brass / Bronze."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2294"
   },
   {
     "id": "KFL-MSC-2296",
@@ -9105,7 +9273,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2296",
     "image": "./images/alkafeel/kfl-2296.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2296.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2296.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9126,7 +9294,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "مبخرة مصنوعة من البرونز مطلية بمادة القصدير على شكل شمعدان ت...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2296, Museum No. 2296). Section: Miscellaneous Museum Relics. Materials: Bronze."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2296"
   },
   {
     "id": "KFL-MSC-2307",
@@ -9159,7 +9328,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2307",
     "image": "./images/alkafeel/kfl-2307.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2307.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2307.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9180,7 +9349,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "منظار بحري ( تلسكوب ) يرتكز على ثلاثة ارجل مصنوع من البرونز...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2307, Museum No. 2307). Section: Miscellaneous Museum Relics. Materials: Bronze."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2307"
   },
   {
     "id": "KFL-MSC-2316",
@@ -9213,7 +9383,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2316",
     "image": "./images/alkafeel/kfl-2316.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2316.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2316.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9234,7 +9404,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "جهاز راديو يتألف من منظومة متكاملة تبدأ بمصباح يعمل بزيت الب...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2316, Museum No. 2316). Section: Miscellaneous Museum Relics. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2316"
   },
   {
     "id": "KFL-MSC-2317",
@@ -9267,7 +9438,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2317",
     "image": "./images/alkafeel/kfl-2317.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2317.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2317.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9288,7 +9459,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "وعاء معدني تقليدي (سماور) كشميري الصنع ومزخرف بنقوش يدوية دق...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2317, Museum No. 2317). Section: Miscellaneous Museum Relics. Materials: Authentic Heritage Material."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2317"
   },
   {
     "id": "KFL-FIN-2295",
@@ -9321,7 +9493,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2295",
     "image": "./images/alkafeel/kfl-2295.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2295.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2295.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9342,7 +9514,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "رأس سارية مصنوع من الذهب عليه نقوش وزخارف هندسية و نباتية كت...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2295, Museum No. 2295). Section: Sacred Standard Finials (Alam). Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2295"
   },
   {
     "id": "KFL-FIN-2297",
@@ -9375,7 +9548,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2297",
     "image": "./images/alkafeel/kfl-2297.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2297.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2297.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9396,7 +9569,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "رأس سارية مصنوع من الذهب عليه نقوش وزخارف هندسية و نباتية كت...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2297, Museum No. 2297). Section: Sacred Standard Finials (Alam). Materials: Gold."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2297"
   },
   {
     "id": "KFL-FIN-2298",
@@ -9429,7 +9603,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2298",
     "image": "./images/alkafeel/kfl-2298.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2298.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2298.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9450,7 +9624,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "راس سارية مصنوع من الفضة عليه زخارف ونقوش هندسية ونباتية وال...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2298, Museum No. 2298). Section: Sacred Standard Finials (Alam). Materials: Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2298"
   },
   {
     "id": "KFL-FIN-2299",
@@ -9483,7 +9658,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2299",
     "image": "./images/alkafeel/kfl-2299.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2299.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2299.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9504,7 +9679,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "راس سارية مصنوع من الفضة عليه زخارف ونقوش هندسية ونباتية وال...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2299, Museum No. 2299). Section: Sacred Standard Finials (Alam). Materials: Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2299"
   },
   {
     "id": "KFL-CST-2300",
@@ -9537,7 +9713,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2300",
     "image": "./images/alkafeel/kfl-2300.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2300.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2300.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9558,7 +9734,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صندوق خشب كبير مثبت بمسامير من النحاس تشكل زخارف هندسية",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2300, Museum No. 2300). Section: Heritage Sanctuary Chests. Materials: Copper/Brass / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2300"
   },
   {
     "id": "KFL-CST-2301",
@@ -9591,7 +9768,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2301",
     "image": "./images/alkafeel/kfl-2301.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2301.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2301.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9612,7 +9789,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صندوق خشب بنّي قديم كبير الحجم فيه مسامير من النحاس صفراء ال...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2301, Museum No. 2301). Section: Heritage Sanctuary Chests. Materials: Copper/Brass / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2301"
   },
   {
     "id": "KFL-CST-2302",
@@ -9645,7 +9823,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2302",
     "image": "./images/alkafeel/kfl-2302.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2302.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2302.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9666,7 +9844,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صندوق لحفظ القران مصنوع من الخشب و مغلف بالارابيسك كتب عليه...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2302, Museum No. 2302). Section: Heritage Sanctuary Chests. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2302"
   },
   {
     "id": "KFL-CST-2303",
@@ -9699,7 +9878,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2303",
     "image": "./images/alkafeel/kfl-2303.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2303.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2303.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9720,7 +9899,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صندوق مصنوع من الخشب فيه قطع من الحديد تشكل زخارف هندسية ونج...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2303, Museum No. 2303). Section: Heritage Sanctuary Chests. Materials: Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2303"
   },
   {
     "id": "KFL-CST-2304",
@@ -9753,7 +9933,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2304",
     "image": "./images/alkafeel/kfl-2304.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2304.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2304.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9774,7 +9954,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صندوق مصنوع من الفضة زين بالزخارف الحيوانية والنباتية البارز...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2304, Museum No. 2304). Section: Heritage Sanctuary Chests. Materials: Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2304"
   },
   {
     "id": "KFL-CST-2305",
@@ -9807,7 +9988,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2305",
     "image": "./images/alkafeel/kfl-2305.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2305.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2305.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9828,7 +10009,8 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صندوق مصنوع من الخشب عليه زخارف هندسية تشكلها قطع من النحاس...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2305, Museum No. 2305). Section: Heritage Sanctuary Chests. Materials: Copper/Brass / Wood."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2305"
   },
   {
     "id": "KFL-CST-2306",
@@ -9861,7 +10043,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2306",
     "image": "./images/alkafeel/kfl-2306.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2306.glb?v=uniq1",
+      "glb": "./models/alkafeel/kfl-2306.glb?v=uniq3",
       "scale": 1
     },
     "description": {
@@ -9882,6 +10064,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
         "ar": "صندوق صغير مصنوع من الفضة الألمانية ( الوارشو ) عليه نقوش وز...",
         "en": "Authentic heritage artifact preserved in the Al-Kafeel Museum of Treasures and Manuscripts at the Al-Abbas Holy Shrine in Karbala (Serial #2306, Museum No. 2306). Section: Heritage Sanctuary Chests. Materials: Silver."
       }
-    }
+    },
+    "uri": "https://museum.alkafeel.net/subjects/2306"
   }
 ];

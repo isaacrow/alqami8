@@ -120,10 +120,17 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({ isOpen, onLa
     >
       <div
         data-icon
-        style={{ background: a.bg }}
-        className="w-[62px] h-[62px] sm:w-[72px] sm:h-[72px] rounded-[20px] flex items-center justify-center shadow-[0_14px_30px_rgba(0,0,0,0.4),inset_0_2px_2px_rgba(255,255,255,0.45)] border border-white/25 transition-transform duration-200 group-hover:scale-105 group-active:scale-95"
+        style={{
+          background: 'rgba(255, 255, 255, 0.41)',
+          borderRadius: '16px',
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.74)',
+        }}
+        className="w-[62px] h-[62px] sm:w-[72px] sm:h-[72px] flex items-center justify-center transition-transform duration-200 group-hover:scale-105 group-active:scale-95"
       >
-        <a.Icon className={`w-8 h-8 sm:w-9 sm:h-9 ${a.key === 'labels' ? 'text-slate-900' : 'text-white'}`} strokeWidth={1.9} />
+        <a.Icon className="w-8 h-8 sm:w-9 sm:h-9 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]" strokeWidth={1.9} />
       </div>
       <span className="w-full text-center text-[11.5px] leading-tight font-medium text-white/95 drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)] line-clamp-2">{name(a)}</span>
     </button>
@@ -186,10 +193,21 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({ isOpen, onLa
               onClick={(e) => openFolder(e.currentTarget.querySelector<HTMLElement>('[data-icon]'))}
               className="alq-tile group flex flex-col items-center gap-1.5 min-w-0"
             >
-              <div data-icon className="w-[62px] h-[62px] sm:w-[72px] sm:h-[72px] rounded-[20px] bg-white/20 backdrop-blur-md border border-white/25 p-2 grid grid-cols-3 gap-1 shadow-[0_14px_30px_rgba(0,0,0,0.35)] group-active:scale-95 transition-transform">
+              <div
+                data-icon
+                style={{
+                  background: 'rgba(255, 255, 255, 0.41)',
+                  borderRadius: '16px',
+                  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.74)',
+                }}
+                className="w-[62px] h-[62px] sm:w-[72px] sm:h-[72px] p-2 grid grid-cols-3 gap-1 group-active:scale-95 transition-transform"
+              >
                 {MORE.slice(0, 9).map((a) => (
-                  <span key={a.key} style={{ background: a.bg }} className="rounded-[5px] flex items-center justify-center">
-                    <a.Icon className="w-2.5 h-2.5 text-white" strokeWidth={2.4} />
+                  <span key={a.key} style={{ background: 'rgba(255, 255, 255, 0.25)', border: '1px solid rgba(255, 255, 255, 0.45)' }} className="rounded-[5px] flex items-center justify-center">
+                    <a.Icon className="w-2.5 h-2.5 text-white drop-shadow" strokeWidth={2.2} />
                   </span>
                 ))}
               </div>

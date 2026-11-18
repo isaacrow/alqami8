@@ -85,6 +85,7 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
     [t('التجليد', 'Binding'), d.binding?.[lang]],
     [t('الزخرفة', 'Decoration'), d.decoration?.[lang]],
     [t('الأختام والتملكات', 'Seals and ownership'), d.seals?.[lang]],
+    [t('المعرّف الموحد (URI)', 'Canonical URI'), a.uri || `https://alqami.net/artifact/${a.slug}`],
   ];
 
   return (
