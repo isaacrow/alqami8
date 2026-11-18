@@ -635,11 +635,12 @@ const PinnedRecord: React.FC<{
   const top = onPage ? 64 : Math.max(12, at.y - 220);
 
   const speakDescription = () => {
+    const handlers = { onSentence: () => {}, onEnd: () => {} };
     if (builtIn) {
       const facts = factsFromArtifact(builtIn, 'ar');
-      speak(answer(facts, 'intro', 'ar') + ' ' + answer(facts, 'story', 'ar'), 'ar', builtIn.model.glb);
+      speak([...answer(facts, 'intro', 'ar'), ...answer(facts, 'story', 'ar')], 'ar', handlers, builtIn.model.glb);
     } else if (f.text || f.title) {
-      speak(`${f.title}. ${f.text || ''}`, 'ar');
+      speak([f.title, f.text || ''].filter(Boolean), 'ar', handlers);
     }
   };
 
