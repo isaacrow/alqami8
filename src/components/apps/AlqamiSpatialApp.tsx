@@ -153,7 +153,8 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
     Math.floor(Math.random() * artifacts.length)
   );
   const [showLive3D, setShowLive3D] = useState(false);
-  const [activeCard3D, setActiveCard3D] = useState<Record<string, boolean>>({});
+  /** How many catalogue cards are shown (24 more each time the visitor nears the end). */
+  const [shownCount, setShownCount] = useState(24);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeHotspotId, setActiveHotspotId] = useState<string | null>(null);
@@ -466,6 +467,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   });
 
   const isFavoritesMode = activeNav === 'favorites';
+  useEffect(() => setShownCount(24), [filteredArtifacts.length, isFavoritesMode]);
   const displayedArtifacts = filteredArtifacts.filter((a) => {
     if (isFavoritesMode) {
       return !!liked[a.id];
@@ -620,6 +622,11 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
          ───────────────────────────────────────────────────────────── */}
       {view === 'catalog' && activeNav !== 'user' && (
         <div
+          // Near the bottom: the next 24 cards (an IntersectionObserver misreads the window's 3D tilt).
+          onScroll={(e) => {
+            const el = e.currentTarget;
+            if (el.scrollTop + el.clientHeight > el.scrollHeight - 700) setShownCount((n) => (n < displayedArtifacts.length ? n + 24 : n));
+          }}
           className={`w-full h-full overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6 text-white custom-scrollbar pointer-events-auto transition-all duration-500 ${
             isPopOut3D ? 'opacity-15 blur-md scale-[0.97] pointer-events-none' : 'opacity-100'
           } ${
@@ -816,10 +823,10 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
           {/* All Authentic Artifacts Grid with Elevation & Specular Hover Glow (Matching Image 2) */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {displayedArtifacts.map((prod, productIndex) => {
+            {displayedArtifacts.slice(0, shownCount).map((prod, productIndex) => {
               const globalIdx = artifacts.findIndex((a) => a.id === prod.id);
               const isFav = !!liked[prod.id];
-              const isCardLive = showLive3D || !!activeCard3D[prod.id];
+              const isCardLive = showLive3D;
 
               return (
                 <div
@@ -836,11 +843,6 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                 >
                   {/* Card Viewport: Shows Live 3D Model when active, or image thumbnail with on-model 3D action button */}
                   <div
-                    onPointerDown={() => {
-                      if (!activeCard3D[prod.id]) {
-                        setActiveCard3D((prev) => ({ ...prev, [prod.id]: true }));
-                      }
-                    }}
                     className="card-thumb-container h-36 rounded-[18px] bg-[#CBC9C5] flex items-center justify-center relative overflow-hidden shadow-inner transition-transform"
                   >
                     {isCardLive ? (
@@ -874,7 +876,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
                     <div className="flex items-center justify-between pt-2.5">
                       {/* Item Code Badge styled in frosted glass pill (matching Image 5 style) */}
-                      <span className="text-[11px] font-bold font-mono text-white/95 bg-white/15 hover:bg-white/20 px-3 py-1 rounded-full border border-white/20 backdrop-blur-md shadow-sm transition-colors">
+                      <span className="text-[11px] font-bold font-mono text-white/95 bg-white/15 hover:bg-white/20 px-3 py-1 rounded-full border border-white/20 shadow-sm transition-colors">
                         {prod.itemCode}
                       </span>
 
@@ -882,7 +884,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={(e) => toggleLike(prod.id, e)}
-                          className={`w-8 h-8 rounded-full border border-white/25 backdrop-blur-md flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md ${
+                          className={`w-8 h-8 rounded-full border border-white/25 flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md ${
                             isFav
                               ? 'bg-rose-500/85 text-white border-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.6)]'
                               : 'bg-white/20 hover:bg-white/35 text-white'
@@ -896,7 +898,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                             e.stopPropagation();
                             openPopOut3D(prod);
                           }}
-                          className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/35 active:scale-95 border border-white/25 backdrop-blur-md flex items-center justify-center text-white shadow-md transition-all cursor-pointer"
+                          className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/35 active:scale-95 border border-white/25 flex items-center justify-center text-white shadow-md transition-all cursor-pointer"
                           title={isAr ? 'فحص ثلاثي الأبعاد 3D' : 'Inspect 3D Model'}
                         >
                           <Box className="w-4 h-4 text-white drop-shadow" />

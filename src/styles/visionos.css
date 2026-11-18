@@ -1100,7 +1100,6 @@ textarea,
   from {
     opacity: 0;
     transform: translateY(16px) scale(0.55);
-    filter: blur(6px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
