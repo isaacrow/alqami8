@@ -1270,11 +1270,20 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
               <SpeakingPanel facts={factsFromArtifact(currentArtifact, lang)} lang={lang} model={currentArtifact.model.glb} />
             </div>
 
-            {/* Item Code Badge */}
-            <div className="mb-3">
+            {/* Item Code & Canonical URI Badges */}
+            <div className="mb-3 flex flex-wrap items-center gap-1.5">
               <span className="inline-block px-3 py-1 rounded-full bg-white/10 text-[11px] font-mono text-white/80 border border-white/10">
                 {isAr ? 'رقم القطعة' : 'Item Code'}: {currentArtifact.itemCode}
               </span>
+              <a
+                href={currentArtifact.uri || `https://alqami.net/artifact/${currentArtifact.slug}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-block max-w-full truncate px-3 py-1 rounded-full bg-amber-400/15 hover:bg-amber-400/25 text-[11px] font-mono text-amber-200 border border-amber-400/35 transition"
+                title={currentArtifact.uri || `https://alqami.net/artifact/${currentArtifact.slug}`}
+              >
+                URI: {currentArtifact.uri || `https://alqami.net/artifact/${currentArtifact.slug}`}
+              </a>
             </div>
 
             {/* Collapsible Accordions (Piece Details, Dimensions, Delivery, Assembly) */}

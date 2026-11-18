@@ -1,23 +1,13 @@
 import { useEffect, useState } from 'react';
 import { ALQAMI_ARTIFACTS, AlqamiArtifact } from '../data/alqamiArtifacts';
-import { coverGuess, MoonRecord, searchRecords } from './moonApi';
+import { coverGuess, MoonRecord, opacUrl, searchRecords } from './moonApi';
 import { MoonCardData, readRecord } from './readRecord';
 import { toIsbn13 } from './isbn';
-
-/**
- * The objects ALQAMI shows are the ones catalogued in Moon with a 3D model: every published Moon record whose
- * Item (or Instance) links a .glb/.gltf file through bf:electronicLocator. Cataloguing an object in Moon is all
- * it takes for it to appear here.
- *
- * ALQAMI's built-in objects stay until their own Moon record exists; a Moon record carrying an object's ALQAMI
- * identifier (bf:Local, e.g. ALQ-HLM-004) replaces it in place, so the object's look and position stay the same.
- */
 
 const STORE_KEY = 'alqami-moon-objects';
 const ISBN_KEY = 'alqami-moon-isbn-index';
 const PAGE = 200;
 
-// Every published Moon record, a page at a time (Moon answers at most 200 per page).
 async function allPublished(): Promise<MoonRecord[]> {
   const records: MoonRecord[] = [];
   for (let offset = 0; offset < 10000; offset += PAGE) {
@@ -30,21 +20,18 @@ async function allPublished(): Promise<MoonRecord[]> {
 
 let published: Promise<MoonRecord[]> | null = null;
 
-/**
- * Moon's published records, fetched once per visit and shared by the gallery and the scanner. Also saves an
- * ISBN index on the device, so a book barcode opens its record without asking Moon (and with no signal).
- */
 export function publishedRecords(): Promise<MoonRecord[]> {
   published ??= allPublished().then((records) => {
     const isbns: Record<string, string> = {};
-    for (const r of records) for (const isbn of readRecord(r, 'en').isbns) {
-      const key = toIsbn13(isbn);
-      if (key) isbns[key] = r.id;
-    }
+    for (const r of records)
+      for (const isbn of readRecord(r, 'en').isbns) {
+        const key = toIsbn13(isbn);
+        if (key) isbns[key] = r.id;
+      }
     try {
       localStorage.setItem(ISBN_KEY, JSON.stringify(isbns));
     } catch {
-      // Storage blocked: barcodes fall back to Moon's search.
+      /* ignore */
     }
     return records;
   });
@@ -54,7 +41,6 @@ export function publishedRecords(): Promise<MoonRecord[]> {
   return published;
 }
 
-/** The Moon record ID saved on this device for an ISBN (as Moon catalogued it), if any. */
 export function savedIsbnRecord(isbn: string): string | undefined {
   try {
     return JSON.parse(localStorage.getItem(ISBN_KEY) || '{}')[isbn];
@@ -71,13 +57,14 @@ function toArtifact(record: MoonRecord, ar: MoonCardData, en: MoonCardData, loca
     title: pair(ar.title, en.title),
     subtitle: ar.subtitle || en.subtitle ? pair(ar.subtitle, en.subtitle) : undefined,
     category: local?.category ?? (en.isObject ? 'artifact' : 'manuscripts'),
-    categoryLabel: pair(ar.genres[0], en.genres[0]),
+    categoryLabel: pair(ar.genres[0] || 'مقتنيات مون', en.genres[0] || 'Moon Catalogue'),
     period: pair(ar.date, en.date),
     creator: pair(ar.responsibility ?? ar.contributors[0]?.label, en.responsibility ?? en.contributors[0]?.label),
-    institution: pair(ar.holder, en.holder),
+    institution: pair(ar.holder || 'mooon.site', en.holder || 'mooon.site'),
     itemCode: en.shelfMarks[0] ?? en.alqamiId ?? record.id,
+    uri: local?.uri ?? opacUrl(record.id),
     image: local?.image ?? en.coverUrl ?? coverGuess(record.id),
-    model: { ...(local?.model ?? {}), glb: en.modelUrl! },
+    model: { ...(local?.model ?? {}), glb: en.modelUrl || '' },
     description: pair(ar.summary, en.summary),
     details: {
       dimensions: en.dimensions ?? '',
@@ -111,7 +98,6 @@ function savedRecords(): MoonRecord[] {
 
 let shared: Promise<AlqamiArtifact[]> | null = null;
 
-/** ALQAMI's objects: built-in ones until catalogued, plus everything Moon holds with a 3D model. */
 export function useAlqamiArtifacts(): AlqamiArtifact[] {
   const [artifacts, setArtifacts] = useState<AlqamiArtifact[]>(() => {
     const saved = savedRecords();
@@ -124,12 +110,11 @@ export function useAlqamiArtifacts(): AlqamiArtifact[] {
       shared ??
       publishedRecords()
         .then((records) => {
-          // Keep only the records with a 3D model, so a hall with no signal still shows them.
           const withModels = records.filter((r) => readRecord(r, 'en').modelUrl);
           try {
             localStorage.setItem(STORE_KEY, JSON.stringify(withModels));
           } catch {
-            // Storage full or blocked: the objects still show for this visit.
+            /* ignore */
           }
           return merge(records);
         })
@@ -137,6 +122,43 @@ export function useAlqamiArtifacts(): AlqamiArtifact[] {
     shared.then((list) => live && setArtifacts(list));
     return () => {
       live = false;
+    };
+  }, []);
+
+  return artifacts;
+}
+
+/**
+ * All scannable pictures & artifacts for Scan Mode:
+ * combines all 196 ALQAMI + Al-Kafeel items AND every published mooon.site record (including photo-only records).
+ */
+export function useAllScanArtifacts(): AlqamiArtifact[] {
+  const [artifacts, setArtifacts] = useState<AlqamiArtifact[]>(() => ALQAMI_ARTIFACTS);
+
+  useEffect(() => {
+    let live = true;
+    const load = () => {
+      publishedRecords()
+        .then((records) => {
+          if (!live) return;
+          const allMoon = records.map((record) => ({ record, ar: readRecord(record, 'ar'), en: readRecord(record, 'en') }));
+          const byAlqamiId = new Map(allMoon.filter((o) => o.en.alqamiId).map((o) => [o.en.alqamiId!, o]));
+          const local = ALQAMI_ARTIFACTS.map((a) => {
+            const o = byAlqamiId.get(a.id);
+            return o ? toArtifact(o.record, o.ar, o.en, a) : a;
+          });
+          const extra = allMoon
+            .filter((o) => !o.en.alqamiId || !ALQAMI_ARTIFACTS.some((a) => a.id === o.en.alqamiId))
+            .map((o) => toArtifact(o.record, o.ar, o.en));
+          setArtifacts([...local, ...extra]);
+        })
+        .catch(() => {});
+    };
+    load();
+    window.addEventListener('alqami:moon-auth-changed', load);
+    return () => {
+      live = false;
+      window.removeEventListener('alqami:moon-auth-changed', load);
     };
   }, []);
 

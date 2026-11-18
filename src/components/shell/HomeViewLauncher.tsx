@@ -36,6 +36,7 @@ import {
 import { AppId } from '../../types/spatial';
 import { spatialSound } from '../../utils/spatialSound';
 import { morph, navigateFrom, shrinkAway } from './viewTransition';
+import { MoonLoginButton } from '../../moon/MoonLoginModal';
 
 interface HomeViewLauncherProps {
   lang?: 'ar' | 'en';
@@ -153,7 +154,10 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({ isOpen, onLa
 
       <div className="w-full max-w-[560px] flex-1 min-h-0 flex flex-col px-4">
         <div className="mb-3 text-center space-y-1.5">
-          <h1 className="text-[22px] font-semibold tracking-tight text-white drop-shadow">{lang === 'ar' ? 'تطبيقاتك' : 'Your apps'}</h1>
+          <div className="flex items-center justify-center gap-2.5">
+            <h1 className="text-[22px] font-semibold tracking-tight text-white drop-shadow">{lang === 'ar' ? 'تطبيقاتك' : 'Your apps'}</h1>
+            <MoonLoginButton lang={lang} compact />
+          </div>
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/15 border border-amber-400/35 text-amber-200 text-[11.5px] font-medium shadow">
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             <span>

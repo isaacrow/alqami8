@@ -541,6 +541,7 @@ function useObjectFacts(target: SightTarget) {
     material: card?.notes.find((n) => /material|مادة|حجر|برونز|خزف|ورق|stone|bronze|clay|ceramic/i.test(n)) ?? artifact?.details.material?.ar ?? own?.materialsAr,
     holder: card?.holder ?? artifact?.institution?.ar ?? (own ? own.publisherAr : undefined),
     dimensions: artifact?.details.dimensions || own?.dimensions,
+    uri: artifact?.uri || (target.kind === 'moon' ? `https://mooon.site/opac.html?work=${encodeURIComponent(target.recordId)}` : own?.uri),
     text: artifact?.description?.ar || own?.transcriptionAr,
     front: artifact?.model.initialOrbit?.theta ?? 0,
   };
@@ -676,6 +677,7 @@ const PinnedRecord: React.FC<{
           {f.material && <p className="truncate"><Glyph e="🪨" /> {f.material}</p>}
           {f.dimensions && <p className="truncate"><Glyph e="📏" /> {f.dimensions}</p>}
           {f.holder && <p className="truncate"><Glyph e="🏛" /> {f.holder}</p>}
+          {f.uri && <p className="truncate text-[10px] font-mono text-amber-200/85">URI: {f.uri}</p>}
           {f.text && <p className="line-clamp-3 text-white/90 pt-0.5 leading-relaxed"><Glyph e="✎" /> {f.text}</p>}
           {side && (
             <p className="text-[#FFD60A]">

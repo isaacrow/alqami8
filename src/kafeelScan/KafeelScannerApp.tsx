@@ -20,6 +20,8 @@ import {
   Zap,
 } from 'lucide-react';
 import { ALQAMI_ARTIFACTS, AlqamiArtifact } from '../data/alqamiArtifacts';
+import { useAllScanArtifacts } from '../moon/moonObjects';
+import { MoonLoginButton } from '../moon/MoonLoginModal';
 import { SightRecognizer } from '../recognize/recognizer';
 import { CodeReader } from '../scan/codeReader';
 import { resolveCode } from '../scan/resolveCode';
@@ -33,12 +35,13 @@ import { getSpatialPartsForArtifact, SpatialPartNode } from './partAnatomy';
 
 type Lang = 'ar' | 'en';
 
-function findArtifact(rawId: string): AlqamiArtifact | undefined {
+function findArtifact(rawId: string, list: AlqamiArtifact[] = ALQAMI_ARTIFACTS): AlqamiArtifact | undefined {
   const needle = rawId.toLowerCase();
-  const sid = needle.replace(/^(?:alkafeel:|alkafeel__|artifact:|kfl-[a-z]+-|kfl-)/i, '');
-  return ALQAMI_ARTIFACTS.find(
+  const sid = needle.replace(/^(?:alkafeel:|alkafeel__|artifact:|moon:|kfl-[a-z]+-|kfl-)/i, '');
+  return list.find(
     (a) =>
       a.id.toLowerCase() === needle ||
+      (a.moonRecordId && a.moonRecordId.toLowerCase() === sid) ||
       a.itemCode.toLowerCase() === needle ||
       a.slug.toLowerCase() === needle ||
       (sid && /^\d+$/.test(sid) && a.id.toLowerCase().endsWith(`-${sid}`))
@@ -58,11 +61,23 @@ export const KafeelScannerApp: React.FC = () => {
   const isAr = lang === 'ar';
   const t = (ar: string, en: string) => (isAr ? ar : en);
 
+  // All scannable museum & mooon.site pictures/objects (~378+ items)
+  const allScanArtifacts = useAllScanArtifacts();
+  const allArtifactsRef = useRef<AlqamiArtifact[]>(allScanArtifacts);
+  allArtifactsRef.current = allScanArtifacts;
+
   // Default to ?artifact=<id> query param, else the engraved Kashkul (#2165) or Sultan Selim Sword (#2126)
   const [activeArtifact, setActiveArtifact] = useState<AlqamiArtifact>(() => {
     const q = new URLSearchParams(window.location.search).get('artifact');
     return (q && findArtifact(q)) || findArtifact('KFL-KSH-2165') || findArtifact('KFL-SWD-2126') || ALQAMI_ARTIFACTS[0];
   });
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get('artifact');
+    if (q) {
+      const match = findArtifact(q, allScanArtifacts);
+      if (match) setActiveArtifact(match);
+    }
+  }, [allScanArtifacts]);
   const [selectedPartId, setSelectedPartId] = useState<string | null>(null);
   const [confidence, setConfidence] = useState<number>(0.97);
   const [detectSource, setDetectSource] = useState<'sight' | 'qr' | 'catch' | 'photo' | 'ar-lock'>('ar-lock');
@@ -240,7 +255,8 @@ export const KafeelScannerApp: React.FC = () => {
           const ema = emaScoresRef.current;
           const mapped = ranked
             .map((r) => {
-              const art = r.target.kind === 'artifact' ? findArtifact(r.target.id) : undefined;
+              const targetKey = r.target.kind === 'moon' ? `moon:${r.target.recordId}` : r.target.id;
+              const art = findArtifact(targetKey, allArtifactsRef.current);
               if (!art) return null;
               const prev = ema.get(art.id) ?? r.score;
               const smoothed = prev * 0.35 + r.score * 0.65;
@@ -282,7 +298,10 @@ export const KafeelScannerApp: React.FC = () => {
           if (code && !disposed) {
             const target = await resolveCode(code.text);
             if (target.kind === 'artifact') {
-              const found = findArtifact(target.id);
+              const found = findArtifact(target.id, allArtifactsRef.current);
+              if (found) lockOnArtifact(found, 0.99, 'qr', 0, { x: 0.5, y: 0.46 });
+            } else if (target.kind === 'moon') {
+              const found = findArtifact(`moon:${target.recordId}`, allArtifactsRef.current);
               if (found) lockOnArtifact(found, 0.99, 'qr', 0, { x: 0.5, y: 0.46 });
             }
           }
@@ -502,8 +521,9 @@ export const KafeelScannerApp: React.FC = () => {
 
   const filteredCatalog = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return ALQAMI_ARTIFACTS.filter((a) => {
-      if (hallFilter !== 'ALL' && !a.id.startsWith(hallFilter)) return false;
+    return allScanArtifacts.filter((a) => {
+      if (hallFilter === 'MOON' && !a.moonRecordId) return false;
+      if (hallFilter !== 'ALL' && hallFilter !== 'MOON' && !a.id.startsWith(hallFilter)) return false;
       if (!q) return true;
       return (
         a.title.ar.toLowerCase().includes(q) ||
@@ -514,7 +534,7 @@ export const KafeelScannerApp: React.FC = () => {
         a.description.ar.toLowerCase().includes(q)
       );
     });
-  }, [searchQuery, hallFilter]);
+  }, [allScanArtifacts, searchQuery, hallFilter]);
 
   const currentAngleMeta = VIEW_ANGLES.reduce((prev, curr) =>
     Math.abs(curr.deg - viewAngle) < Math.abs(prev.deg - viewAngle) ? curr : prev
@@ -831,8 +851,9 @@ export const KafeelScannerApp: React.FC = () => {
             className="h-10 px-3.5 rounded-full bg-black/65 hover:bg-white/25 border border-white/25 text-[12px] font-semibold flex items-center gap-1.5"
           >
             <Search className="w-4 h-4 text-[#FFD60A]" />
-            <span>{t('الفهرس (196)', 'Catalogue (196)')}</span>
+            <span>{t(`الفهرس (${allScanArtifacts.length})`, `Catalogue (${allScanArtifacts.length})`)}</span>
           </button>
+          <MoonLoginButton lang={lang} compact />
           <button
             onClick={() => setLang(isAr ? 'en' : 'ar')}
             className="w-10 h-10 rounded-full bg-black/55 hover:bg-white/20 border border-white/20 text-[12px] font-bold"
@@ -940,7 +961,7 @@ export const KafeelScannerApp: React.FC = () => {
             <Sparkles className="w-3.5 h-3.5" />
             {t('اختر قطعة لعرض مجسّمها الفريد في الواقع المعزز:', 'Place unique 3D model in AR:')}
           </span>
-          {ALQAMI_ARTIFACTS.slice(0, 35).map((item) => {
+          {allScanArtifacts.slice(0, 45).map((item) => {
             const active = item.id === activeArtifact.id;
             return (
               <button
@@ -963,7 +984,7 @@ export const KafeelScannerApp: React.FC = () => {
             onClick={() => setCatalogOpen(true)}
             className="shrink-0 h-8 px-3 rounded-full bg-emerald-500/25 hover:bg-emerald-500/35 border border-emerald-400/50 text-emerald-200 text-[11.5px] font-semibold"
           >
-            {t(`عرض الكل (${ALQAMI_ARTIFACTS.length}) ←`, `View All (${ALQAMI_ARTIFACTS.length}) →`)}
+            {t(`عرض الكل (${allScanArtifacts.length}) ←`, `View All (${allScanArtifacts.length}) →`)}
           </button>
         </div>
       </footer>
@@ -1007,8 +1028,10 @@ export const KafeelScannerApp: React.FC = () => {
                 className="flex-1 min-w-[240px] h-10 rounded-full bg-white/10 border border-white/20 px-4 text-[13.5px] text-white placeholder:text-white/45 outline-none focus:border-[#FFD60A]"
               />
               {[
-                ['ALL', t('الكل (196)', 'All (196)')],
+                ['ALL', t(`الكل (${allScanArtifacts.length})`, `All (${allScanArtifacts.length})`)],
+                ['MOON', t('مقتنيات mooon.site', 'mooon.site')],
                 ['KFL-SWD', t('السيوف', 'Swords')],
+                ['KFL-GUN', t('الأسلحة النارية', 'Firearms')],
                 ['KFL-KSH', t('الكشاكيل', 'Kashkuls')],
                 ['KFL-KUF', t('الكفوف', 'Kuffuf')],
                 ['KFL-MSS', t('المخطوطات', 'Manuscripts')],
