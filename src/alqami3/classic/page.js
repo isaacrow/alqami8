@@ -12,6 +12,9 @@ import { AREngine } from './ar-engine.js';
 import { ARCardManager } from './ar-card.js';
 import { RDFManuscriptParser } from './rdf-parser.js';
 import { ManuscriptSpeechEngine } from './speech.js';
+import { publishedRecords } from '../../moon/moonObjects';
+import { coverGuess, opacUrl } from '../../moon/moonApi';
+import { readRecord } from '../../moon/readRecord';
 
 const BASE = import.meta.env.BASE_URL || './';
 const HERE = `${BASE}alqami3/classic/`;
@@ -44,6 +47,7 @@ function showRecord(meta) {
     ['المادة · Material', meta.material],
     ['الحجم · Extent', meta.dimensions || meta.extent],
     ['الجهة الحافظة · Held at', meta.publisher],
+    ['المعرّف الموحد · URI', meta.uri],
   ].filter(([, v]) => v);
   $('rec-rows').innerHTML = '';
   for (const [k, v] of rows) {
@@ -149,16 +153,17 @@ fetch(`${BASE}data/alkafeel-catalogue.json`)
         material: item.details?.material?.ar,
         dimensions: item.details?.dimensions,
         publisher: item.institution?.ar,
+        uri: item.uri,
       });
       status(true, `${item.title.ar} · متحف الكفيل 3D`);
       speech.speak(item.description?.ar || item.title.ar, 'ar');
     };
 
-    for (const item of items.slice(0, 14)) {
+    for (const item of items) {
       const fig = document.createElement('figure');
       fig.style.cursor = 'pointer';
       const imgUrl = `${BASE}${item.image.replace(/^\.?\//, '')}`;
-      fig.innerHTML = `<img src="${imgUrl}" alt=""><figcaption></figcaption>`;
+      fig.innerHTML = `<img src="${imgUrl}" loading="lazy" alt=""><figcaption></figcaption>`;
       fig.querySelector('figcaption').textContent = `${item.title.ar} · 3D`;
       fig.addEventListener('click', () => activateItem(item));
       $('targets-list').append(fig);
@@ -171,6 +176,33 @@ fetch(`${BASE}data/alkafeel-catalogue.json`)
       bar.append(chip);
     }
     document.body.append(bar);
+
+    // Also append all mooon.site records & covers to "Pictures it tracks"
+    publishedRecords()
+      .then((records) => {
+        for (const r of records) {
+          const ar = readRecord(r, 'ar');
+          const en = readRecord(r, 'en');
+          const img = en.coverUrl || coverGuess(r.id);
+          const fig = document.createElement('figure');
+          fig.style.cursor = 'pointer';
+          fig.innerHTML = `<img src="${img}" loading="lazy" alt=""><figcaption></figcaption>`;
+          fig.querySelector('figcaption').textContent = `${ar.title || en.title || r.id} · mooon.site`;
+          fig.addEventListener('click', () =>
+            activateItem({
+              title: { ar: ar.title || en.title || r.id, en: en.title || ar.title || r.id },
+              creator: { ar: ar.responsibility || ar.contributors[0]?.label },
+              period: { ar: ar.date || en.date },
+              details: { dimensions: en.dimensions },
+              institution: { ar: ar.holder || 'mooon.site' },
+              uri: opacUrl(r.id),
+              description: { ar: ar.summary || ar.title },
+            })
+          );
+          $('targets-list').append(fig);
+        }
+      })
+      .catch(() => {});
   })
   .catch(() => {});
 $('start').addEventListener('click', start);

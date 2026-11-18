@@ -169,11 +169,11 @@ fetch(`${BASE}data/alkafeel-catalogue.json`)
       speech.speak(`تم التعرف على القطعة من متحف الكفيل: ${item.title.ar}`, 'ar');
     };
 
-    for (const item of items.slice(0, 14)) {
+    for (const item of items) {
       const fig = document.createElement('figure');
       fig.style.cursor = 'pointer';
       const imgUrl = `${BASE}${item.image.replace(/^\.?\//, '')}`;
-      fig.innerHTML = `<img src="${imgUrl}" alt=""><figcaption></figcaption>`;
+      fig.innerHTML = `<img src="${imgUrl}" loading="lazy" alt=""><figcaption></figcaption>`;
       fig.querySelector('figcaption').textContent = `${item.title.ar} · 3D`;
       fig.addEventListener('click', () => deployItem(item));
       $('targets-list').append(fig);
