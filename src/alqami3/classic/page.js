@@ -23,8 +23,8 @@ const TARGETS = [
   { ttl: 'model.ttl', image: 'manuscript.jpg', name: 'مخطوط القبسات · Al-Qabasat' },
   { ttl: 'quran.ttl', image: 'quran.jpg', name: 'القرآن الكريم · The Qur’an' },
   { ttl: 'kufic.ttl', image: 'kufic.jpg', name: 'رق كوفي · Kufic folio' },
-  { ttl: 'hand.ttl', image: 'hand.jpg', name: 'اليد ← الخوذة · Hand → helmet' },
-  { ttl: 'alqami.ttl', image: 'alqami_artifact.jpg', name: 'قطعة علقمي · ALQAMI artefact' },
+  { ttl: 'hand.ttl', image: 'hand.jpg', name: 'اليد ← الخوذة · Hand → helmet', hidden: true },
+  { ttl: 'alqami.ttl', image: 'alqami_artifact.jpg', name: 'قطعة علقمي · ALQAMI artefact', hidden: true },
 ];
 
 const $ = (id) => document.getElementById(id);
@@ -85,6 +85,7 @@ async function start() {
       });
     }
     engine.onTargetFound = async (i) => {
+      if (TARGETS[i]?.hidden) return;
       status(true, `${TARGETS[i]?.name ?? i} · متابَع Tracked`);
       try {
         const data = await parser.loadFromUrl(`${HERE}${TARGETS[i]?.ttl ?? TARGETS[0].ttl}`);
@@ -126,6 +127,7 @@ async function start() {
 
 // The pictures to point at (on another screen, or printed), plus Al-Kafeel Museum 3D treasures.
 for (const t of TARGETS) {
+  if (t.hidden) continue;
   const fig = document.createElement('figure');
   fig.innerHTML = `<img src="${HERE}${t.image}" alt=""><figcaption></figcaption>`;
   fig.querySelector('figcaption').textContent = t.name;
