@@ -185,22 +185,23 @@ export function applyLightingToThreeScene(
 ) {
   const { preset, multiplier } = getLightingConfig();
 
-  renderer.toneMappingExposure = preset.exposure * multiplier;
+  // Balanced PBR exposure so models with IBL RoomEnvironment never blow out to white
+  renderer.toneMappingExposure = Math.min(1.05, preset.exposure * 0.72) * multiplier;
 
   ambientLight.color.setHex(preset.ambientColor);
-  ambientLight.intensity = preset.ambientIntensity * multiplier;
+  ambientLight.intensity = preset.ambientIntensity * 0.28 * multiplier;
 
   keyLight.color.setHex(preset.keyColor);
-  keyLight.intensity = preset.keyIntensity * multiplier;
+  keyLight.intensity = preset.keyIntensity * 0.35 * multiplier;
 
   fillLight.color.setHex(preset.fillColor);
-  fillLight.intensity = preset.fillIntensity * multiplier;
+  fillLight.intensity = preset.fillIntensity * 0.28 * multiplier;
 
   accentLight.color.setHex(preset.accentColor);
-  accentLight.intensity = preset.accentIntensity * multiplier;
+  accentLight.intensity = preset.accentIntensity * 0.28 * multiplier;
 
   if (pointLight) {
     pointLight.color.setHex(preset.accentColor);
-    pointLight.intensity = 1.5 * multiplier;
+    pointLight.intensity = 0.35 * multiplier;
   }
 }

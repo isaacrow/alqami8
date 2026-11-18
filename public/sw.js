@@ -5,7 +5,7 @@
 // - Moon records and searches: network first, the last answer kept for offline use.
 // - Moon covers and the recognition model (Hugging Face): kept once downloaded.
 // "Save for offline" in the app fills the same caches ahead of a visit (src/offline/saveOffline.ts).
-const VERSION = 'v1';
+const VERSION = 'v6';
 const APP = `alqami-app-${VERSION}`;
 const MOON = `alqami-moon-${VERSION}`;
 const KEEP = new Set([APP, MOON]);
@@ -73,9 +73,9 @@ self.addEventListener('fetch', (event) => {
     const path = url.pathname.slice(scope.pathname.length);
     if (request.mode === 'navigate') {
       event.respondWith(networkFirst(request, APP).catch(() => caches.match(new URL('./', scope).href)));
-    } else if (path.startsWith('data/') || path === 'nft/index.json' || path === 'offline-manifest.json' || path === 'sw.js') {
+    } else if (path.startsWith('data/') || path.startsWith('models/') || path === 'nft/index.json' || path === 'offline-manifest.json' || path === 'sw.js') {
       event.respondWith(networkFirst(request, APP));
-    } else if (/^(assets|models|draco|images|icons|nft|js|vendor|characters)\//.test(path)) {
+    } else if (/^(assets|draco|images|icons|nft|js|vendor|characters)\//.test(path)) {
       event.respondWith(cacheFirst(request, APP));
     }
     return;

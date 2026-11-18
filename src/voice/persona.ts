@@ -40,7 +40,7 @@ export const QUESTIONS: Array<{ id: Exclude<QuestionId, 'intro'>; ar: string; en
   { id: 'kept', ar: 'أين تُحفظ؟', en: 'Where are you kept?' },
 ];
 
-const REVERED = /قرآن|مصحف|نهج البلاغة|الصحيفة السجادية|حديث|qur['’ʼ]?an|koran|mushaf|nahj al-?balagha|hadith/i;
+const REVERED = /قرآن|مصحف|نهج البلاغة|الصحيفة السجادية|حديث|ضريح|زيارة|الزيارات|حاملات المصاحف|الكفوف|العباسية|qur['’ʼ]?an|koran|mushaf|nahj al-?balagha|hadith|shrine|sacred/i;
 
 export function factsFromCard(card: MoonCardData): PersonaFacts {
   const material = card.notes.find((n) => /material|مادة|ورق|حبر|paper|ink|bronze|steel|clay|ceramic|خزف|فولاذ|طين/i.test(n));

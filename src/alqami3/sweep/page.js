@@ -108,6 +108,7 @@ async function start() {
   }
 }
 
+let activeDeployer = null;
 for (const [img, name] of [
   ['astronaut_front.jpg', 'رائد الفضاء · Astronaut (front)'],
   ['astronaut_left.jpg', 'رائد الفضاء · Astronaut (left)'],
@@ -119,6 +120,74 @@ for (const [img, name] of [
   fig.querySelector('figcaption').textContent = name;
   $('targets-list').append(fig);
 }
+fetch(`${BASE}data/alkafeel-catalogue.json`)
+  .then((r) => (r.ok ? r.json() : []))
+  .then((items) => {
+    const bar = document.createElement('div');
+    bar.style.cssText =
+      'position:fixed;left:12px;right:12px;bottom:84px;z-index:25;display:flex;gap:6px;overflow-x:auto;padding:6px 10px;border-radius:999px;background:rgba(12,10,9,0.78);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.16);scrollbar-width:none;';
+    const lbl = document.createElement('span');
+    lbl.textContent = 'نشر مجسّم 360° 3D:';
+    lbl.style.cssText = 'color:#14b8a6;font-size:11.5px;font-weight:700;white-space:nowrap;align-self:center;padding:0 4px;';
+    bar.append(lbl);
+
+    const deployItem = async (item) => {
+      $('targets').hidden = true;
+      if (!activeDeployer) {
+        activeDeployer = new XRArtifactDeployer($('xr'));
+        await activeDeployer.init();
+        activeDeployer.start();
+      }
+      const glbUrl = `${BASE}${item.model.glb.replace(/^\.?\//, '')}`;
+      const meta = {
+        titleArabic: item.title.ar,
+        title: item.title.en,
+        creator: item.creator?.ar,
+        date: item.period?.ar,
+        material: item.details?.material?.ar,
+        dimensions: item.details?.dimensions,
+        publisher: item.institution?.ar,
+      };
+      const match = {
+        id: item.id,
+        title: item.title.ar,
+        similarity: 0.98,
+        matchedView: 'front-3d',
+        artifact: {
+          id: item.id,
+          title: item.title.ar,
+          date: item.period?.ar,
+          materials: [item.details?.material?.ar],
+          dimensions: item.details?.dimensions,
+          institution: item.institution?.ar,
+          model3d: { glbPath: glbUrl, scale: 1.1 },
+        },
+      };
+      status(true, `✓ ${item.title.ar}`);
+      showRecord(meta, match);
+      activeDeployer.deployArtifactXR(match.artifact, meta, { x: 0.5, y: 0.5, width: 0.3, height: 0.3 }, 'front', 98);
+      speech.speak(`تم التعرف على القطعة من متحف الكفيل: ${item.title.ar}`, 'ar');
+    };
+
+    for (const item of items.slice(0, 14)) {
+      const fig = document.createElement('figure');
+      fig.style.cursor = 'pointer';
+      const imgUrl = `${BASE}${item.image.replace(/^\.?\//, '')}`;
+      fig.innerHTML = `<img src="${imgUrl}" alt=""><figcaption></figcaption>`;
+      fig.querySelector('figcaption').textContent = `${item.title.ar} · 3D`;
+      fig.addEventListener('click', () => deployItem(item));
+      $('targets-list').append(fig);
+
+      const chip = document.createElement('button');
+      chip.textContent = item.title.ar.replace(/\s*\(متحف.*$/, '').replace(/\s*—.*$/, '');
+      chip.style.cssText =
+        'flex-shrink:0;height:28px;padding:0 11px;border-radius:999px;background:rgba(20,184,166,0.18);color:#fff;border:1px solid rgba(20,184,166,0.4);font-size:11.5px;cursor:pointer;white-space:nowrap;';
+      chip.addEventListener('click', () => deployItem(item));
+      bar.append(chip);
+    }
+    document.body.append(bar);
+  })
+  .catch(() => {});
 $('start').addEventListener('click', start);
 $('show-targets').addEventListener('click', () => ($('targets').hidden = false));
 $('close-targets').addEventListener('click', () => ($('targets').hidden = true));

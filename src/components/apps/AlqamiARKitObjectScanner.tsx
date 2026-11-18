@@ -259,8 +259,13 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
             setScanMessage('وُجد في مون · Found in Moon');
             handleMoonRef.current(target.recordId);
           } else if (target.kind === 'artifact') {
+            const needle = target.id.toLowerCase();
+            const suffix = `-${needle.replace(/^kfl-/, '')}`;
             const targetIndex = referenceObjects.findIndex((item) =>
-              [item.id, item.slug].some((value) => value.toLowerCase() === target.id.toLowerCase())
+              [item.id, item.slug].some((value) => {
+                const v = value.toLowerCase();
+                return v === needle || (needle.startsWith('kfl-') && v.startsWith('kfl-') && v.endsWith(suffix));
+              })
             );
             if (targetIndex >= 0) {
               setSelectedTargetIndex(targetIndex);
@@ -305,7 +310,12 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
       handleMoonRef.current(target.recordId);
       return;
     }
-    const targetIndex = referenceObjects.findIndex((item) => item.id.toLowerCase() === target.id.toLowerCase());
+    const needle = target.id.toLowerCase();
+    const sid = needle.replace(/^(?:alkafeel:|alkafeel__|kfl-[a-z]+-|kfl-)/i, '');
+    const targetIndex = referenceObjects.findIndex((item) => {
+      const v = item.id.toLowerCase();
+      return v === needle || (sid && /^\d+$/.test(sid) && v.endsWith(`-${sid}`));
+    });
     if (targetIndex >= 0) {
       setSelectedTargetIndex(targetIndex);
       setIsLockedOnObject(true);
@@ -580,6 +590,22 @@ export const AlqamiARKitObjectScanner: React.FC<AlqamiARKitObjectScannerProps> =
                       </button>
                     ))}
                   </div>
+                </div>
+              )}
+              {!isLockedOnObject && (
+                <div dir="rtl" className="pointer-events-auto w-full max-w-lg flex items-center gap-1.5 overflow-x-auto px-2 py-1.5 rounded-full bg-black/65 backdrop-blur-md border border-white/15 [scrollbar-width:none]">
+                  <span className="shrink-0 text-[10.5px] text-amber-300 font-semibold px-2">دبوس عائم 3D ({referenceObjects.filter((i) => i.id.startsWith('KFL-')).length}):</span>
+                  {referenceObjects
+                    .filter((item) => item.id.startsWith('KFL-'))
+                    .map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => window.dispatchEvent(new CustomEvent('alqami:pin-sight', { detail: { id: item.id } }))}
+                        className="shrink-0 h-7 px-2.5 rounded-full bg-white/15 hover:bg-amber-400 hover:text-black text-[11px] text-white font-medium transition active:scale-95"
+                      >
+                        📍 {item.name.replace(/\s*\(متحف.*$/, '').replace(/\s*—.*$/, '')}
+                      </button>
+                    ))}
                 </div>
               )}
               <span className={`px-3 py-1 rounded-full bg-black/60 border border-white/15 text-[10.5px] text-white/70 ${simple && sightReady !== 'off' ? 'hidden' : ''}`}>

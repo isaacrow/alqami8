@@ -7,7 +7,7 @@
 // speech.js); only this page's wiring is new.
 import './styles.css';
 import '../shell.css';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three150/examples/jsm/loaders/GLTFLoader.js';
 import { AREngine } from './ar-engine.js';
 import { ARCardManager } from './ar-card.js';
 import { RDFManuscriptParser } from './rdf-parser.js';
@@ -120,13 +120,59 @@ async function start() {
   }
 }
 
-// The pictures to point at (on another screen, or printed).
+// The pictures to point at (on another screen, or printed), plus Al-Kafeel Museum 3D treasures.
 for (const t of TARGETS) {
   const fig = document.createElement('figure');
   fig.innerHTML = `<img src="${HERE}${t.image}" alt=""><figcaption></figcaption>`;
   fig.querySelector('figcaption').textContent = t.name;
   $('targets-list').append(fig);
 }
+fetch(`${BASE}data/alkafeel-catalogue.json`)
+  .then((r) => (r.ok ? r.json() : []))
+  .then((items) => {
+    // Also add an on-screen floating quick-test bar at the bottom of alqami3-scan.html
+    const bar = document.createElement('div');
+    bar.style.cssText =
+      'position:fixed;left:12px;right:12px;bottom:84px;z-index:25;display:flex;gap:6px;overflow-x:auto;padding:6px 10px;border-radius:999px;background:rgba(12,10,9,0.78);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.16);scrollbar-width:none;';
+    const lbl = document.createElement('span');
+    lbl.textContent = 'متحف الكفيل 3D:';
+    lbl.style.cssText = 'color:#ffd60a;font-size:11.5px;font-weight:700;white-space:nowrap;align-self:center;padding:0 4px;';
+    bar.append(lbl);
+
+    const activateItem = (item) => {
+      $('targets').hidden = true;
+      showRecord({
+        titleArabic: item.title.ar,
+        title: item.title.en,
+        creator: item.creator?.ar,
+        date: item.period?.ar,
+        material: item.details?.material?.ar,
+        dimensions: item.details?.dimensions,
+        publisher: item.institution?.ar,
+      });
+      status(true, `${item.title.ar} · متحف الكفيل 3D`);
+      speech.speak(item.description?.ar || item.title.ar, 'ar');
+    };
+
+    for (const item of items.slice(0, 14)) {
+      const fig = document.createElement('figure');
+      fig.style.cursor = 'pointer';
+      const imgUrl = `${BASE}${item.image.replace(/^\.?\//, '')}`;
+      fig.innerHTML = `<img src="${imgUrl}" alt=""><figcaption></figcaption>`;
+      fig.querySelector('figcaption').textContent = `${item.title.ar} · 3D`;
+      fig.addEventListener('click', () => activateItem(item));
+      $('targets-list').append(fig);
+
+      const chip = document.createElement('button');
+      chip.textContent = item.title.ar.replace(/\s*\(متحف.*$/, '').replace(/\s*—.*$/, '');
+      chip.style.cssText =
+        'flex-shrink:0;height:28px;padding:0 11px;border-radius:999px;background:rgba(255,255,255,0.14);color:#fff;border:1px solid rgba(255,255,255,0.18);font-size:11.5px;cursor:pointer;white-space:nowrap;';
+      chip.addEventListener('click', () => activateItem(item));
+      bar.append(chip);
+    }
+    document.body.append(bar);
+  })
+  .catch(() => {});
 $('start').addEventListener('click', start);
 $('show-targets').addEventListener('click', () => ($('targets').hidden = false));
 $('close-targets').addEventListener('click', () => ($('targets').hidden = true));

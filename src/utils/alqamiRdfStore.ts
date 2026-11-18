@@ -209,12 +209,30 @@ export function getArtifactRdfMetadata(idOrSlug: string): RdfParsedMetadata {
   const ttlFileName = mapping?.ttlFile;
   const rdfFileName = mapping?.rdfFile;
 
-  const rawTtl = (ttlFileName && (backendRdf as Record<string, string>)[ttlFileName]) || '';
+  const subjNum = artifact.id.startsWith('KFL-') ? artifact.id.match(/(\d+)$/)?.[1] : undefined;
+  const defaultUri = subjNum
+    ? `https://museum.alkafeel.net/subjects/${subjNum}`
+    : `https://alqami.net/artifact/${artifact.slug}`;
+
+  const rawTtl =
+    (ttlFileName && (backendRdf as Record<string, string>)[ttlFileName]) ||
+    generateCustomTurtle({
+      uri: defaultUri,
+      titleAr: artifact.title.ar,
+      titleEn: artifact.title.en,
+      creatorAr: artifact.creator.ar,
+      creatorEn: artifact.creator.en,
+      date: artifact.period.ar,
+      materialsAr: artifact.details.material.ar,
+      materialsEn: artifact.details.material.en,
+      dimensions: artifact.details.dimensions,
+      transcriptionAr: artifact.description.ar,
+    });
   const rawRdf = rdfFileName ? backendRdf[rdfFileName] : undefined;
 
   // Extract URI
   const uriMatch = rawTtl.match(/<([^>]+)>\s+a\s+/);
-  const uri = uriMatch ? uriMatch[1] : `https://alqami.net/artifact/${artifact.slug}`;
+  const uri = uriMatch ? uriMatch[1] : defaultUri;
 
   // Extract titles
   const titleAr = extractLocalizedField(rawTtl, 'dc:title', 'ar') || artifact.title.ar;

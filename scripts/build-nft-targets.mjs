@@ -31,12 +31,18 @@ const manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath
 const fileOf = (id) => id.replace(/[^a-zA-Z0-9_-]/g, '_');
 
 const records = [];
-for (let offset = 0; ; offset += 200) {
-  const res = await fetch(`${MOON_API}/records/search?view=published&limit=200&offset=${offset}`, { headers: { Authorization: `Bearer ${MOON_KEY}` } });
-  if (!res.ok) throw new Error(`Moon search ${res.status}`);
-  const page = await res.json();
-  records.push(...page.records.map((r) => r.id));
-  if (page.records.length < 200) break;
+if (process.env.LOCAL_ONLY !== '1') {
+  try {
+    for (let offset = 0; ; offset += 200) {
+      const res = await fetch(`${MOON_API}/records/search?view=published&limit=200&offset=${offset}`, { headers: { Authorization: `Bearer ${MOON_KEY}` } });
+      if (!res.ok) throw new Error(`Moon search ${res.status}`);
+      const page = await res.json();
+      records.push(...page.records.map((r) => r.id));
+      if (page.records.length < 200) break;
+    }
+  } catch (e) {
+    console.warn('Skipping remote Moon records for NFT targets:', e.message);
+  }
 }
 
 const work = join(tmpdir(), 'alqami-nft');
@@ -45,7 +51,7 @@ let made = 0, kept = 0, failed = 0;
 // Page scans of built-in objects (a marker works best at about 1000 px across).
 const pages = existsSync('enrol')
   ? readdirSync('enrol')
-      .filter((d) => d.startsWith('artifact__') && existsSync(join('enrol', d, 'scan.jpg')))
+      .filter((d) => (d.startsWith('artifact__') || d.startsWith('alkafeel__')) && existsSync(join('enrol', d, 'scan.jpg')))
       .map((d) => ({ id: d.replace('__', ':'), file: join('enrol', d, 'scan.jpg') }))
   : [];
 // Pages first, so the per-run limit never leaves them out.
@@ -88,11 +94,13 @@ for (const { id, file: page } of sources) {
   }
 }
 
-// Records withdrawn from Moon lose their markers.
-for (const id of Object.keys(manifest)) {
-  if (!sources.some((x) => x.id === id)) {
-    for (const ext of ['iset', 'fset', 'fset3']) rmSync(join(out, `${manifest[id].file}.${ext}`), { force: true });
-    delete manifest[id];
+// Records withdrawn from Moon lose their markers (only when remote Moon records were queried).
+if (records.length > 0) {
+  for (const id of Object.keys(manifest)) {
+    if (!sources.some((x) => x.id === id)) {
+      for (const ext of ['iset', 'fset', 'fset3']) rmSync(join(out, `${manifest[id].file}.${ext}`), { force: true });
+      delete manifest[id];
+    }
   }
 }
 writeFileSync(manifestPath, JSON.stringify(manifest));

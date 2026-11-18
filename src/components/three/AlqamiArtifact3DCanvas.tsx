@@ -200,8 +200,17 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
               if (mesh.material) {
                 const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
                 materials.forEach((mat) => {
+                  const stdMat = mat as THREE.MeshStandardMaterial;
+                  if (stdMat.map) {
+                    stdMat.map.colorSpace = THREE.SRGBColorSpace;
+                    stdMat.map.needsUpdate = true;
+                    if (stdMat.color) stdMat.color.setHex(0xffffff);
+                    if (typeof stdMat.metalness === 'number' && !stdMat.metalnessMap) {
+                      stdMat.metalness = Math.min(0.22, stdMat.metalness);
+                    }
+                  }
                   if ('envMapIntensity' in mat) {
-                    (mat as THREE.MeshStandardMaterial).envMapIntensity = 1.45;
+                    stdMat.envMapIntensity = 0.65;
                   }
                   if ('roughness' in mat && typeof (mat as THREE.MeshStandardMaterial).roughness === 'number') {
                     const m = mat as THREE.MeshStandardMaterial;

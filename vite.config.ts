@@ -15,7 +15,7 @@ const threeForMindAR: Plugin = {
   async resolveId(source, importer, options) {
     if (!importer || !(source === 'three' || source.startsWith('three/'))) return null;
     const imp = importer.replace(/\\/g, '/');
-    if (!imp.includes('/node_modules/mind-ar/') && !imp.includes('/src/alqami3/classic/')) return null;
+    if (!imp.includes('/node_modules/mind-ar/')) return null;
     const mapped = source === 'three' ? 'three150' : source.replace(/^three\/addons\//, 'three150/examples/jsm/').replace(/^three\//, 'three150/');
     return this.resolve(mapped, importer, { ...options, skipSelf: true });
   },
@@ -110,6 +110,11 @@ export default defineConfig({
       // label in any phone camera; labels.html prints every object's label (src/object). bench.html measures recognition by sight on a phone (see src/bench/sightBench.ts).
       input: { main: resolve(__dirname, 'index.html'), bench: resolve(__dirname, 'bench.html'), jawahiri: resolve(__dirname, 'jawahiri.html'), mutanabbi: resolve(__dirname, 'mutanabbi.html'), waili: resolve(__dirname, 'waili.html'), object: resolve(__dirname, 'object.html'), labels: resolve(__dirname, 'labels.html'), alqami3Scan: resolve(__dirname, 'alqami3-scan.html'), alqami3Sweep: resolve(__dirname, 'alqami3-360.html') },
     },
+  },
+  optimizeDeps: {
+    entries: ['index.html', 'jawahiri.html', 'object.html', 'labels.html'],
+    include: ['three', 'three/examples/jsm/loaders/GLTFLoader.js', 'three/examples/jsm/environments/RoomEnvironment.js'],
+    exclude: ['mind-ar', 'three150'],
   },
   server: {
     port: 5173,

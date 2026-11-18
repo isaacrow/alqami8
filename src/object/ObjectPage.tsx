@@ -201,6 +201,40 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
 
         <SpeakingPanel facts={factsFromArtifact(a, lang)} lang={lang} model={a.model.glb} />
 
+        <section className="pt-4 border-t border-white/10 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[16px] font-semibold">
+              {t('نفائس متحف الكفيل ثلاثية الأبعاد (360° 3D)', 'More Al-Kafeel 360° 3D Treasures')}
+            </h2>
+            <a href={assetUrl('/labels.html')} className="text-[12.5px] text-[#FFD60A] hover:underline">
+              {t('كل الملصقات (QR) ←', 'All QR Labels →')}
+            </a>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            {ALQAMI_ARTIFACTS.filter((x) => x.id.startsWith('KFL-') && x.id !== a.id)
+              .slice(0, 9)
+              .map((item) => (
+                <a
+                  key={item.id}
+                  href={`?artifact=${encodeURIComponent(item.id)}`}
+                  className="group rounded-2xl bg-white/[0.05] hover:bg-white/[0.12] border border-white/10 p-2.5 flex items-center gap-2.5 transition"
+                >
+                  <img
+                    src={assetUrl(item.image)}
+                    alt={item.title[lang]}
+                    className="w-12 h-12 rounded-xl object-cover bg-black/40 shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <p className="text-[12.5px] font-semibold text-white truncate group-hover:text-[#FFD60A]">
+                      {item.title[lang]}
+                    </p>
+                    <p className="text-[11px] text-white/55 truncate">{item.categoryLabel?.[lang] || item.id}</p>
+                  </div>
+                </a>
+              ))}
+          </div>
+        </section>
+
         <p className="text-[12px] text-white/45" dir="ltr">
           {a.id} · {a.itemCode}
         </p>

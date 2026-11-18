@@ -143,8 +143,36 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({ isOpen, onLa
       </div>
 
       <div className="w-full max-w-[560px] flex-1 min-h-0 flex flex-col px-4">
-        <div className="mb-4 text-center">
+        <div className="mb-3 text-center space-y-1.5">
           <h1 className="text-[22px] font-semibold tracking-tight text-white drop-shadow">{lang === 'ar' ? 'تطبيقاتك' : 'Your apps'}</h1>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/15 border border-amber-400/35 text-amber-200 text-[11.5px] font-medium shadow">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>
+              {lang === 'ar'
+                ? 'متحف الكفيل للنفائس والمخطوطات • ٣٠ مجسّم 3D حقيقي'
+                : 'Al-Kafeel Museum Collection • 30 Real 360° 3D Models'}
+            </span>
+          </div>
+        </div>
+        {/* Quick-jump 3D treasures strip from Al-Kafeel Museum */}
+        <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className="flex items-center gap-2 overflow-x-auto pb-3 mb-2 [scrollbar-width:none]">
+          {[
+            { id: 'KFL-KSH-2165', ar: 'كشكول تراثي 3D', en: '3D Kashkul #2165' },
+            { id: 'KFL-SWD-2126', ar: 'سيف السلطان سليم 3D', en: '3D Sultan Selim Sword' },
+            { id: 'KFL-KUF-2144', ar: 'الكف العباسي 3D', en: '3D Sacred Kaff #2144' },
+            { id: 'KFL-LNT-2247', ar: 'قنديل الضريح 3D', en: '3D Shrine Lantern' },
+            { id: 'KFL-MTL-2239', ar: 'إناء معدني منقوش 3D', en: '3D Inlaid Vessel' },
+            { id: 'KFL-CST-2300', ar: 'صندوق الضريح 3D', en: '3D Sanctuary Chest' },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={(e) => navigateFrom(e.currentTarget, `./object.html?artifact=${item.id}`)}
+              className="shrink-0 h-8 px-3 rounded-full bg-white/15 hover:bg-amber-400 hover:text-black backdrop-blur-md border border-white/20 text-[11.5px] font-medium text-white transition active:scale-95 flex items-center gap-1.5"
+            >
+              <Box className="w-3.5 h-3.5" />
+              <span>{lang === 'ar' ? item.ar : item.en}</span>
+            </button>
+          ))}
         </div>
         {/* Every app in reach: a grid that fits the width and scrolls when it is taller than the screen. */}
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pb-2" style={{ WebkitOverflowScrolling: 'touch' }}>

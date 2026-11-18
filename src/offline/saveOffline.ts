@@ -9,7 +9,7 @@ import { Embedder } from '../recognize/embedder';
  * published Moon record and its cover, and the recognition model.
  */
 
-const APP_CACHE = 'alqami-app-v1';
+const APP_CACHE = 'alqami-app-v6';
 const SAVED_KEY = 'alqami-offline-saved';
 
 export interface OfflineProgress {
@@ -76,6 +76,29 @@ export async function saveForOffline(onProgress: (p: OfflineProgress) => void): 
     await fetch(coverGuess(r.id)).catch(() => undefined);
     tick(60_000, 'records');
   });
+
+  // Cache the Al-Kafeel Museum 181-item shelf, photos, and NFT marker index for offline visits inside the shrine.
+  try {
+    const catUrl = new URL(`${base}data/alkafeel-catalogue.json`, location.href).href;
+    const catRes = await fetch(catUrl);
+    if (catRes.ok) {
+      await cache.put(catUrl, catRes.clone());
+      const items = (await catRes.json()) as Array<{ image?: string }>;
+      await inBatches(items, 8, async (it) => {
+        if (!it.image) return;
+        const imgUrl = new URL(`${base}${it.image.replace(/^\.?\//, '')}`, location.href).href;
+        if (!(await cache.match(imgUrl))) {
+          const r = await fetch(imgUrl);
+          if (r.ok) await cache.put(imgUrl, r);
+        }
+      });
+    }
+    const nftUrl = new URL(`${base}nft/index.json`, location.href).href;
+    const nftRes = await fetch(nftUrl);
+    if (nftRes.ok) await cache.put(nftUrl, nftRes);
+  } catch {
+    // Best-effort offline pre-cache for Al-Kafeel photos.
+  }
 
   // The model this phone recognises with (WebGPU fp16 after its self-test, else WASM int8), and its index.
   const { sightBackend } = await import('../recognize/backend');

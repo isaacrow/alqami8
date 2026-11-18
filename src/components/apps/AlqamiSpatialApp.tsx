@@ -415,13 +415,17 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
   const categories: { id: string; ar: string; en: string }[] = [
     { id: 'All', ar: 'الكل', en: 'All' },
-    { id: 'Artifact', ar: 'مقتنيات أثرية', en: 'Artifacts' },
+    { id: 'AlKafeel', ar: 'متحف الكفيل (30 3D)', en: 'Al-Kafeel Museum (30 3D)' },
+    { id: 'KFL-KSH', ar: 'الكشاكيل 3D', en: '3D Kashkuls' },
+    { id: 'KFL-SWD', ar: 'السيوف 3D', en: '3D Swords' },
+    { id: 'KFL-KUF', ar: 'الكفوف العباسية 3D', en: '3D Sacred Kuffuf' },
+    { id: 'KFL-LNT', ar: 'القناديل والشمعدانات 3D', en: '3D Lanterns & Candlesticks' },
+    { id: 'KFL-MTL', ar: 'الأواني والحلي 3D', en: '3D Vessels & Jewelry' },
+    { id: 'KFL-SHR', ar: 'أجزاء الضريح والصناديق 3D', en: '3D Shrine Relics & Chests' },
     { id: 'Manuscripts', ar: 'مخطوطات', en: 'Manuscripts' },
+    { id: 'Artifact', ar: 'مقتنيات أثرية', en: 'Artifacts' },
     { id: 'Islamic Art', ar: 'فن إسلامي', en: 'Islamic Art' },
     { id: 'History', ar: 'تاريخ', en: 'History' },
-    { id: 'Heritage', ar: 'تراث', en: 'Heritage' },
-    { id: 'Museum', ar: 'متحف', en: 'Museum' },
-    { id: 'Culture', ar: 'ثقافة', en: 'Culture' },
   ];
 
   const q = searchQuery.trim().toLowerCase();
@@ -429,10 +433,20 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
     const matchesCat =
       activeCategory === 'All'
         ? true
-        : a.category.toLowerCase().includes(activeCategory.toLowerCase().replace(' ', '-')) ||
-          (activeCategory === 'Heritage' && (a.category === 'manuscripts' || a.category === 'artifact')) ||
-          (activeCategory === 'Museum' && a.institution) ||
-          (activeCategory === 'Culture' && a.period);
+        : activeCategory === 'AlKafeel'
+          ? a.id.startsWith('KFL-')
+          : activeCategory === 'KFL-LNT'
+            ? a.id.startsWith('KFL-LNT') || a.id.startsWith('KFL-CND')
+            : activeCategory === 'KFL-MTL'
+              ? a.id.startsWith('KFL-MTL') || a.id.startsWith('KFL-JWL') || a.id.startsWith('KFL-CLK')
+              : activeCategory === 'KFL-SHR'
+                ? a.id.startsWith('KFL-SHR') || a.id.startsWith('KFL-CST') || a.id.startsWith('KFL-ARM')
+                : activeCategory.startsWith('KFL-')
+                  ? a.id.startsWith(activeCategory)
+                  : a.category.toLowerCase().includes(activeCategory.toLowerCase().replace(' ', '-')) ||
+                    (activeCategory === 'Heritage' && (a.category === 'manuscripts' || a.category === 'artifact' || a.category === 'heritage')) ||
+                    (activeCategory === 'Museum' && a.institution) ||
+                    (activeCategory === 'Culture' && a.period);
 
     if (!matchesCat) return false;
     if (!q) return true;

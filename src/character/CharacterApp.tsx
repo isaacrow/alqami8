@@ -11,6 +11,8 @@ import { Stage } from './stage';
 import { VisualGyro } from './visualGyro';
 import { LectureSheet } from './LectureSheet';
 import { clock, LectureHit, loadLectures } from './lectureSearch';
+import { ALQAMI_ARTIFACTS, AlqamiArtifact } from '../data/alqamiArtifacts';
+import { assetUrl } from '../utils/assetUrl';
 import { Gesture, VisitorTracker } from './tracking';
 
 import { Glyph, isGlyph } from '../components/shell/Glyph';
@@ -46,6 +48,8 @@ export const CharacterApp: React.FC = () => {
   const [his, setHis] = useState('');
   /** The recorded lectures he drew on for this answer: shown as "listen to him" links. */
   const [sources, setSources] = useState<LectureHit[]>([]);
+  /** The Al-Kafeel Museum items he found via search_alkafeel_items: shown as clickable 3D object cards. */
+  const [museumHits, setMuseumHits] = useState<AlqamiArtifact[]>([]);
   /** The passage the lectures window opens on (a "hear him" card), or null to open on the search. */
   const [lectureClip, setLectureClip] = useState<LectureHit | null>(null);
   const [visitor, setVisitor] = useState('');
@@ -121,7 +125,17 @@ export const CharacterApp: React.FC = () => {
       if (mode === 'back' && video.current && !s.hasGyro && visualGyro.current.update(video.current, window.innerWidth, window.innerHeight, s.arFov)) {
         s.setVisual(visualGyro.current.yaw, visualGyro.current.pitch);
       }
-      const voice = debug?.voice != null ? { level: debug.voice, bright: debug.bright ?? 0.5, ...(debug.mouth ? { mouth: debug.mouth } : {}) } : live.current?.features(level, spectrum) ?? quiet;
+      const synthSpeaking = typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis.speaking;
+      const synthVoice = synthSpeaking
+        ? {
+            level: Math.max(0, Math.sin(now * 0.011)) * (0.38 + 0.28 * Math.abs(Math.sin(now * 0.027))),
+            bright: 0.48 + 0.24 * Math.sin(now * 0.019),
+          }
+        : quiet;
+      const voice =
+        debug?.voice != null
+          ? { level: debug.voice, bright: debug.bright ?? 0.5, ...(debug.mouth ? { mouth: debug.mouth } : {}) }
+          : live.current?.features(level, spectrum) ?? synthVoice;
       if (debug) (debug as { last?: unknown }).last = voice;
       s.frame(dt, voice, debug?.look ?? look);
       if (frameNo % 3 === 0 && live.current) setMicLevel(live.current.micLevel);
@@ -211,13 +225,14 @@ export const CharacterApp: React.FC = () => {
       onHisWords: (text) => setHis(text),
       onVisitorWords: (text) => setVisitor((v) => `${v}${text}`.slice(-160)),
       onVoice: setVoice,
-      tools: C.lectures ? lectureTools(C.lectures, setSources) : undefined,
+      tools: characterTools(C.lectures, setSources, setMuseumHits),
     });
     live.current = conv;
     if (C.lectures) void loadLectures(C.lectures).catch(() => {}); // start fetching while he says hello
     setHis('');
     setVisitor('');
     setSources([]);
+    setMuseumHits([]);
     try {
       // Mic first (it needs this tap), then the front camera so he can look at you.
       const starting = conv.start(C.openingCue);
@@ -408,6 +423,24 @@ export const CharacterApp: React.FC = () => {
             {errorText && <p className="text-[12.5px] text-rose-300">{errorText}</p>}
           </div>
         )}
+        {museumHits.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none]">
+            {museumHits.map((item) => (
+              <a
+                key={item.id}
+                href={`./object.html?artifact=${encodeURIComponent(item.id)}`}
+                dir="rtl"
+                className="shrink-0 max-w-[78vw] text-start flex items-center gap-2.5 rounded-2xl bg-black/70 backdrop-blur border border-[#FFD60A]/45 pl-3 pr-2 py-2 active:scale-[0.98] transition"
+              >
+                <img src={assetUrl(item.image)} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0 border border-white/20" />
+                <span className="min-w-0">
+                  <span className="block text-[10.5px] text-[#FFD60A] truncate">{item.subtitle?.ar || item.categoryLabel?.ar}</span>
+                  <span dir="auto" className="block text-[13px] font-semibold text-white truncate">{item.title.ar}</span>
+                </span>
+              </a>
+            ))}
+          </div>
+        )}
         {sources.length > 0 && (
           <div className="flex gap-2 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none]">
             {sources.map((s) => (
@@ -453,6 +486,106 @@ export const CharacterApp: React.FC = () => {
             </button>
           </form>
         )}
+
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
+          {(C.id === 'waili'
+            ? [
+                [
+                  'نفائس متحف الكفيل',
+                  'حدّثني عن قيمة التراث والمخطوطات ونفائس متحف الكفيل في كربلاء.',
+                  'إنَّ حفظ التراث والمخطوطات في متحف الكفيل بالعتبة العباسية المقدسة في كربلاء هو حفظٌ لذاكرة الأمة؛ فهذه المصاحف المذهّبة والكفوف العباسية والقناديل تشهد على قرونٍ من الفن والإيمان.',
+                  'الحسين كربلاء التراث',
+                ],
+                [
+                  'الصبر في محاضراتك',
+                  'ابحث في محاضراتك عن معنى الصبر على البلاء.',
+                  'تكلّمتُ في محاضراتي عن الصبر على البلاء، وبيّنتُ أن الصبر في القرآن الكريم ليس استسلامًا، بل هو ثباتُ القلب والعقل عند الشدائد، وقد ظهر لك رابط التسجيل على الشاشة لتسمعه بصوتي.',
+                  'الصبر على البلاء',
+                ],
+                [
+                  'النجف والمنبر',
+                  'حدّثني عن ذكريات دراستك في النجف والمنبر الحسيني.',
+                  'نشأتُ في النجف الأشرف واعتليتُ المنبر وأنا ابن أربع عشرة سنة، وجمعتُ بين دراسة الفقه والأدب والشعر، لأن المنبر الحسيني مدرسةٌ تجمع الحجة العلمية بالبيان.',
+                  'المنبر الحسيني العلم',
+                ],
+              ]
+            : C.id === 'mutanabbi'
+              ? [
+                  [
+                    'سيوف متحف الكفيل',
+                    'ما قولك في سيوف الجوهر الدمشقي المعروضة في متحف الكفيل؟ وأنشدني بيت الخيل والليل.',
+                    'للهِ درُّ سيوفِ الجوهرِ الدمشقيِّ المحفوظة في متحف الكفيل! صفحاتُها كالماءِ الجاري موشّاةٌ بالذهب، وكأني بها حين قلتُ: الخيلُ والليلُ والبيداءُ تعرفُني ... والسيفُ والرمحُ والقرطاسُ والقلمُ.',
+                    '',
+                  ],
+                  [
+                    'على قدر أهل العزم',
+                    'أنشدني مطلع قصيدتك على قدر أهل العزم وحدثني عن مناسبتها.',
+                    'أنشدتُها في سيف الدولة الحمداني حين فتح الحدث: على قَدْرِ أهلِ العزمِ تأتي العزائمُ ... وتأتي على قَدْرِ الكرامِ المكارمُ، وتعظُمُ في عينِ الصغيرِ صغارُها ... وتصغُرُ في عينِ العظيمِ العظائمُ.',
+                    '',
+                  ],
+                  [
+                    'الكوفة والبادية',
+                    'حدّثني عن نشأتك في الكوفة وفصاحة البادية.',
+                    'وُلدتُ في الكوفة سنة ثلاثمئةٍ وثلاثٍ للهجرة، وخرجتُ في صباي إلى بادية السماوة فنهلتُ من فصاحة العرب الخُلَّص قبل أن أجوب الشام ومصر وفارس.',
+                    '',
+                  ],
+                ]
+              : [
+                  [
+                    'يا دجلة الخير',
+                    'أنشدني مطلع قصيدتك يا دجلة الخير وحدثني عن حنينك للعراق.',
+                    'كتبتُها في الغربة ببراغ سنة اثنتين وستين وتسعمئةٍ وألف شوقًا إلى العراق: حَيَّيتُ سفحَكِ عن بُعدٍ فحَيِّيني ... يا دجلةَ الخيرِ يا أُمَّ البساتينِ، حَيَّيتُ سفحَكَ ظمآناً ألوذُ به ... لوذَ الحمائمِ بين الماءِ والطينِ.',
+                    '',
+                  ],
+                  [
+                    'تراث كربلاء والكفيل',
+                    'حدّثني عن نفائس كربلاء والمخطوطات والطوابع العراقية القديمة في متحف الكفيل.',
+                    'كربلاء والنجف خزانتا الشعر والتراث العراقي؛ وفي متحف الكفيل ترى المخطوطات النادرة والطوابع العراقية الأولى كطابع الموصل سنة تسع عشرة وتسعمئة وألف، وكلُّ قطعةٍ منها تروي فصلًا من تاريخ العراق.',
+                    '',
+                  ],
+                  [
+                    'العينية (آمنت بالحسين)',
+                    'أنشدني مطلع عينيتك فداء لمثواك.',
+                    'أنشدتُها في ذكرى الحسين سنة سبعٍ وأربعين وتسعمئةٍ وألف: فِداءً لمثواكَ من مَضجَعِ ... تَنَوَّرَ بالأبلجِ الأروعِ، بأعبقَ من نفحاتِ الجِنانِ ... رَوحَاً ومن مسكِها أضوَعِ.',
+                    '',
+                  ],
+                ]
+          ).map(([label, prompt, localReply, lectureQuery]) => (
+            <button
+              key={label}
+              onClick={() => {
+                setVisitor(prompt);
+                if (connected && live.current) {
+                  setHis('');
+                  live.current.sendText(prompt);
+                  return;
+                }
+                setHis(localReply);
+                stage.current?.nod();
+                setMuseumHits(searchAlKafeelItems(prompt, 3));
+                if (C.id === 'waili' && C.lectures && lectureQuery) {
+                  void loadLectures(C.lectures)
+                    .then((idx) => setSources(idx.search(lectureQuery, 3).slice(0, 2)))
+                    .catch(() => {});
+                }
+                if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                  try {
+                    window.speechSynthesis.cancel();
+                    const u = new SpeechSynthesisUtterance(localReply);
+                    u.lang = 'ar-SA';
+                    u.rate = 0.92;
+                    window.speechSynthesis.speak(u);
+                  } catch {
+                    /* ignore speech synthesis errors */
+                  }
+                }
+              }}
+              className="h-8 px-3 rounded-full bg-white/15 hover:bg-[#FFD60A] hover:text-black border border-white/20 text-[11.5px] font-medium text-amber-200 transition active:scale-95"
+            >
+              ✦ {label}
+            </button>
+          ))}
+        </div>
 
         {connected && (
           <div className="flex items-center justify-center gap-2">
@@ -680,31 +813,101 @@ const AboutSheet: React.FC<{ lang: Lang; onClose: () => void }> = ({ lang, onClo
   );
 };
 
-/** "Search his lectures": the voice asks with a few Arabic words, gets back the best passages, and the page shows them. */
-function lectureTools(url: string, show: (hits: LectureHit[]) => void) {
-  return {
-    declarations: [
-      {
-        name: 'search_lectures',
-        description:
-          'Searches the transcripts of your own recorded lectures (YouTube, automatic Arabic captions) and returns the most relevant passages with the lecture title and time. Use it before answering about a verse, a religious, moral, historical or social topic, or when the visitor wants to hear what you said.',
-        parameters: {
-          type: 'OBJECT',
-          properties: { query: { type: 'STRING', description: 'A few Arabic words that are the core of the question, e.g. «الصبر على البلاء».' } },
-          required: ['query'],
+function searchAlKafeelItems(query: string, limit = 3): AlqamiArtifact[] {
+  const words = query
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 1);
+  const kfl = ALQAMI_ARTIFACTS.filter((a) => a.id.startsWith('KFL-'));
+  if (!words.length) return kfl.slice(0, limit);
+  return kfl
+    .map((a) => {
+      const hay = `${a.id} ${a.itemCode} ${a.title.ar} ${a.title.en} ${a.subtitle?.ar ?? ''} ${a.categoryLabel?.ar ?? ''} ${a.details.material.ar} ${a.description.ar}`.toLowerCase();
+      let score = 0;
+      for (const w of words) {
+        if (a.title.ar.toLowerCase().includes(w)) score += 4;
+        else if (hay.includes(w)) score += 2;
+      }
+      return { a, score };
+    })
+    .filter((x) => x.score > 0)
+    .sort((x, y) => y.score - x.score)
+    .slice(0, limit)
+    .map((x) => x.a);
+}
+
+/**
+ * Tools for the voice characters:
+ * 1. search_alkafeel_items: searches the ~181 catalogued Al-Kafeel Museum treasures (the same way al-Waili searches his lectures).
+ * 2. search_lectures (when the character has recorded lectures, e.g. Sheikh al-Waili).
+ */
+function characterTools(
+  lecturesUrl: string | undefined,
+  showLectures: (hits: LectureHit[]) => void,
+  showArtifacts: (items: AlqamiArtifact[]) => void
+) {
+  const declarations: Array<Record<string, unknown>> = [
+    {
+      name: 'search_alkafeel_items',
+      description:
+        'Searches the 181 heritage items of the Al-Kafeel Museum of Treasures and Manuscripts (swords, kashkuls, manuscripts, coins, kuffuf hands, candlesticks, lanterns, clocks, textiles, armor, shrine parts, chests) by Arabic keywords or serial number.',
+      parameters: {
+        type: 'OBJECT',
+        properties: {
+          query: {
+            type: 'STRING',
+            description: 'Arabic keywords for the museum item or section, e.g. «سيف سليم خان» or «كشكول» or «مخطوط» or «كف».',
+          },
         },
+        required: ['query'],
       },
-    ],
+    },
+  ];
+  if (lecturesUrl) {
+    declarations.push({
+      name: 'search_lectures',
+      description:
+        'Searches the transcripts of your own recorded lectures (YouTube, automatic Arabic captions) and returns the most relevant passages with the lecture title and time. Use it before answering about a verse, a religious, moral, historical or social topic, or when the visitor wants to hear what you said.',
+      parameters: {
+        type: 'OBJECT',
+        properties: { query: { type: 'STRING', description: 'A few Arabic words that are the core of the question, e.g. «الصبر على البلاء».' } },
+        required: ['query'],
+      },
+    });
+  }
+  return {
+    declarations,
     call: async (name: string, args: Record<string, unknown>) => {
-      if (name !== 'search_lectures') return { error: 'unknown tool' };
-      const index = await loadLectures(url);
-      const hits = index.search(String(args.query ?? ''), 3);
-      show(hits.slice(0, 2));
-      if (!hits.length) return { passages: [], note: 'Nothing found in the lectures for this.' };
-      return {
-        note: 'Machine transcription of speech: some words are misheard, especially in verse and Qur’an. The visitor sees a link to each passage in the recording.',
-        passages: hits.map((h) => ({ lecture: h.title, at: clock(h.start), text: h.text.slice(0, 1100) })),
-      };
+      if (name === 'search_alkafeel_items') {
+        const hits = searchAlKafeelItems(String(args.query ?? ''), 3);
+        showArtifacts(hits);
+        if (!hits.length) return { items: [], note: 'No matching item found in the Al-Kafeel Museum catalogue.' };
+        return {
+          note: 'Authentic items from the Al-Kafeel Museum of Treasures and Manuscripts in Karbala. Their 3D cards are now shown on the visitor’s screen. Respect rule: never voice or depict the Imams (peace be upon them); speak of sacred relics in the third person with reverence.',
+          items: hits.map((h) => ({
+            id: h.id,
+            serial: h.itemCode,
+            titleAr: h.title.ar,
+            section: h.categoryLabel?.ar,
+            period: h.period.ar,
+            material: h.details.material.ar,
+            dimensions: h.details.dimensions,
+            description: h.description.ar,
+          })),
+        };
+      }
+      if (name === 'search_lectures' && lecturesUrl) {
+        const index = await loadLectures(lecturesUrl);
+        const hits = index.search(String(args.query ?? ''), 3);
+        showLectures(hits.slice(0, 2));
+        if (!hits.length) return { passages: [], note: 'Nothing found in the lectures for this.' };
+        return {
+          note: 'Machine transcription of speech: some words are misheard, especially in verse and Qur’an. The visitor sees a link to each passage in the recording.',
+          passages: hits.map((h) => ({ lecture: h.title, at: clock(h.start), text: h.text.slice(0, 1100) })),
+        };
+      }
+      return { error: 'unknown tool' };
     },
   };
 }

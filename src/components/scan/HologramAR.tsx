@@ -32,11 +32,34 @@ export async function pinsFor(id: string): Promise<HologramPin[]> {
     .then((r) => (r.ok ? r.json() : []))
     .catch(() => []);
   const rec = (await recordsPromise).find((r) => r.id === id);
-  return (rec?.model?.annotations ?? []).map((a) => ({
-    position: a.position.trim().split(/\s+/).map(Number) as [number, number, number],
-    title: a.title,
-    text: a.text,
-  }));
+  if (rec?.model?.annotations?.length) {
+    return rec.model.annotations.map((a) => ({
+      position: a.position.trim().split(/\s+/).map(Number) as [number, number, number],
+      title: a.title,
+      text: a.text,
+    }));
+  }
+  if (id.startsWith('KFL-')) {
+    return [
+      {
+        position: [0, 0.22, 0.08],
+        title: { ar: 'الزخرفة والنقش التراثي', en: 'Heritage Inscription & Motif' },
+        text: {
+          ar: 'تفاصيل النقوش الدقيقة المحفوظة في قاعة متحف الكفيل للنفائس والمخطوطات.',
+          en: 'Fine surface craftsmanship preserved in the Al-Kafeel Museum of Treasures & Manuscripts.',
+        },
+      },
+      {
+        position: [0.12, -0.1, 0.08],
+        title: { ar: 'بنية المادة والصناعة', en: 'Material & Craft Structure' },
+        text: {
+          ar: 'بنية ثلاثية الأبعاد مُستخرجة بتقنية Depth-Anything-V2 وRMBG-1.4 من صورة القطعة الأصلية.',
+          en: 'Watertight 3D relief geometry reconstructed via Depth-Anything-V2 & RMBG-1.4.',
+        },
+      },
+    ];
+  }
+  return [];
 }
 
 const SIZE = 150; // the twin's height on screen (px)

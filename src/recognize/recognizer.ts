@@ -11,7 +11,9 @@ export type SightResult =
   | { kind: 'none' };
 
 export function targetOf(key: string): SightTarget {
-  return key.startsWith('artifact:') ? { kind: 'artifact', id: key.slice(9) } : { kind: 'moon', recordId: key.replace(/^moon:/, '') };
+  if (key.startsWith('artifact:')) return { kind: 'artifact', id: key.slice(9) };
+  if (key.startsWith('alkafeel:')) return { kind: 'artifact', id: key };
+  return { kind: 'moon', recordId: key.replace(/^moon:/, '') };
 }
 
 /**

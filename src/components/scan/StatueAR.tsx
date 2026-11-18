@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Hand, Pin, Sparkles, X } from 'lucide-react';
+import { Hand, Pin, Sparkles, Volume2, X } from 'lucide-react';
 import { loadSettings } from '../../character/liveVoice';
 import { AskAnswer, askAboutFrame } from '../../scan/askGemini';
-import { ALQAMI_ARTIFACTS } from '../../data/alqamiArtifacts';
+import { ALQAMI_ARTIFACTS, AlqamiArtifact } from '../../data/alqamiArtifacts';
 import { getCustomScannedObjects } from '../../utils/alqamiRdfStore';
+import { assetUrl } from '../../utils/assetUrl';
+import { answer, factsFromArtifact } from '../../voice/persona';
+import { speak } from '../../voice/speak';
 import { listEnrolled } from '../../recognize/localEnrol';
 import { ModelOverlay } from '../three/ModelOverlay';
 import { HologramAR, HologramPin, pinsFor } from './HologramAR';
@@ -272,8 +275,19 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
     // Motion access: works at once on Android and desktop; iPhone asks on the pin button.
     void pin.current.start().then((ok) => !disposed && setGyroOn(ok));
 
+    const onPinRequest = (e: Event) => {
+      const id = (e as CustomEvent<{ id?: string }>).detail?.id;
+      if (!id) return;
+      const key = `artifact:${id}`;
+      const target: SightTarget = { kind: 'artifact', id };
+      pinTag(key, target, 0, { x: 0.5, y: 0.52, side: 0.6 }, true);
+      setOpen(key);
+    };
+    window.addEventListener('alqami:pin-sight', onPinRequest);
+
     return () => {
       disposed = true;
+      window.removeEventListener('alqami:pin-sight', onPinRequest);
       window.clearTimeout(timer);
       pin.current.stop();
       tracker.current.clear();
@@ -495,23 +509,38 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
   );
 };
 
+function findArtifactByTargetId(rawId: string): AlqamiArtifact | undefined {
+  const needle = rawId.toLowerCase();
+  const sid = needle.replace(/^(?:alkafeel:|alkafeel__|kfl-[a-z]+-|kfl-)/i, '');
+  return ALQAMI_ARTIFACTS.find(
+    (a) =>
+      a.id.toLowerCase() === needle ||
+      a.itemCode.toLowerCase() === needle ||
+      a.slug.toLowerCase() === needle ||
+      (sid && /^\d+$/.test(sid) && a.id.toLowerCase().endsWith(`-${sid}`))
+  );
+}
+
 /** What the tags and cards say about an object: from its Moon record, else the built-in object's details. */
 function useObjectFacts(target: SightTarget) {
-  const artifact = target.kind === 'artifact' ? ALQAMI_ARTIFACTS.find((a) => a.id.toLowerCase() === target.id.toLowerCase()) : undefined;
+  const artifact = target.kind === 'artifact' ? findArtifactByTargetId(target.id) : undefined;
   const moonId = target.kind === 'moon' ? target.recordId : artifact?.moonRecordId;
   const moon = useMoonRecord(moonId, 'ar');
   const card = moon?.state === 'ready' ? moon.data : null;
   // A record the visitor added in the scanner ("Add record"), kept on this device.
   const own = target.kind === 'artifact' && !artifact ? getCustomScannedObjects().find((o) => o.id === target.id)?.metadata : undefined;
   return {
+    artifact,
     card,
     title: card?.title ?? artifact?.title.ar ?? own?.titleAr ?? (target.kind === 'moon' ? target.recordId : target.id),
+    subtitle: artifact?.subtitle?.ar ?? artifact?.categoryLabel?.ar,
+    image: artifact?.image,
     maker: card?.contributors.map((c) => c.label).join('، ') || artifact?.creator?.ar || own?.creatorAr,
     date: card?.date ?? artifact?.period?.ar ?? own?.date,
     material: card?.notes.find((n) => /material|مادة|حجر|برونز|خزف|ورق|stone|bronze|clay|ceramic/i.test(n)) ?? artifact?.details.material?.ar ?? own?.materialsAr,
     holder: card?.holder ?? artifact?.institution?.ar ?? (own ? own.publisherAr : undefined),
-    dimensions: own?.dimensions,
-    text: own?.transcriptionAr,
+    dimensions: artifact?.details.dimensions || own?.dimensions,
+    text: artifact?.description?.ar || own?.transcriptionAr,
     front: artifact?.model.initialOrbit?.theta ?? 0,
   };
 }
@@ -535,12 +564,15 @@ const TagChip: React.FC<{ target: SightTarget; angle: number | null; at: { x: nu
       <button
         dir="rtl"
         onClick={onTap}
-        className="absolute pointer-events-auto -translate-x-1/2 -translate-y-full max-w-[180px] rounded-xl bg-black/65 backdrop-blur-md border border-white/25 px-2.5 py-1.5 text-start text-white shadow-xl"
+        className="absolute pointer-events-auto -translate-x-1/2 -translate-y-full max-w-[220px] rounded-xl bg-black/75 backdrop-blur-md border border-[#FFD60A]/60 px-2.5 py-1.5 text-start text-white shadow-xl flex items-center gap-2"
         style={{ left: label.x, top: label.y }}
       >
-        <span className="block text-[12.5px] font-semibold leading-tight truncate">{f.title}</span>
-        <span className="block text-[10.5px] text-white/70 truncate">
-          {[f.date, side ? `${SIDE_NAMES[side].ar}` : null].filter(Boolean).join(' · ')}
+        {f.image && <img src={assetUrl(f.image)} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0 border border-white/20" />}
+        <span className="min-w-0">
+          <span className="block text-[12px] font-semibold leading-tight truncate">{f.title}</span>
+          <span className="block text-[10px] text-amber-300/90 truncate">
+            {[f.subtitle || f.date, side ? `${SIDE_NAMES[side].ar}` : null].filter(Boolean).join(' · ')}
+          </span>
         </span>
       </button>
     </>
@@ -561,7 +593,7 @@ const PinnedRecord: React.FC<{
   // The object's own 3D scan (taught from a GLB), else its catalogue model: shown in 3D and AR.
   const [mesh, setMesh] = useState<string | null>(null);
   const [show3d, setShow3d] = useState(false);
-  const key = target.kind === 'moon' ? `moon:${target.recordId}` : `artifact:${target.id}`;
+  const key = target.kind === 'moon' ? `moon:${target.recordId}` : `artifact:${f.artifact?.id ?? target.id}`;
   useEffect(() => {
     let url: string | null = null;
     let live = true;
@@ -573,7 +605,7 @@ const PinnedRecord: React.FC<{
         setMesh(url);
         return;
       }
-      const glb = target.kind === 'artifact' ? ALQAMI_ARTIFACTS.find((a) => a.id === target.id)?.model.glb : undefined;
+      const glb = f.artifact?.model.glb;
       if (glb) setMesh(new URL(glb.replace(/^\//, ''), new URL(import.meta.env.BASE_URL || './', location.href)).href);
     });
     return () => {
@@ -581,12 +613,12 @@ const PinnedRecord: React.FC<{
       if (url) URL.revokeObjectURL(url);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, f.artifact]);
   const side = angle != null ? sideOf(angle, f.front) : null;
   const notes = angle != null && f.card ? sideNotes(f.card.notes, angle, f.front) : [];
   // A 3D object's hologram beside it (alqami3's scan mode): its model, turned to the side in view, with its parts
   // pinned. Not for leaves and open books (flat), whose record card is enough.
-  const builtIn = target.kind === 'artifact' ? ALQAMI_ARTIFACTS.find((a) => a.id === target.id) : undefined;
+  const builtIn = f.artifact;
   const [pins, setPins] = useState<HologramPin[]>([]);
   useEffect(() => {
     if (builtIn) void pinsFor(builtIn.id).then(setPins);
@@ -597,35 +629,49 @@ const PinnedRecord: React.FC<{
   const hologram = mesh && !builtIn?.model.flat && !pagePins;
 
   const W = box.current?.clientWidth ?? 360;
-  const cardW = Math.min(260, W - 24);
+  const cardW = Math.min(280, W - 24);
   const left = Math.max(12, Math.min(W - cardW - 12, at.x - cardW / 2));
   // While a page is pinned, the card folds to its title at the top, out of the page's way.
-  const top = onPage ? 64 : Math.max(12, at.y - 190);
+  const top = onPage ? 64 : Math.max(12, at.y - 220);
+
+  const speakDescription = () => {
+    if (builtIn) {
+      const facts = factsFromArtifact(builtIn, 'ar');
+      speak(answer(facts, 'intro', 'ar') + ' ' + answer(facts, 'story', 'ar'), 'ar', builtIn.model.glb);
+    } else if (f.text || f.title) {
+      speak(`${f.title}. ${f.text || ''}`, 'ar');
+    }
+  };
 
   return (
     <>
       {hologram && !show3d && <HologramAR model={mesh} at={at} angle={angle} pins={pins} />}
       {pagePins && builtIn && !show3d && <PagePins markerKey={`artifact:${builtIn.id}`} pins={pagePins} video={video.current} onTracking={setOnPage} />}
       <svg className={`absolute inset-0 w-full h-full overflow-visible ${onPage ? 'hidden' : ''}`}>
-        <line x1={at.x} y1={at.y} x2={Math.max(left + 16, Math.min(left + cardW - 16, at.x))} y2={top + 120} stroke="#FFD60A" strokeWidth="1.5" />
+        <line x1={at.x} y1={at.y} x2={Math.max(left + 16, Math.min(left + cardW - 16, at.x))} y2={top + 140} stroke="#FFD60A" strokeWidth="1.8" />
         <circle cx={at.x} cy={at.y} r="6" fill="#FFD60A" stroke="white" strokeWidth="2" />
       </svg>
-      <div dir="rtl" className="absolute pointer-events-auto rounded-2xl bg-black/70 backdrop-blur-md border border-white/20 text-white p-3 shadow-2xl" style={{ left, top, width: cardW }}>
-        <div className="flex items-start gap-2">
-          <button onClick={onOpen} className="flex-1 text-start">
-            <p className="text-[14px] font-semibold leading-snug">{f.title}</p>
-            {f.maker && <p className="text-[11.5px] text-white/70 truncate">{f.maker}</p>}
+      <div dir="rtl" className="absolute pointer-events-auto rounded-2xl bg-black/80 backdrop-blur-xl border border-[#FFD60A]/50 text-white p-3 shadow-2xl" style={{ left, top, width: cardW }}>
+        <div className="flex items-start gap-2.5">
+          {f.image && <img src={assetUrl(f.image)} alt="" className="w-11 h-11 rounded-xl object-cover shrink-0 border border-white/20" />}
+          <button onClick={onOpen} className="flex-1 min-w-0 text-start">
+            <p className="text-[13.5px] font-bold leading-snug">{f.title}</p>
+            {f.subtitle && <p className="text-[10.5px] text-[#FFD60A] truncate">{f.subtitle}</p>}
+            {f.maker && <p className="text-[11px] text-white/70 truncate">{f.maker}</p>}
+          </button>
+          <button onClick={speakDescription} title="استمع لوصف القطعة · Listen in Arabic" aria-label="Listen" className="w-7 h-7 rounded-full bg-[#FFD60A]/20 border border-[#FFD60A]/50 text-[#FFD60A] flex items-center justify-center shrink-0">
+            <Volume2 className="w-3.5 h-3.5" />
           </button>
           <button onClick={onClose} aria-label="Close" className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center shrink-0">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className={`mt-1.5 space-y-0.5 text-[11.5px] text-white/80 ${onPage ? 'hidden' : ''}`}>
+        <div className={`mt-2 space-y-0.5 text-[11px] text-white/85 ${onPage ? 'hidden' : ''}`}>
           {f.date && <p><Glyph e="📅" /> {f.date}</p>}
           {f.material && <p className="truncate"><Glyph e="🪨" /> {f.material}</p>}
-          {f.holder && <p className="truncate"><Glyph e="🏛" /> {f.holder}</p>}
           {f.dimensions && <p className="truncate"><Glyph e="📏" /> {f.dimensions}</p>}
-          {f.text && <p className="line-clamp-3 text-white/85"><Glyph e="✎" /> {f.text}</p>}
+          {f.holder && <p className="truncate"><Glyph e="🏛" /> {f.holder}</p>}
+          {f.text && <p className="line-clamp-3 text-white/90 pt-0.5 leading-relaxed"><Glyph e="✎" /> {f.text}</p>}
           {side && (
             <p className="text-[#FFD60A]">
               <Glyph e="👁" /> تنظر إلى {SIDE_NAMES[side].ar} · {SIDE_NAMES[side].en}
@@ -637,13 +683,17 @@ const PinnedRecord: React.FC<{
             </p>
           ))}
         </div>
-        <div className="mt-2 flex gap-2">
-          <button onClick={onOpen} className="flex-1 h-9 rounded-full bg-[#FFD60A] text-black text-[12px] font-semibold">
+        <div className="mt-2.5 flex gap-1.5">
+          <button onClick={onOpen} className="flex-1 h-8 rounded-full bg-[#FFD60A] text-black text-[11.5px] font-semibold">
             السجلّ الكامل · Full record
           </button>
+          <button onClick={speakDescription} className="h-8 px-2.5 rounded-full bg-white/15 border border-white/25 text-[11.5px] font-semibold flex items-center gap-1">
+            <Volume2 className="w-3.5 h-3.5 text-[#FFD60A]" />
+            <span>صوت</span>
+          </button>
           {mesh && (
-            <button onClick={() => setShow3d(true)} className="h-9 px-3 rounded-full bg-white/15 border border-white/25 text-[12px] font-semibold">
-              ثلاثي الأبعاد · 3D / AR
+            <button onClick={() => setShow3d(true)} className="h-8 px-2.5 rounded-full bg-white/15 border border-white/25 text-[11.5px] font-semibold">
+              3D / AR
             </button>
           )}
         </div>

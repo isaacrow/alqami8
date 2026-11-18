@@ -114,8 +114,14 @@ function enrolment() {
     .filter((s) => s.images.length);
 }
 
+const existingIndexPath = join(process.cwd(), 'public', 'data', `recognition-${KEY}.json`);
+const keptMoonEntries =
+  process.env.LOCAL_ONLY === '1' && existsSync(existingIndexPath)
+    ? JSON.parse(readFileSync(existingIndexPath, 'utf8')).entries.filter((e) => e.key.startsWith('moon:'))
+    : [];
+
 const sources = new Map();
-for (const s of [...(await moonCovers()), ...enrolment()]) {
+for (const s of [...(keptMoonEntries.length ? [] : await moonCovers().catch(() => [])), ...enrolment()]) {
   sources.set(s.key, [...(sources.get(s.key) || []), ...s.images]);
 }
 
@@ -162,13 +168,16 @@ const file = {
   // A fixed picture and its embedding: the browser embeds the same picture and uses this index only if it agrees
   // (some phones' GPUs compute wrong results at half precision).
   selftest: { image: 'data/sight-selftest.jpg', view: encode(await embed(readFileSync(join(process.cwd(), 'public', 'data', 'sight-selftest.jpg')))) },
-  entries: entries.map((e) => ({
-    key: e.key,
-    threshold: Number(e.threshold.toFixed(3)),
-    views: e.views.map(encode),
-    // Azimuth of each view (degrees around the object, 0 = its front), null for photos and covers.
-    ...(e.angles.some((a) => a !== null) ? { angles: e.angles } : {}),
-  })),
+  entries: [
+    ...keptMoonEntries,
+    ...entries.map((e) => ({
+      key: e.key,
+      threshold: Number(e.threshold.toFixed(3)),
+      views: e.views.map(encode),
+      // Azimuth of each view (degrees around the object, 0 = its front), null for photos and covers.
+      ...(e.angles.some((a) => a !== null) ? { angles: e.angles } : {}),
+    })),
+  ],
 };
 writeFileSync(join(process.cwd(), 'public', 'data', `recognition-${KEY}.json`), JSON.stringify(file));
-console.log(`Recognition index: ${entries.length} entries, ${entries.reduce((n, e) => n + e.views.length, 0)} views.`);
+console.log(`Recognition index (${KEY}): ${file.entries.length} entries (${entries.length} newly embedded, ${keptMoonEntries.length} kept Moon entries).`);

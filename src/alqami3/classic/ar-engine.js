@@ -1,5 +1,5 @@
 import { MindARThree } from 'mind-ar/dist/mindar-image-three.prod.js';
-import * as THREE from 'three';
+import * as THREE from 'three150';
 
 export class AREngine {
   constructor(containerElement, targetSrc = '/targets/manuscript.mind') {

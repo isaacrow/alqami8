@@ -1,3 +1,5 @@
+import { ALKAFEEL_ARTIFACTS } from './alkafeelArtifacts';
+
 export interface AlqamiArtifact {
   id: string;
   slug: string;
@@ -61,6 +63,7 @@ export interface AlqamiArtifact {
 }
 
 export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
+  ...ALKAFEEL_ARTIFACTS,
   {
     id: 'ALQ-MSS-006',
     slug: 'nahj-al-balagha',

@@ -93,10 +93,16 @@ export async function resolveCode(text: string): Promise<CodeTarget> {
     return { kind: 'none', reason: 'not-in-moon', text };
   }
 
-  // ALQAMI's older labels: "ALQAMI:<id>", "?artifact=<id>" links, or a bare ALQ-… object ID.
+  // Direct Al-Kafeel Museum subject links: https://museum.alkafeel.net/subjects/<id>
+  if (url && /museum\.alkafeel\.net$/i.test(url.hostname)) {
+    const subjMatch = url.pathname.match(/\/subjects\/(\d+)/);
+    if (subjMatch) return { kind: 'artifact', id: `KFL-${subjMatch[1]}` };
+  }
+
+  // ALQAMI & Al-Kafeel labels: "ALQAMI:<id>", "?artifact=<id>" links, or a bare ALQ-… / KFL-… object ID.
   const artifactId = url
     ? url.searchParams.get('artifact')
-    : /^ALQAMI:/i.test(text) || /^ALQ-[A-Z0-9-]+$/i.test(text)
+    : /^ALQAMI:/i.test(text) || /^(?:ALQ|KFL)-[A-Z0-9-]+$/i.test(text)
       ? text.replace(/^ALQAMI:/i, '').trim()
       : null;
   if (artifactId) return { kind: 'artifact', id: artifactId };
