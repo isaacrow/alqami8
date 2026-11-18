@@ -3113,7 +3113,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2270",
     "image": "./images/alkafeel/kfl-2270.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2270.glb?v=iosar1",
+      "glb": "./models/alkafeel/kfl-2270.glb?v=slim1",
       "scale": 1
     },
     "description": {
@@ -4433,7 +4433,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2227",
     "image": "./images/alkafeel/kfl-2227.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2227.glb?v=iosar1",
+      "glb": "./models/alkafeel/kfl-2227.glb?v=slim1",
       "scale": 1
     },
     "description": {
@@ -7128,7 +7128,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2187",
     "image": "./images/alkafeel/kfl-2187.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2187.glb?v=iosar1",
+      "glb": "./models/alkafeel/kfl-2187.glb?v=slim1",
       "scale": 1
     },
     "description": {
@@ -8118,7 +8118,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2276",
     "image": "./images/alkafeel/kfl-2276.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2276.glb?v=iosar1",
+      "glb": "./models/alkafeel/kfl-2276.glb?v=slim1",
       "scale": 1
     },
     "description": {
@@ -8173,7 +8173,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2277",
     "image": "./images/alkafeel/kfl-2277.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2277.glb?v=iosar1",
+      "glb": "./models/alkafeel/kfl-2277.glb?v=slim1",
       "scale": 1
     },
     "description": {
@@ -8228,7 +8228,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2278",
     "image": "./images/alkafeel/kfl-2278.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2278.glb?v=iosar1",
+      "glb": "./models/alkafeel/kfl-2278.glb?v=slim1",
       "scale": 1
     },
     "description": {
