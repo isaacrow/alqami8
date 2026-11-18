@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  Mail,
+  User,
   Lock,
   Eye,
   EyeOff,
@@ -83,7 +83,7 @@ export function AlqamiLoginScreen({
     setError('');
 
     if (!identifier.trim()) {
-      setError(isAr ? 'البريد الإلكتروني أو اسم المستخدم مطلوب' : 'Email or username is required');
+      setError(isAr ? 'اسم المستخدم مطلوب' : 'Username is required');
       return;
     }
     if (!password) {
@@ -304,16 +304,16 @@ export function AlqamiLoginScreen({
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-slate-900 text-[11px] font-bold block" htmlFor="alqamiEmail">
-                        {isAr ? 'البريد الإلكتروني أو اسم المستخدم *' : 'EMAIL OR USERNAME *'}
+                      <label className="text-slate-900 text-[11px] font-bold block" htmlFor="alqamiUser">
+                        {isAr ? 'اسم المستخدم *' : 'USERNAME *'}
                       </label>
                       <div className="relative group">
-                        <Mail
+                        <User
                           strokeWidth={2.5}
                           className={`absolute ${isAr ? 'right-3.5' : 'left-3.5'} top-3 h-[18px] w-[18px] text-slate-950 transition-colors pointer-events-none`}
                         />
                         <input
-                          id="alqamiEmail"
+                          id="alqamiUser"
                           type="text"
                           autoComplete="username"
                           value={identifier}
@@ -323,9 +323,9 @@ export function AlqamiLoginScreen({
                             background: 'rgba(255, 255, 255, 0.58)',
                             borderColor: 'rgba(255, 255, 255, 0.92)',
                           }}
-                          placeholder="eshak100falah@gmail.com"
+                          placeholder={isAr ? 'أدخل اسم المستخدم' : 'Enter username'}
                           disabled={loading}
-                          dir="ltr"
+                          dir={isAr ? 'rtl' : 'ltr'}
                           required
                         />
                       </div>

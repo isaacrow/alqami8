@@ -5,7 +5,7 @@
 // - Moon records and searches: network first, the last answer kept for offline use.
 // - Moon covers and the recognition model (Hugging Face): kept once downloaded.
 // "Save for offline" in the app fills the same caches ahead of a visit (src/offline/saveOffline.ts).
-const VERSION = 'v9';
+const VERSION = 'v10';
 const APP = `alqami-app-${VERSION}`;
 const MOON = `alqami-moon-${VERSION}`;
 const KEEP = new Set([APP, MOON]);

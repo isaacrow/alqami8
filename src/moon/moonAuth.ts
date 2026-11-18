@@ -3,16 +3,13 @@
  * Restricted strictly to Isaac Faleh's authorized account. No other users or guest access permitted.
  */
 
-import { MOON_PROJECT_ID, MOON_PUBLIC_KEY, MOON_SITE } from './moonApi';
+import { MOON_SITE } from './moonApi';
 
 const AUTH_STORAGE_KEY = 'alqami.moon.session';
 
 // SHA-256 hashes of the sole authorized owner credentials
-const ALLOWED_EMAIL = 'eshak100falah@gmail.com';
-const ALLOWED_ID_HASHES = new Set([
-  '9ff4cb95dbabd6418ca9c70e3dd743a20da82b55e8c0c9bf2c205ea3192a9442', // eshak100falah@gmail.com
-  '1fd6227a465211891ddf2da7cd8b8f143097d5ebefa804e65afe3724ee127a20', // isaac
-]);
+const OWNER_HANDLE = 'isaac';
+const ALLOWED_USER_HASH = '1fd6227a465211891ddf2da7cd8b8f143097d5ebefa804e65afe3724ee127a20';
 const ALLOWED_PASS_HASH = '48670c062401dd703dd26e2f4b42695e1a2ba4addd46cb75dfff78698aa5ab6c';
 
 export interface MoonSession {
@@ -91,7 +88,7 @@ export function getMoonSession(): MoonSession | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as MoonSession;
     if (!parsed?.accessToken || !parsed.authorizedOwner) return null;
-    if ((parsed.user?.email || '').toLowerCase() !== ALLOWED_EMAIL) {
+    if ((parsed.user?.id || '') !== 'isaac-owner' && (parsed.user?.name || '').toLowerCase() !== 'isaac faleh') {
       localStorage.removeItem(AUTH_STORAGE_KEY);
       return null;
     }
@@ -114,52 +111,17 @@ export async function signInToMoon(identifier: string, password: string): Promis
   const cleanId = identifier.trim().toLowerCase();
   const [idHash, passHash] = await Promise.all([sha256Hex(cleanId), sha256Hex(password)]);
 
-  if (!ALLOWED_ID_HASHES.has(idHash) || passHash !== ALLOWED_PASS_HASH) {
+  if (idHash !== ALLOWED_USER_HASH || passHash !== ALLOWED_PASS_HASH) {
     throw new Error('الدخول مقتصر على الحساب المصرّح به فقط · Access denied — authorized owner only');
   }
 
-  // Best-effort Moon Supabase token sync in parallel (never blocks Isaac's authorized login)
-  let accessToken = `alqami-owner-${Date.now()}`;
-  let refreshToken: string | undefined;
-  let expiresAt: number | undefined;
-  let userId = 'isaac-owner';
-
-  try {
-    const url = `https://${MOON_PROJECT_ID}.supabase.co/auth/v1/token?grant_type=password`;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: MOON_PUBLIC_KEY,
-      },
-      body: JSON.stringify({ email: ALLOWED_EMAIL, password }),
-    });
-    if (res.ok) {
-      const data = (await res.json().catch(() => ({}))) as {
-        access_token?: string;
-        refresh_token?: string;
-        expires_in?: number;
-        user?: { id?: string };
-      };
-      if (data.access_token) {
-        accessToken = data.access_token;
-        refreshToken = data.refresh_token;
-        expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
-        if (data.user?.id) userId = data.user.id;
-      }
-    }
-  } catch {
-    /* offline or Moon sync unavailable — local owner session still succeeds */
-  }
-
+  const accessToken = `alqami-owner-${Date.now()}`;
   const session: MoonSession = {
     accessToken,
-    refreshToken,
-    expiresAt,
     authorizedOwner: true,
     user: {
-      id: userId,
-      email: ALLOWED_EMAIL,
+      id: 'isaac-owner',
+      email: `${OWNER_HANDLE}@alqami.net`,
       name: 'Isaac Faleh',
     },
   };
