@@ -96,6 +96,8 @@ const Spatial3DStudioApp = lazy(() =>
 const SpatialToolsHubApp = lazy(() =>
   import('./components/apps/SpatialToolsHubApp').then((module) => ({ default: module.SpatialToolsHubApp }))
 );
+const AlqamiLoginScreen = lazy(() => import('./components/login/AlqamiLoginScreen'));
+import { getMoonSession } from './moon/moonAuth';
 const isTouchPhone = () =>
   /iPhone|iPod|Android/i.test(navigator.userAgent) || window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches;
 
@@ -318,6 +320,13 @@ export function App() {
   const [windows, setWindows] = useState<Record<AppId, WindowState>>(getInitialWindows);
   const [topZ, setTopZ] = useState(40);
   const [homeOpen, setHomeOpen] = useState(false);
+  const [loginGateOpen, setLoginGateOpen] = useState<boolean>(() => {
+    try {
+      return !getMoonSession() && !sessionStorage.getItem('alqami.login.dismissed');
+    } catch {
+      return false;
+    }
+  });
   const [controlCenterOpen, setControlCenterOpen] = useState(false);
   const [currentEnv, setCurrentEnv] = useState<EnvironmentId>('living-room');
   const [immersionLevel, setImmersionLevel] = useState<number>(65);
@@ -1177,6 +1186,20 @@ export function App() {
       )}
 
       {/* Home View 13-App Honeycomb Launcher (images.jpg) */}
+      {loginGateOpen && (
+        <Suspense fallback={null}>
+          <AlqamiLoginScreen
+            initialLang={lang}
+            session={getMoonSession()}
+            onSessionChange={() => {}}
+            onClose={() => {
+              try { sessionStorage.setItem('alqami.login.dismissed', '1'); } catch {}
+              setLoginGateOpen(false);
+            }}
+          />
+        </Suspense>
+      )}
+
       <HomeViewLauncher
         lang={lang}
         isOpen={homeOpen}

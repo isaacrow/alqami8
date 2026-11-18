@@ -631,6 +631,13 @@ export function AlqamiLoginScreen({
                 {/* Card Footer */}
                 <div className="pt-2 border-t border-slate-900/10 flex items-center justify-between text-[10px] font-bold text-slate-700 tracking-wider">
                   <span>ALQAMI SPATIAL</span>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-3 py-1 rounded-full bg-white/70 hover:bg-white text-slate-900 font-bold text-[10.5px] border border-white shadow-sm transition cursor-pointer"
+                  >
+                    {isAr ? 'دخول كزائر ↗' : 'Continue as Guest ↗'}
+                  </button>
                   <span>alqami.net</span>
                 </div>
               </div>
