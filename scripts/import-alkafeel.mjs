@@ -276,9 +276,9 @@ async function main() {
         ? `${rawTypeClean} (متحف الكفيل #${meta.museumNo})`
         : `${hall.hallAr.replace(/\s*\(.*\)/, '')} — رقم متحفي ${meta.museumNo}`;
 
-    // Use dedicated TripoSR 3D GLB if built for this sid, else hall's TripoSR 3D GLB
+    // Each of the 183 Al-Kafeel Museum items has its own unique 3D GLB model (kfl-${sid}.glb)
     const ownGlbPath = path.resolve(`public/models/alkafeel/kfl-${sid}.glb`);
-    const glbUrl = fs.existsSync(ownGlbPath) ? `./models/alkafeel/kfl-${sid}.glb?v=tex3` : hall.fallbackGlb;
+    const glbUrl = fs.existsSync(ownGlbPath) ? `./models/alkafeel/kfl-${sid}.glb?v=uniq1` : `./models/alkafeel/kfl-${sid}.glb?v=uniq1`;
 
     return {
       id,

@@ -18,6 +18,7 @@ import { SIDE_NAMES, sideNotes, sideOf } from '../../scan/sides';
 import { Direction, WorldPin } from '../../scan/worldPin';
 import { FlowTracker } from '../../scan/flowTracker';
 import { LabelLayout } from '../../scan/labelLayout';
+import { getSpatialPartsForArtifact } from '../../kafeelScan/partAnatomy';
 
 import { Glyph, isGlyph } from '../shell/Glyph';
 /**
@@ -60,7 +61,7 @@ interface Tag {
 type Spot = { x: number; y: number; side: number };
 
 const MARGIN = 0.06;
-const STEADY = 3;
+const STEADY = 2;
 const MAX_TAGS = 8;
 // Six overlapping squares over the view (as shares of the video frame); half the shorter side each.
 const SWEEP: Spot[] = [
@@ -268,7 +269,7 @@ export const StatueAR: React.FC<StatueARProps> = ({ video, active, onOpen, onCan
           return;
         }
       }
-      if (!disposed) timer = window.setTimeout(loop, errors ? 1000 : 200);
+      if (!disposed) timer = window.setTimeout(loop, errors ? 1000 : 95);
     };
     void loop();
 
@@ -619,6 +620,9 @@ const PinnedRecord: React.FC<{
   // A 3D object's hologram beside it (alqami3's scan mode): its model, turned to the side in view, with its parts
   // pinned. Not for leaves and open books (flat), whose record card is enough.
   const builtIn = f.artifact;
+  const spatialParts = builtIn ? getSpatialPartsForArtifact(builtIn) : [];
+  const [activePartId, setActivePartId] = useState<string | null>(null);
+  const activePart = spatialParts.find((p) => p.id === activePartId) ?? null;
   const [pins, setPins] = useState<HologramPin[]>([]);
   useEffect(() => {
     if (builtIn) void pinsFor(builtIn.id).then(setPins);
@@ -683,11 +687,46 @@ const PinnedRecord: React.FC<{
               ✦ {n}
             </p>
           ))}
+          {spatialParts.length > 0 && (
+            <div className="pt-1.5 mt-1 border-t border-white/15">
+              <div className="flex flex-wrap gap-1">
+                {spatialParts.map((sp, i) => (
+                  <button
+                    key={sp.id}
+                    onClick={() => {
+                      setActivePartId((prev) => (prev === sp.id ? null : sp.id));
+                      speak([`${sp.badgeAr}: ${sp.titleAr}.`, sp.detailAr], 'ar', { onSentence: () => {}, onEnd: () => {} }, builtIn?.model.glb);
+                    }}
+                    style={{ borderColor: `${sp.color}66`, color: sp.color }}
+                    className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold transition ${
+                      activePartId === sp.id ? 'bg-white/20' : 'bg-black/40 hover:bg-white/10'
+                    }`}
+                  >
+                    {i + 1}. {sp.badgeAr}
+                  </button>
+                ))}
+              </div>
+              {activePart && (
+                <div className="mt-1.5 p-2 rounded-xl bg-white/10 border border-white/15 text-[10.5px]">
+                  <p className="font-bold text-amber-300">{activePart.titleAr}</p>
+                  <p className="text-white/85 leading-snug mt-0.5">{activePart.detailAr}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-        <div className="mt-2.5 flex gap-1.5">
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
           <button onClick={onOpen} className="flex-1 h-8 rounded-full bg-[#FFD60A] text-black text-[11.5px] font-semibold">
             السجلّ الكامل · Full record
           </button>
+          {builtIn && (
+            <a
+              href={`./kafeel-scan.html?artifact=${encodeURIComponent(builtIn.id)}`}
+              className="h-8 px-2.5 rounded-full bg-emerald-500/25 border border-emerald-400/50 text-emerald-200 text-[11px] font-semibold flex items-center"
+            >
+              الأجزاء ✦
+            </a>
+          )}
           <button onClick={speakDescription} className="h-8 px-2.5 rounded-full bg-white/15 border border-white/25 text-[11.5px] font-semibold flex items-center gap-1">
             <Volume2 className="w-3.5 h-3.5 text-[#FFD60A]" />
             <span>صوت</span>

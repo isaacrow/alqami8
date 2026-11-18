@@ -30,6 +30,7 @@ import {
   MapPin,
   Monitor,
   Eye,
+  Crosshair,
   type LucideIcon,
 } from 'lucide-react';
 import { AppId } from '../../types/spatial';
@@ -64,6 +65,7 @@ interface HomeAppItem {
 const MAIN: HomeAppItem[] = [
   { key: 'heritage', id: 'ikea', ar: 'تراث علقمي', en: 'Alqami Heritage', bg: 'linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%)', Icon: Landmark },
   { key: 'scanner', id: 'object-tracking', ar: 'الماسح', en: 'Scanner', bg: 'linear-gradient(180deg, #ffd60a 0%, #f59e0b 100%)', Icon: ScanLine },
+  { key: 'kafeel-scan', href: './kafeel-scan.html', ar: 'ماسح الأجزاء', en: 'Spatial Part Scanner', bg: 'linear-gradient(135deg, #10b981 0%, #047857 55%, #d97706 100%)', Icon: Crosshair },
   { key: 'a3-scan', href: './alqami3-scan.html', ar: 'تتبع الصور', en: 'Picture tracking', bg: 'linear-gradient(180deg, #0ea5e9 0%, #0369a1 100%)', Icon: Images },
   { key: 'a3-360', href: './alqami3-360.html', ar: 'التعرّف 360°', en: '360° recognition', bg: 'linear-gradient(180deg, #14b8a6 0%, #0f766e 100%)', Icon: Rotate3d },
   { key: 'jawahiri', href: './jawahiri.html', ar: 'الجواهري', en: 'al-Jawahiri', bg: 'radial-gradient(circle at 50% 30%, #6b5536, #1a140c)', Icon: Feather },
