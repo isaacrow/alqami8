@@ -108,11 +108,11 @@ export default defineConfig({
     rollupOptions: {
       // jawahiri.html is the talking character (src/character). object.html is an object's own page, opened by its QR
       // label in any phone camera; labels.html prints every object's label (src/object). bench.html measures recognition by sight on a phone (see src/bench/sightBench.ts).
-      input: { main: resolve(__dirname, 'index.html'), bench: resolve(__dirname, 'bench.html'), jawahiri: resolve(__dirname, 'jawahiri.html'), mutanabbi: resolve(__dirname, 'mutanabbi.html'), waili: resolve(__dirname, 'waili.html'), object: resolve(__dirname, 'object.html'), labels: resolve(__dirname, 'labels.html'), alqami3Scan: resolve(__dirname, 'alqami3-scan.html'), alqami3Sweep: resolve(__dirname, 'alqami3-360.html'), kafeelScan: resolve(__dirname, 'kafeel-scan.html') },
+      input: { main: resolve(__dirname, 'index.html'), bench: resolve(__dirname, 'bench.html'), jawahiri: resolve(__dirname, 'jawahiri.html'), mutanabbi: resolve(__dirname, 'mutanabbi.html'), waili: resolve(__dirname, 'waili.html'), object: resolve(__dirname, 'object.html'), labels: resolve(__dirname, 'labels.html'), alqami3Scan: resolve(__dirname, 'alqami3-scan.html'), alqami3Sweep: resolve(__dirname, 'alqami3-360.html'), kafeelScan: resolve(__dirname, 'kafeel-scan.html'), museumLens: resolve(__dirname, 'museum-lens.html') },
     },
   },
   optimizeDeps: {
-    entries: ['index.html', 'jawahiri.html', 'object.html', 'labels.html', 'kafeel-scan.html'],
+    entries: ['index.html', 'jawahiri.html', 'object.html', 'labels.html', 'kafeel-scan.html', 'museum-lens.html'],
     include: ['three', 'three/examples/jsm/loaders/GLTFLoader.js', 'three/examples/jsm/environments/RoomEnvironment.js'],
     exclude: ['mind-ar', 'three150'],
   },

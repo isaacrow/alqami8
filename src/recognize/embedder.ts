@@ -44,6 +44,8 @@ export class Embedder {
     this.loading ??= (async () => {
       const lib = await import('@huggingface/transformers');
       lib.env.allowLocalModels = false;
+      const wasmEnv = (lib.env as any)?.backends?.onnx?.wasm;
+      if (wasmEnv && this.device === 'wasm') { wasmEnv.numThreads = 1; wasmEnv.proxy = false; }
       this.model = await lib.AutoModel.from_pretrained(EMBED_MODEL, { dtype: this.dtype, device: this.device });
       this.lib = lib;
     })();

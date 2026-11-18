@@ -320,13 +320,12 @@ export function App() {
   const [windows, setWindows] = useState<Record<AppId, WindowState>>(getInitialWindows);
   const [topZ, setTopZ] = useState(40);
   const [homeOpen, setHomeOpen] = useState(false);
-  const [loginGateOpen, setLoginGateOpen] = useState<boolean>(() => {
-    try {
-      return !getMoonSession() && !sessionStorage.getItem('alqami.login.dismissed');
-    } catch {
-      return false;
-    }
-  });
+  const [ownerSession, setOwnerSession] = useState(() => getMoonSession());
+  useEffect(() => {
+    const sync = () => setOwnerSession(getMoonSession());
+    window.addEventListener('alqami:moon-auth-changed', sync);
+    return () => window.removeEventListener('alqami:moon-auth-changed', sync);
+  }, []);
   const [controlCenterOpen, setControlCenterOpen] = useState(false);
   const [currentEnv, setCurrentEnv] = useState<EnvironmentId>('living-room');
   const [immersionLevel, setImmersionLevel] = useState<number>(65);
@@ -1186,16 +1185,14 @@ export function App() {
       )}
 
       {/* Home View 13-App Honeycomb Launcher (images.jpg) */}
-      {loginGateOpen && (
+      {!ownerSession && (
         <Suspense fallback={null}>
           <AlqamiLoginScreen
             initialLang={lang}
-            session={getMoonSession()}
-            onSessionChange={() => {}}
-            onClose={() => {
-              try { sessionStorage.setItem('alqami.login.dismissed', '1'); } catch {}
-              setLoginGateOpen(false);
-            }}
+            session={ownerSession}
+            locked={true}
+            onSessionChange={(next) => setOwnerSession(next)}
+            onClose={() => setOwnerSession(getMoonSession())}
           />
         </Suspense>
       )}
