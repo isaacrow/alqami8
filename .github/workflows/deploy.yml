@@ -37,6 +37,7 @@ jobs:
         run: npm ci
 
       - name: Cache the recognition model
+        if: github.event_name == 'schedule'
         uses: actions/cache@v4
         with:
           path: node_modules/@huggingface/transformers/.cache
@@ -45,11 +46,13 @@ jobs:
       # Every 3D object rendered from 36 angles all around (Chrome is preinstalled on the runner), so scan mode
       # recognises statues and objects from any side and can say which side is in view.
       - name: Render 3D objects from all around
+        if: github.event_name == 'schedule'
         run: node scripts/render-object-views.mjs || echo "Renders not made; the index keeps covers and photos only."
 
       # Rebuilds public/data/recognition-dinov2s.json from Moon's covers, enrol/ and renders/. If Moon cannot be reached,
       # the committed index is kept and the site still deploys.
       - name: Build recognition index
+        if: github.event_name == 'schedule'
         run: |
           node scripts/build-recognition-index.mjs || echo "Recognition index not rebuilt; keeping the committed one."
           INDEX_DTYPE=fp16 node scripts/build-recognition-index.mjs || echo "WebGPU index not rebuilt; keeping the committed one."
@@ -57,6 +60,7 @@ jobs:
       # Image-tracking markers for Moon covers (pinned cards). Each takes ~10 s, so they are kept in the cache and
       # each run makes only new ones (up to 60); the nightly run fills in the rest. A failure keeps what is cached.
       - name: Restore cover markers
+        if: github.event_name == 'schedule'
         uses: actions/cache@v4
         with:
           path: public/nft
@@ -64,6 +68,7 @@ jobs:
           restore-keys: nft-markers-
 
       - name: Build cover markers
+        if: github.event_name == 'schedule'
         run: node scripts/build-nft-targets.mjs || echo "Cover markers not updated; keeping the cached ones."
 
       # The site does not deploy with type errors (they were 9, one a likely crash, before 2026-11-14).
