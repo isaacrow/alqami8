@@ -49,7 +49,7 @@ async function moonGet<T>(path: string, signal?: AbortSignal): Promise<T> {
     /* ignore */
   }
   const res = await fetch(`${MOON_API}${path}`, {
-    headers: { Authorization: `Bearer ${token}`, apikey: MOON_PUBLIC_KEY },
+    headers: { Authorization: `Bearer ${token}` },
     signal,
   });
   if (!res.ok) throw new MoonError(`Moon answered ${res.status} for ${path}`, res.status);
