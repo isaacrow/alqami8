@@ -11,6 +11,7 @@
  */
 import * as THREE from 'three';
 import { SparkRenderer, SplatMesh } from '../vendor/spark/index.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { VisualGyro } from '../character/visualGyro';
 import './memories.css';
 
@@ -26,12 +27,14 @@ interface Memory {
   en: string;
   noteAr: string;
   noteEn: string;
+  /** A 3D model (.glb, three.js axes, the camera at the origin looking down −z) instead of a SHARP splat scene. */
+  kind?: 'mesh';
 }
 
 const MEMORIES: Memory[] = [
   { id: 'shrine-gate', ar: 'عند الباب', en: 'At the gate', noteAr: 'زائرون أمام باب الحرم والحمام يحلّق', noteEn: 'Pilgrims before the shrine gate, pigeons overhead' },
-  // Inside the shrine (shrine-zarih) follows once SHARP finishes it: its first run stalled on this PC's GPU.
-  // { id: 'shrine-zarih', ar: 'داخل الحرم', en: 'Inside the shrine', noteAr: 'الشبّاك الشريف تحت الثريّا', noteEn: 'The shrine screen beneath the chandelier' },
+  // A full 3D model of the shrine interior (slimmed with scripts/slim-glb.mjs to about 240k triangles), not a SHARP scene.
+  { id: 'shrine-zarih', ar: 'داخل الحرم', en: 'Inside the shrine', noteAr: 'الشبّاك الشريف تحت الثريّا', noteEn: 'The shrine screen beneath the chandelier', kind: 'mesh' },
   { id: 'shrine-dome', ar: 'على السطح', en: 'On the roof', noteAr: 'القبّة والمئذنتان عند الغروب', noteEn: 'The dome and minarets at dusk' },
 ];
 
@@ -119,6 +122,7 @@ function ensureRenderer() {
   renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
   renderer.setClearColor(0x000000, 0);
+  renderer.localClippingEnabled = true;
   spark = new SparkRenderer({ renderer });
   scene.add(spark);
   window.addEventListener('resize', resize);
@@ -138,7 +142,7 @@ function resize() {
 /** The field of view that shows the photo as the flat <img> shows it (object-fit: cover), so the swap is seamless. */
 function photoFov() {
   const c = meta?.camera;
-  if (!c) return 45;
+  if (!c) return current?.kind === 'mesh' ? 55 : 45;
   const photoAspect = c.width / c.height, screenAspect = innerWidth / innerHeight;
   if (screenAspect <= photoAspect) return c.vfov; // the photo's height fills the screen
   const hfov = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(c.vfov) / 2) * photoAspect);
@@ -147,7 +151,7 @@ function photoFov() {
 
 // ── Looking around (screen) ───────────────────────────────────────────────────────────────────────────────────────
 /** Orbit around a point at the scene's middle depth: yaw/pitch from drags (and the phone's tilt), dist from pinches. */
-const look = { yaw: 0, pitch: 0, dist: 1, depth: 10, minDist: 0.4, intro: 0 };
+const look = { yaw: 0, pitch: 0, dist: 1, depth: 10, minDist: 0.4, intro: 0, center: null as THREE.Vector3 | null };
 let tilt = { yaw: 0, pitch: 0, base: null as null | { a: number; b: number } };
 
 function placeScreenCamera(dt: number) {
@@ -160,7 +164,7 @@ function placeScreenCamera(dt: number) {
   const yaw = THREE.MathUtils.clamp(look.yaw + tilt.yaw + sway, -0.45, 0.45);
   const pitch = THREE.MathUtils.clamp(look.pitch + tilt.pitch, -0.25, 0.25);
   const dist = d * look.dist * (1 - 0.1 * e);
-  const target = new THREE.Vector3(0, 0, -d);
+  const target = look.center ?? new THREE.Vector3(0, 0, -d);
   camera.position.set(target.x + Math.sin(yaw) * Math.cos(pitch) * dist, target.y + Math.sin(pitch) * dist, target.z + Math.cos(yaw) * Math.cos(pitch) * dist);
   camera.lookAt(target);
   const base = THREE.MathUtils.degToRad(photoFov());
@@ -256,6 +260,8 @@ async function open(m: Memory, from: HTMLImageElement) {
   setMode('screen');
   loading.hidden = false;
   ensureRenderer();
+  if (m.kind === 'mesh') return openMesh(m);
+  look.center = null;
   meta = (await fetch(asset(m.id + '.json')).then((r) => r.json())) as Meta;
   if (current !== m) return;
   look.depth = Math.max(1, meta.medianDepth * 0.35);
@@ -284,10 +290,89 @@ function clearSplat() {
   splat = null;
 }
 
+/** A 3D model memory: drawn unlit (the model carries its light in its textures and has no normals). */
+let model: THREE.Group | null = null;
+let modelBox: THREE.Box3 | null = null;
+/**
+ * In the room the model is seen from outside, and what stood nearest the original camera (the pillars either side)
+ * hides the rest: a plane cuts away the nearest part, kept in the model's own space and moved with it each frame.
+ */
+const clipLocal = new THREE.Plane();
+const clipWorld = new THREE.Plane();
+let clipping = false;
+function updateClip() {
+  if (!model || !clipping) return;
+  model.updateMatrixWorld();
+  clipWorld.copy(clipLocal).applyMatrix4(model.matrixWorld);
+}
+async function openMesh(m: Memory) {
+  meta = null;
+  const gltf = await new GLTFLoader().loadAsync(asset(m.id + '.glb'));
+  if (current !== m) return;
+  gltf.scene.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const old = mesh.material as THREE.MeshStandardMaterial;
+    mesh.material = new THREE.MeshBasicMaterial({ map: old.map ?? null, color: old.map ? 0xffffff : old.color, side: THREE.DoubleSide, clippingPlanes: [clipWorld] });
+    old.dispose();
+  });
+  model = new THREE.Group();
+  model.add(gltf.scene);
+  holder.add(model);
+  modelBox = new THREE.Box3().setFromObject(gltf.scene);
+  const c = modelBox.getCenter(new THREE.Vector3());
+  look.center = c;
+  look.depth = Math.max(0.5, c.length());
+  look.yaw = look.pitch = 0;
+  look.dist = 1;
+  look.intro = 0;
+  tilt = { yaw: 0, pitch: 0, base: null };
+  resize();
+  showModel(mode);
+  loading.hidden = true;
+  requestAnimationFrame(() => requestAnimationFrame(() => (flat.style.opacity = '0')));
+}
+
+/** The model at full size (screen), or as the room miniature: about 1.2 m across, centred on the holder. */
+function showModel(which: 'screen' | 'room') {
+  if (!model || !modelBox) return;
+  if (which === 'screen') {
+    model.scale.setScalar(1);
+    model.position.set(0, 0, 0);
+    clipping = false;
+    clipWorld.set(new THREE.Vector3(0, 0, -1), 1e9); // cuts nothing
+    return;
+  }
+  // Keep the far 55% of the model's depth (the camera looked down −z, so nearer = larger z).
+  const z0 = modelBox.min.z, z1 = modelBox.max.z;
+  clipLocal.set(new THREE.Vector3(0, 0, -1), z0 + 0.55 * (z1 - z0));
+  clipping = true;
+  const size = modelBox.getSize(new THREE.Vector3());
+  const s = 1.2 / Math.max(size.x, size.y, size.z);
+  model.scale.setScalar(s);
+  model.position.copy(modelBox.getCenter(new THREE.Vector3())).multiplyScalar(-s);
+}
+
+function clearModel() {
+  if (!model) return;
+  holder.remove(model);
+  model.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    mesh.geometry.dispose();
+    const mat = mesh.material as THREE.MeshBasicMaterial;
+    mat.map?.dispose();
+    mat.dispose();
+  });
+  model = null;
+  modelBox = null;
+}
+
 function close() {
   current = null;
   stopCamera();
   clearSplat();
+  clearModel();
   viewer.hidden = true;
   document.body.style.overflow = '';
 }
@@ -359,6 +444,7 @@ const hide = (mesh: SplatMesh) => {
 /** Shows the full scene (screen) or the room miniature: about 1.2 m wide, its middle part centred on the holder. */
 function showScene(which: 'screen' | 'room') {
   if (!current) return;
+  if (current.kind === 'mesh') return showModel(which);
   const full = loadSplat(current.id + '.spz');
   const room = loadSplat(current.id + '-room.spz');
   if (which === 'screen' || !meta) {
@@ -387,7 +473,10 @@ function frame(now: number) {
   t0 += real; // real time, so the grow-in keeps its length on a slow phone
   look.intro = Math.min(1, look.intro + Math.max(0, real - dt) / (reduced ? 0.01 : 2.6)); // same for the dolly-zoom
   if (viewer.hidden || !renderer) return;
-  if (mode === 'room') roomFrame();
+  if (mode === 'room') {
+    roomFrame();
+    updateClip();
+  }
   else placeScreenCamera(dt);
   renderer.render(scene, camera);
 }
