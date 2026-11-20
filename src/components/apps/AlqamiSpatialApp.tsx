@@ -1089,17 +1089,12 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                       {isAr ? prod.title.en : prod.title.ar}
                     </p>
 
-                    <div className="flex items-center justify-between pt-2.5">
-                      {/* Item Code Badge styled in frosted glass pill (matching Image 5 style) */}
-                      <span className="text-[11px] font-bold font-mono text-white/95 bg-white/15 hover:bg-white/20 px-3 py-1 rounded-full border border-white/20 shadow-sm transition-colors">
-                        {prod.itemCode}
-                      </span>
-
-                      {/* Action buttons styled as circular frosted glass buttons (exact style of Image 5) */}
+                    <div className="flex flex-col gap-2 pt-2.5 min-w-0">
+                      {/* Action buttons placed cleanly above the item code number (no horizontal overflow on phones) */}
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={(e) => handleDeleteItem(prod, e)}
-                          className="w-8 h-8 rounded-full bg-white/15 hover:bg-red-500/85 active:scale-95 border border-white/20 hover:border-red-300 flex items-center justify-center text-white/85 hover:text-white shadow-md transition-all cursor-pointer"
+                          className="w-8 h-8 rounded-full bg-white/15 hover:bg-red-500/85 active:scale-95 border border-white/20 hover:border-red-300 flex items-center justify-center text-white/85 hover:text-white shadow-md transition-all cursor-pointer shrink-0"
                           title={isAr ? 'حذف القطعة' : 'Delete item'}
                           aria-label={isAr ? 'حذف القطعة' : 'Delete item'}
                         >
@@ -1107,7 +1102,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                         </button>
                         <button
                           onClick={(e) => toggleLike(prod.id, e)}
-                          className={`w-8 h-8 rounded-full border border-white/25 flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md ${
+                          className={`w-8 h-8 rounded-full border border-white/25 flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md shrink-0 ${
                             isFav
                               ? 'bg-rose-500/85 text-white border-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.6)]'
                               : 'bg-white/20 hover:bg-white/35 text-white'
@@ -1121,12 +1116,17 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                             e.stopPropagation();
                             openPopOut3D(prod);
                           }}
-                          className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/35 active:scale-95 border border-white/25 flex items-center justify-center text-white shadow-md transition-all cursor-pointer"
+                          className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/35 active:scale-95 border border-white/25 flex items-center justify-center text-white shadow-md transition-all cursor-pointer shrink-0"
                           title={isAr ? 'فحص ثلاثي الأبعاد 3D' : 'Inspect 3D Model'}
                         >
                           <Box className="w-4 h-4 text-white drop-shadow" />
                         </button>
                       </div>
+
+                      {/* Item Code Badge cleanly beneath the buttons */}
+                      <span className="self-start max-w-full truncate text-[11px] font-bold font-mono text-white/95 bg-white/15 hover:bg-white/20 px-3 py-1 rounded-full border border-white/20 shadow-sm transition-colors">
+                        {prod.itemCode}
+                      </span>
                     </div>
                   </div>
                 </div>
