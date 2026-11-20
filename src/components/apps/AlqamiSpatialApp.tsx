@@ -1326,7 +1326,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                   <AlqamiArtifact3DCanvas
                     glbUrl={
                       modelLayerView === 'multilayer' && currentArtifact.model.glb.includes('/models/alkafeel/')
-                        ? currentArtifact.model.glb.replace('/models/alkafeel/', '/models/alkafeel-pro/').split('?')[0] + '?v=ml2'
+                        ? currentArtifact.model.glb.replace('/models/alkafeel/', '/models/alkafeel-pro/').split('?')[0] + '?v=ml3'
                         : currentArtifact.model.glb
                     }
                     mode="embedded"

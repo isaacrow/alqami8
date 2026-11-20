@@ -649,7 +649,7 @@ export const KafeelScannerApp: React.FC = () => {
         <KafeelPrimaryARStage
           glbUrl={
             modelLayerView === 'multilayer' && activeArtifact.model.glb.includes('/models/alkafeel/')
-              ? activeArtifact.model.glb.replace('/models/alkafeel/', '/models/alkafeel-pro/').split('?')[0] + '?v=ml2'
+              ? activeArtifact.model.glb.replace('/models/alkafeel/', '/models/alkafeel-pro/').split('?')[0] + '?v=ml3'
               : activeArtifact.model.glb
           }
           viewAngleDeg={viewAngle}
