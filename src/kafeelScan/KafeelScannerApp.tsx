@@ -10,9 +10,12 @@ import {
   Eye,
   Maximize2,
   Rotate3d,
+  Ruler,
   Scan,
+  Scissors,
   Search,
   Sparkles,
+  Sun,
   Upload,
   Volume2,
   VolumeX,
@@ -88,6 +91,14 @@ export const KafeelScannerApp: React.FC = () => {
   const [showPhotoCompare, setShowPhotoCompare] = useState<boolean>(false);
   const [arMode, setArMode] = useState<'passthrough-ar' | 'webxr-ar'>('passthrough-ar');
   const [arScale, setArScale] = useState<number>(1.0);
+  // Smithsonian Voyager / Museum XR Lab Controls: Raking Relight, 3D Cutaway Slicer, 3D Tape Measure, X-Ray Conservation
+  const [xrLabOpen, setXrLabOpen] = useState<boolean>(false);
+  const [relightDeg, setRelightDeg] = useState<number>(45);
+  const [cutawayPct, setCutawayPct] = useState<number>(100);
+  const [xrayMode, setXrayMode] = useState<boolean>(false);
+  const [measureMode, setMeasureMode] = useState<boolean>(false);
+  const [measureCm, setMeasureCm] = useState<number | null>(null);
+  const [envLightRgb, setEnvLightRgb] = useState<[number, number, number]>([255, 248, 238]);
   const [cameraReady, setCameraReady] = useState<boolean>(false);
   const [gyroOffset, setGyroOffset] = useState<{ yaw: number; pitch: number }>({ yaw: 0, pitch: 0 });
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
@@ -118,6 +129,45 @@ export const KafeelScannerApp: React.FC = () => {
   const [vpSize, setVpSize] = useState<{ w: number; h: number }>({ w: 1280, h: 820 });
 
   const parts = useMemo(() => getSpatialPartsForArtifact(activeArtifact), [activeArtifact]);
+
+  // Estimate physical max length in cm from artifact dimensions for calibrated 3D Tape Measure
+  const artifactMaxCm = useMemo(() => {
+    const dim = activeArtifact.details?.dimensions || '';
+    const nums = [...dim.matchAll(/(\d+(?:[.,]\d+)?)/g)]
+      .map((m) => parseFloat(m[1].replace(',', '.')))
+      .filter((n) => Number.isFinite(n) && n >= 2 && n <= 400);
+    return nums.length ? Math.max(...nums) : 45;
+  }, [activeArtifact]);
+
+  // Real-time Environmental Lighting Estimation from the live AR camera feed (matches museum gallery lighting!)
+  useEffect(() => {
+    const lightCanvas = document.createElement('canvas');
+    lightCanvas.width = lightCanvas.height = 16;
+    const ctx = lightCanvas.getContext('2d', { willReadFrequently: true });
+    const id = window.setInterval(() => {
+      const v = videoRef.current;
+      if (!v || !ctx || v.readyState < 2 || !v.videoWidth) return;
+      try {
+        ctx.drawImage(v, 0, 0, 16, 16);
+        const data = ctx.getImageData(0, 0, 16, 16).data;
+        let r = 0, g = 0, b = 0;
+        const n = data.length / 4;
+        for (let i = 0; i < data.length; i += 4) {
+          r += data[i];
+          g += data[i + 1];
+          b += data[i + 2];
+        }
+        // Blend softly with neutral studio warm white so dark rooms still illuminate the artifact clearly
+        const ar = Math.round((r / n) * 0.45 + 255 * 0.55);
+        const ag = Math.round((g / n) * 0.45 + 248 * 0.55);
+        const ab = Math.round((b / n) * 0.45 + 238 * 0.55);
+        setEnvLightRgb([ar, ag, ab]);
+      } catch {
+        /* ignore */
+      }
+    }, 450);
+    return () => window.clearInterval(id);
+  }, []);
 
   // Measure viewport for exact SVG bezier leader line coordinates
   useEffect(() => {
@@ -580,6 +630,13 @@ export const KafeelScannerApp: React.FC = () => {
           requestWebXR={arMode === 'webxr-ar'}
           onExitWebXR={() => setArMode('passthrough-ar')}
           onProjectedAnchors={setProjectedAnchors}
+          relightDeg={relightDeg}
+          cutawayPct={cutawayPct}
+          xrayMode={xrayMode}
+          measureMode={measureMode}
+          artifactMaxCm={artifactMaxCm}
+          envLightRgb={envLightRgb}
+          onMeasuredCm={setMeasureCm}
         />
       </div>
 
@@ -829,6 +886,18 @@ export const KafeelScannerApp: React.FC = () => {
             <span>{Math.round(arScale * 100)}%</span>
           </button>
           <button
+            onClick={() => setXrLabOpen((v) => !v)}
+            className={`h-10 px-3 rounded-full border text-[12px] font-semibold flex items-center gap-1.5 transition ${
+              xrLabOpen || measureMode || xrayMode || cutawayPct < 100
+                ? 'bg-cyan-400 text-black border-cyan-300 font-bold'
+                : 'bg-black/55 hover:bg-white/20 text-white border-white/20'
+            }`}
+            title={t('مختبر المتحف XR: قياس 3D، مقطع عرضي، إضاءة الفحص، أشعة X', 'Museum XR Lab: 3D Measure, Cutaway, Relight, X-Ray')}
+          >
+            <Ruler className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">{t('مختبر XR', 'XR Lab')}</span>
+          </button>
+          <button
             onClick={() => fileInputRef.current?.click()}
             className="h-10 px-3 rounded-full bg-black/55 hover:bg-white/20 border border-white/20 text-[12px] font-semibold flex items-center gap-1.5"
             title={t('ارفع صورة أي قطعة أثرية للتعرّف عليها فوراً بـ DINOv2', 'Upload a photo of any artifact for instant DINOv2 recognition')}
@@ -862,6 +931,103 @@ export const KafeelScannerApp: React.FC = () => {
           </button>
         </div>
       </header>
+
+      {/* 6b. Smithsonian Voyager-Style Museum XR Lab Floating Inspector (Relight, 3D Cutaway, 3D Tape Measure, X-Ray) */}
+      {xrLabOpen && (
+        <div
+          dir={isAr ? 'rtl' : 'ltr'}
+          className="absolute top-[calc(env(safe-area-inset-top)+66px)] end-3 sm:end-5 z-35 w-[270px] rounded-2xl bg-[#070c16]/90 backdrop-blur-xl border border-cyan-400/40 p-3.5 shadow-2xl space-y-3 pointer-events-auto"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[12px] font-bold text-cyan-300 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              {t('مختبر فحص المتحف XR', 'Museum XR Inspection Lab')}
+            </span>
+            <button onClick={() => setXrLabOpen(false)} className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* 1. Raking Light / Relight Angle */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-[11px] text-white/80">
+              <span className="flex items-center gap-1">
+                <Sun className="w-3.5 h-3.5 text-amber-300" />
+                {t('إضاءة الفحص (Relight)', 'Raking Light Angle')}
+              </span>
+              <span className="font-mono text-amber-300">{relightDeg}°</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={360}
+              value={relightDeg}
+              onChange={(e) => setRelightDeg(Number(e.target.value))}
+              className="w-full accent-amber-400 h-1.5 cursor-pointer"
+            />
+          </div>
+
+          {/* 2. 3D Cross-Section Cutaway Slicer */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-[11px] text-white/80">
+              <span className="flex items-center gap-1">
+                <Scissors className="w-3.5 h-3.5 text-emerald-300" />
+                {t('مقطع عرضي 3D (Cutaway)', '3D Cross-Section Slicer')}
+              </span>
+              <span className="font-mono text-emerald-300">{cutawayPct}%</span>
+            </div>
+            <input
+              type="range"
+              min={15}
+              max={100}
+              value={cutawayPct}
+              onChange={(e) => setCutawayPct(Number(e.target.value))}
+              className="w-full accent-emerald-400 h-1.5 cursor-pointer"
+            />
+          </div>
+
+          {/* 3. 3D Point-to-Point Tape Measure & X-Ray Wireframe Toggles */}
+          <div className="grid grid-cols-2 gap-1.5 pt-1">
+            <button
+              onClick={() => {
+                setMeasureMode((v) => !v);
+                setMeasureCm(null);
+              }}
+              className={`h-9 rounded-xl border text-[11px] font-bold flex items-center justify-center gap-1 transition ${
+                measureMode ? 'bg-amber-400 text-black border-amber-300' : 'bg-white/10 text-white border-white/15'
+              }`}
+            >
+              <Ruler className="w-3.5 h-3.5" />
+              <span>{t('قياس 3D', '3D Measure')}</span>
+            </button>
+            <button
+              onClick={() => setXrayMode((v) => !v)}
+              className={`h-9 rounded-xl border text-[11px] font-bold flex items-center justify-center gap-1 transition ${
+                xrayMode ? 'bg-cyan-400 text-black border-cyan-300' : 'bg-white/10 text-white border-white/15'
+              }`}
+            >
+              <Scan className="w-3.5 h-3.5" />
+              <span>{t('أشعة X', 'X-Ray')}</span>
+            </button>
+          </div>
+
+          {measureMode && (
+            <div className="p-2 rounded-xl bg-amber-400/15 border border-amber-400/40 text-[11px] text-amber-200">
+              {measureCm != null
+                ? t(`المسافة المقاسة: ${measureCm.toFixed(1)} سم`, `Measured distance: ${measureCm.toFixed(1)} cm`)
+                : t('اضغط نقطتين على المجسّم 3D لقياس المسافة بينهما', 'Tap 2 points on the 3D artifact to measure')}
+            </div>
+          )}
+
+          <div className="text-[9.5px] text-white/50 flex items-center justify-between pt-1 border-t border-white/10">
+            <span>{t('تقدير إضاءة القاعة التلقائي', 'Live Gallery Light Est.')}</span>
+            <span
+              className="w-3.5 h-3.5 rounded-full border border-white/40 inline-block"
+              style={{ backgroundColor: `rgb(${envLightRgb[0]}, ${envLightRgb[1]}, ${envLightRgb[2]})` }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* 7. Bottom AR Command Deck: Active Artifact Master Card + View Angle Selector + Catch & Analyze + 196-Item Quick Strip */}
       <footer className="absolute bottom-0 inset-x-0 z-30 px-3 sm:px-5 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-3 bg-gradient-to-t from-black/90 via-black/65 to-transparent space-y-2">
@@ -1107,6 +1273,13 @@ const KafeelPrimaryARStage: React.FC<{
   requestWebXR: boolean;
   onExitWebXR: () => void;
   onProjectedAnchors: (anchors: Record<string, { x: number; y: number }>) => void;
+  relightDeg: number;
+  cutawayPct: number;
+  xrayMode: boolean;
+  measureMode: boolean;
+  artifactMaxCm: number;
+  envLightRgb: [number, number, number];
+  onMeasuredCm: (cm: number | null) => void;
 }> = ({
   glbUrl,
   viewAngleDeg,
@@ -1121,6 +1294,13 @@ const KafeelPrimaryARStage: React.FC<{
   requestWebXR,
   onExitWebXR,
   onProjectedAnchors,
+  relightDeg,
+  cutawayPct,
+  xrayMode,
+  measureMode,
+  artifactMaxCm,
+  envLightRgb,
+  onMeasuredCm,
 }) => {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const stateRef = useRef({
@@ -1132,6 +1312,13 @@ const KafeelPrimaryARStage: React.FC<{
     selectedPartId,
     parts,
     onSelectPart,
+    relightDeg,
+    cutawayPct,
+    xrayMode,
+    measureMode,
+    artifactMaxCm,
+    envLightRgb,
+    onMeasuredCm,
   });
   stateRef.current = {
     deg: viewAngleDeg,
@@ -1142,6 +1329,13 @@ const KafeelPrimaryARStage: React.FC<{
     selectedPartId,
     parts,
     onSelectPart,
+    relightDeg,
+    cutawayPct,
+    xrayMode,
+    measureMode,
+    artifactMaxCm,
+    envLightRgb,
+    onMeasuredCm,
   };
 
   const xrSessionRef = useRef<XRSession | null>(null);
@@ -1211,16 +1405,23 @@ const KafeelPrimaryARStage: React.FC<{
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.localClippingEnabled = true;
     el.replaceChildren(renderer.domElement);
 
     const scene = new THREE.Scene();
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-    scene.add(new THREE.AmbientLight(0xfff8ee, 0.72));
+    const ambientLight = new THREE.AmbientLight(0xfff8ee, 0.72);
+    scene.add(ambientLight);
     const keyLight = new THREE.DirectionalLight(0xfff5e4, 1.45);
     keyLight.position.set(2.2, 3.8, 3.2);
     scene.add(keyLight);
+
+    // Live 3D Cutaway Clipping Plane & 3D Laser Measurement Group
+    const clipPlane = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 1.0);
+    const measureGroup = new THREE.Group();
+    const measurePoints: THREE.Vector3[] = [];
     const fillLight = new THREE.DirectionalLight(0x38bdf8, 0.55);
     fillLight.position.set(-2.5, 1.2, 2.0);
     scene.add(fillLight);
@@ -1239,6 +1440,7 @@ const KafeelPrimaryARStage: React.FC<{
     // Rotating 3D Artifact Pivot Group
     const pivot = new THREE.Group();
     arAnchor.add(pivot);
+    pivot.add(measureGroup);
 
     // 3D AR Spatial Floor Reticle Rings & Laser Scan Disc under the object
     const outerRing = new THREE.Mesh(
@@ -1325,7 +1527,8 @@ const KafeelPrimaryARStage: React.FC<{
                   std.metalness = Math.min(0.22, std.metalness);
                 }
               }
-              if ('envMapIntensity' in std) std.envMapIntensity = 0.68;
+              if ('envMapIntensity' in std) std.envMapIntensity = 0.72;
+              std.clippingPlanes = [clipPlane];
             });
           }
         });
@@ -1387,11 +1590,35 @@ const KafeelPrimaryARStage: React.FC<{
             return;
           }
         }
-        // 2. Check hit on the 3D artifact mesh itself and select the closest anatomical 3D part node
+        // 2. Check hit on the 3D artifact mesh itself (either 3D Tape Measure or select closest spatial part)
         if (loadedObj) {
           const meshHits = raycaster.intersectObject(loadedObj, true);
           if (meshHits.length > 0) {
             const hitWorld = meshHits[0].point;
+            if (stateRef.current.measureMode) {
+              const localPt = pivot.worldToLocal(hitWorld.clone());
+              if (measurePoints.length >= 2) {
+                measurePoints.length = 0;
+                while (measureGroup.children.length) measureGroup.remove(measureGroup.children[0]);
+              }
+              measurePoints.push(localPt);
+              const pin = new THREE.Mesh(
+                new THREE.SphereGeometry(0.022, 12, 12),
+                new THREE.MeshBasicMaterial({ color: 0xffd60a })
+              );
+              pin.position.copy(localPt);
+              measureGroup.add(pin);
+              if (measurePoints.length === 2) {
+                const lineGeo = new THREE.BufferGeometry().setFromPoints(measurePoints);
+                const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0x34d399 }));
+                measureGroup.add(line);
+                const distUnits = measurePoints[0].distanceTo(measurePoints[1]);
+                stateRef.current.onMeasuredCm(distUnits * stateRef.current.artifactMaxCm);
+              } else {
+                stateRef.current.onMeasuredCm(null);
+              }
+              return;
+            }
             let bestPart: SpatialPartNode | null = null;
             let bestDist = Infinity;
             const nodeWorld = new THREE.Vector3();
@@ -1453,6 +1680,32 @@ const KafeelPrimaryARStage: React.FC<{
       pivot.rotation.y = curYaw;
       pivot.rotation.x = manualPitch;
       pivot.position.y = Math.sin(now * 0.0022) * 0.025;
+
+      // Apply Real-Time Camera Environmental Lighting Estimation + Smithsonian Raking Light Angle
+      ambientLight.color.setRGB(st.envLightRgb[0] / 255, st.envLightRgb[1] / 255, st.envLightRgb[2] / 255);
+      const lRad = THREE.MathUtils.degToRad(st.relightDeg);
+      keyLight.position.set(Math.cos(lRad) * 3.8, 2.4, Math.sin(lRad) * 3.8);
+
+      // Apply Live 3D Cutaway Cross-Section Slicer & X-Ray Conservation Mode
+      clipPlane.constant = st.cutawayPct >= 99 ? 5.0 : -0.6 + (st.cutawayPct / 100) * 1.25;
+      if (loadedObj) {
+        loadedObj.traverse((c) => {
+          const m = c as THREE.Mesh;
+          if (m.isMesh && m.material) {
+            const mats = Array.isArray(m.material) ? m.material : [m.material];
+            mats.forEach((mat) => {
+              const std = mat as THREE.MeshStandardMaterial;
+              std.wireframe = st.xrayMode;
+              std.transparent = st.xrayMode;
+              std.opacity = st.xrayMode ? 0.65 : 1.0;
+            });
+          }
+        });
+      }
+      if (!st.measureMode && measureGroup.children.length) {
+        measurePoints.length = 0;
+        while (measureGroup.children.length) measureGroup.remove(measureGroup.children[0]);
+      }
 
       // Animate AR floor reticle & vertical laser scan ring
       outerRing.rotation.z = now * 0.0005;
