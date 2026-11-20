@@ -34,6 +34,7 @@ import { assetUrl } from '../utils/assetUrl';
 import { disposeObject, getDracoLoader } from '../utils/modelMemory';
 import { answer, factsFromArtifact } from '../voice/persona';
 import { speak, stopSpeaking } from '../voice/speak';
+import { spatialSound } from '../utils/spatialSound';
 import { getSpatialPartsForArtifact, SpatialPartNode } from './partAnatomy';
 
 type Lang = 'ar' | 'en';
@@ -99,6 +100,8 @@ export const KafeelScannerApp: React.FC = () => {
   const [measureMode, setMeasureMode] = useState<boolean>(false);
   const [measureCm, setMeasureCm] = useState<number | null>(null);
   const [envLightRgb, setEnvLightRgb] = useState<[number, number, number]>([255, 248, 238]);
+  const [cleanArView, setCleanArView] = useState<boolean>(false);
+  const [autoTourActive, setAutoTourActive] = useState<boolean>(false);
   const [cameraReady, setCameraReady] = useState<boolean>(false);
   const [gyroOffset, setGyroOffset] = useState<{ yaw: number; pitch: number }>({ yaw: 0, pitch: 0 });
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
@@ -245,7 +248,16 @@ export const KafeelScannerApp: React.FC = () => {
       setDetectSource(source);
       if (angle != null) setViewAngle(angle);
       setSelectedPartId(null);
+      setAutoTourActive(false);
       setScanPulse(true);
+      if (source === 'sight' || source === 'qr' || source === 'catch') {
+        spatialSound.playAlqamiChime();
+        try {
+          navigator.vibrate?.(25);
+        } catch {
+          /* ignore */
+        }
+      }
       window.setTimeout(() => setScanPulse(false), 650);
 
       const v = videoRef.current;
@@ -498,6 +510,22 @@ export const KafeelScannerApp: React.FC = () => {
     [isAr, lang, activeArtifact.model.glb]
   );
 
+  // Auto Guided 360° Part Tour: orbits smoothly from Part 1 -> Part 2 -> Part 3 -> Part 4 with voice narration
+  useEffect(() => {
+    if (!autoTourActive || !parts.length) return;
+    let idx = 0;
+    setCleanArView(false);
+    speakPart(parts[0]);
+    const id = window.setInterval(() => {
+      idx = (idx + 1) % parts.length;
+      speakPart(parts[idx]);
+    }, 5800);
+    return () => {
+      window.clearInterval(id);
+      stopSpeaking();
+    };
+  }, [autoTourActive, parts, speakPart]);
+
   // Compute pixel positions for the AR target reticle, each part's real 3D-projected anchor on the 3D AR mesh,
   // and each part's floating AR metadata card around the object.
   const layoutGeometry = useMemo(() => {
@@ -707,7 +735,7 @@ export const KafeelScannerApp: React.FC = () => {
       </div>
 
       {/* 4. SVG Layer: Animated Bezier Leader Lines & 3D-Projected Physical Part Anchor Rings */}
-      <svg className="absolute inset-0 w-full h-full z-20 pointer-events-none overflow-visible">
+      <svg className={`absolute inset-0 w-full h-full z-20 pointer-events-none overflow-visible transition-opacity duration-300 ${cleanArView ? 'opacity-0' : 'opacity-100'}`}>
         <defs>
           <filter id="kfl-glow" x="-30%" y="-30%" width="160%" height="160%">
             <feGaussianBlur stdDeviation="3" result="blur" />
@@ -771,7 +799,7 @@ export const KafeelScannerApp: React.FC = () => {
       </svg>
 
       {/* 5. Floating Spatial Part Metadata Cards Attached to the 3D AR Object's Physical Parts */}
-      <div className="absolute inset-0 z-20 pointer-events-none">
+      <div className={`absolute inset-0 z-20 pointer-events-none transition-opacity duration-300 ${cleanArView ? 'opacity-0' : 'opacity-100'}`}>
         {layoutGeometry.nodes.map(({ part, idx, cardX, cardY, cardW }) => {
           const isSelected = selectedPartId === part.id;
           return (
@@ -1008,6 +1036,24 @@ export const KafeelScannerApp: React.FC = () => {
             >
               <Scan className="w-3.5 h-3.5" />
               <span>{t('أشعة X', 'X-Ray')}</span>
+            </button>
+            <button
+              onClick={() => setAutoTourActive((v) => !v)}
+              className={`h-9 rounded-xl border text-[11px] font-bold flex items-center justify-center gap-1 transition ${
+                autoTourActive ? 'bg-emerald-400 text-black border-emerald-300' : 'bg-white/10 text-white border-white/15'
+              }`}
+            >
+              <Rotate3d className="w-3.5 h-3.5" />
+              <span>{t('جولة الأجزاء', 'Auto Tour')}</span>
+            </button>
+            <button
+              onClick={() => setCleanArView((v) => !v)}
+              className={`h-9 rounded-xl border text-[11px] font-bold flex items-center justify-center gap-1 transition ${
+                cleanArView ? 'bg-white text-black border-white' : 'bg-white/10 text-white border-white/15'
+              }`}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>{t('عرض AR صافي', 'Clean AR')}</span>
             </button>
           </div>
 
