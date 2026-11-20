@@ -1,418 +1,335 @@
-import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
   Camera,
   CameraOff,
   Compass,
-  Download,
+  Expand,
   Footprints,
-  Hand,
-  ImagePlus,
-  Info,
-  Layers,
+  Minimize2,
   RotateCcw,
-  Sliders,
   Sparkles,
-  Upload,
 } from 'lucide-react';
-import { ALQAMI_ARTIFACTS, type AlqamiArtifact } from '../../data/alqamiArtifacts';
 import { assetUrl } from '../../utils/assetUrl';
 import { spatialSound } from '../../utils/spatialSound';
-
-const SpatialPortalVFX = lazy(() =>
-  import('../three/SpatialPortalVFX').then((m) => ({ default: m.SpatialPortalVFX }))
-);
 
 export interface WalkIntoMemoryAppProps {
   lang?: 'ar' | 'en';
 }
 
-type DepthProfile = 'corridor' | 'rooftop' | 'courtyard' | 'general';
+type SceneProfile = 'corridor' | 'rooftop' | 'courtyard';
 
-interface MemorySample {
+interface ShrineMemoryScene {
   id: string;
   titleAr: string;
   titleEn: string;
+  subtitleAr: string;
+  subtitleEn: string;
   image: string;
-  depthProfile?: DepthProfile;
-  artifact?: AlqamiArtifact;
+  profile: SceneProfile;
+  portalColor: number;
+  ambientTint: number;
 }
 
-const FEATURED_SHRINE_MEMORIES: MemorySample[] = [
+/** ONLY the 3 iconic Al-Abbas Holy Shrine photographs — zero upload clutter. */
+const SHRINE_SCENES: ShrineMemoryScene[] = [
   {
-    id: 'SHRINE-SANCTUARY-HALL',
-    titleAr: 'الروضة المباركة والضريح المقدس · كربلاء',
-    titleEn: 'Sacred Sanctuary Hall · Al-Abbas Holy Shrine',
+    id: 'sanctuary-hall',
+    titleAr: 'الروضة المباركة والضريح المقدس',
+    titleEn: 'Sacred Sanctuary Hall',
+    subtitleAr: 'امشِ بين الأعمدة الرخامية نحو الضريح الذهبي',
+    subtitleEn: 'Walk down the marble corridor toward the golden shrine',
     image: './images/memories/shrine-sanctuary-interior.jpg',
-    depthProfile: 'corridor',
+    profile: 'corridor',
+    portalColor: 0xfbbf24,
+    ambientTint: 0x0b1210,
   },
   {
-    id: 'SHRINE-TWILIGHT-DOME',
-    titleAr: 'القبة الذهبية والمآذن عند الغسق · كربلاء',
-    titleEn: 'Golden Dome & Twin Minarets at Twilight',
+    id: 'twilight-dome',
+    titleAr: 'القبة الذهبية والمآذن عند الغسق',
+    titleEn: 'Golden Dome & Minarets at Twilight',
+    subtitleAr: 'تقدّم فوق الصحن الزجاجي نحو المآذن الذهبية',
+    subtitleEn: 'Step across the glass skylight toward the twin golden minarets',
     image: './images/memories/shrine-twilight-dome.jpg',
-    depthProfile: 'rooftop',
+    profile: 'rooftop',
+    portalColor: 0x38bdf8,
+    ambientTint: 0x070c18,
   },
   {
-    id: 'SHRINE-COURTYARD-GATE',
+    id: 'courtyard-gate',
     titleAr: 'صحن وبوابة العتبة العباسية المقدسة',
     titleEn: 'Al-Abbas Holy Shrine Courtyard & Gate',
+    subtitleAr: 'اعبر ساحة الصحن الشريف نحو البوابة المزخرفة',
+    subtitleEn: 'Walk across the courtyard toward the ornate shrine gate',
     image: './images/memories/shrine-courtyard.jpg',
-    depthProfile: 'courtyard',
+    profile: 'courtyard',
+    portalColor: 0xf59e0b,
+    ambientTint: 0x0f0e14,
   },
 ];
 
-const GRID_W = 240;
-const GRID_H = 176;
-const SPLAT_COUNT = GRID_W * GRID_H; // 42,240 real-time elliptical 3D Gaussian splats
-
 /**
- * Single-pass client-side "ML-SHARP" style monocular depth estimator:
- * combines scene-aware architectural perspective priors (corridor / rooftop / courtyard / general),
- * local Sobel edge salience, and chromatic depth cues to synthesize a smooth volumetric
- * 3D Gaussian Splat field in < 120ms on-device.
+ * Builds a continuous, high-resolution, full-depth 3D displaced mesh (220x160 = 70,400 triangles)
+ * from the shrine photograph, folding walls/floors/ceilings/sky into true 3D room depth
+ * so the visitor can physically walk INTO the scene with zero dotted gaps.
  */
-function buildGaussianSplatsFromImage(
+function buildFullDepth3DMesh(
   img: HTMLImageElement,
-  gridW: number,
-  gridH: number,
-  profile: DepthProfile = 'general'
-): {
-  positions: Float32Array;
-  flatPositions: Float32Array;
-  colors: Float32Array;
-  scales: Float32Array;
-  opacities: Float32Array;
-  depths: Float32Array;
-} {
+  profile: SceneProfile,
+  depthMeters: number
+): THREE.BufferGeometry {
+  const segX = 220;
+  const segY = 160;
+  const aspect = (img.naturalWidth || 1024) / Math.max(1, img.naturalHeight || 680);
+  const baseH = 7.4;
+  const baseW = baseH * THREE.MathUtils.clamp(aspect, 1.15, 1.75);
+
+  // Sample image pixels for fine micro-relief (edge & luminance detail on top of architectural 3D geometry)
+  const sampleW = segX + 1;
+  const sampleH = segY + 1;
   const canvas = document.createElement('canvas');
-  canvas.width = gridW;
-  canvas.height = gridH;
+  canvas.width = sampleW;
+  canvas.height = sampleH;
   const ctx = canvas.getContext('2d')!;
-  ctx.drawImage(img, 0, 0, gridW, gridH);
-  const rgba = ctx.getImageData(0, 0, gridW, gridH).data;
+  ctx.drawImage(img, 0, 0, sampleW, sampleH);
+  const rgba = ctx.getImageData(0, 0, sampleW, sampleH).data;
 
-  const count = gridW * gridH;
-  const lum = new Float32Array(count);
-  const sat = new Float32Array(count);
-  const warm = new Float32Array(count);
+  const geo = new THREE.PlaneGeometry(baseW, baseH, segX, segY);
+  const pos = geo.attributes.position as THREE.BufferAttribute;
 
-  for (let i = 0; i < count; i++) {
-    const r = rgba[i * 4] / 255;
-    const g = rgba[i * 4 + 1] / 255;
-    const b = rgba[i * 4 + 2] / 255;
-    const maxC = Math.max(r, g, b);
-    const minC = Math.min(r, g, b);
-    lum[i] = 0.299 * r + 0.587 * g + 0.114 * b;
-    sat[i] = maxC > 0.001 ? (maxC - minC) / maxC : 0;
-    warm[i] = Math.max(0, r - b);
-  }
-
-  // Edge salience (foreground subjects have sharper local contrast than distant backgrounds)
-  const edge = new Float32Array(count);
-  for (let y = 1; y < gridH - 1; y++) {
-    for (let x = 1; x < gridW - 1; x++) {
-      const idx = y * gridW + x;
-      const gx = lum[idx + 1] - lum[idx - 1];
-      const gy = lum[idx + gridW] - lum[idx - gridW];
-      edge[idx] = Math.min(1, Math.hypot(gx, gy) * 3.2);
-    }
-  }
-
-  // Raw monocular depth (0 = far background, 1 = close foreground)
+  // Compute raw depth (0 = far back end of the 3D space, 1 = closest foreground near the portal)
+  const count = pos.count;
   const rawDepth = new Float32Array(count);
-  for (let y = 0; y < gridH; y++) {
-    const vNorm = y / (gridH - 1); // 0 = top (sky/ceiling), 1 = bottom (floor/near)
-    for (let x = 0; x < gridW; x++) {
-      const uNorm = x / (gridW - 1);
-      const idx = y * gridW + x;
-      const dxC = Math.abs(uNorm - 0.5) * 2; // 0 at center, 1 at left/right edge
-      let d = 0.5;
 
-      if (profile === 'corridor') {
-        // 1-point perspective hall: left/right marble walls & bottom carpet come close; central shrine sits deep
-        const wallNear = Math.pow(dxC, 1.55) * 0.72;
-        const floorNear = Math.pow(Math.max(0, (vNorm - 0.48) / 0.52), 1.35) * 0.85;
-        const ceilingNear = Math.pow(Math.max(0, (0.36 - vNorm) / 0.36), 1.5) * 0.42;
-        const centerTunnel = Math.exp(-Math.pow((uNorm - 0.5) * 3.1, 2) - Math.pow((vNorm - 0.44) * 3.4, 2));
-        d = Math.max(wallNear, floorNear, ceilingNear) * (1 - centerTunnel * 0.65) + edge[idx] * 0.1 + warm[idx] * 0.08;
-      } else if (profile === 'rooftop') {
-        // Rooftop skylight & stone terrace near; twin golden minarets mid; deep blue twilight sky far
-        const isSky = vNorm < 0.56 && bChannelAt(rgba, idx) > rChannelAt(rgba, idx) + 0.08;
-        const terraceNear = Math.pow(Math.max(0, (vNorm - 0.42) / 0.58), 1.25) * 0.92;
-        const minaretMid = !isSky && vNorm < 0.68 ? 0.38 + warm[idx] * 0.25 : 0.06;
-        d = isSky ? 0.04 + (1 - vNorm) * 0.02 : Math.max(terraceNear, minaretMid) + edge[idx] * 0.08;
-      } else if (profile === 'courtyard') {
-        // Courtyard foreground & visitors near; tiled shrine wall & golden dome mid; overcast sky far
-        const floorAndCrowd = Math.pow(Math.max(0, (vNorm - 0.55) / 0.45), 1.15) * 0.92;
-        const facadeBand = vNorm >= 0.35 && vNorm <= 0.74 ? 0.42 + sat[idx] * 0.18 + warm[idx] * 0.12 : 0.06;
-        const skyFar = vNorm < 0.48 && lum[idx] > 0.66 && sat[idx] < 0.18;
-        d = skyFar ? 0.05 : Math.max(floorAndCrowd, facadeBand) + edge[idx] * 0.08;
-      } else {
-        const centerDist = Math.hypot((uNorm - 0.5) * 1.15, (vNorm - 0.52) * 1.15);
-        const subjectPrior = Math.exp(-centerDist * centerDist * 2.4);
-        const groundPrior = Math.pow(vNorm, 1.35) * 0.55;
-        d =
-          groundPrior * 0.42 +
-          subjectPrior * (0.34 + 0.22 * sat[idx] + 0.16 * edge[idx]) +
-          warm[idx] * 0.14 +
-          (1 - Math.abs(lum[idx] - 0.55)) * 0.12;
-      }
-      rawDepth[idx] = THREE.MathUtils.clamp(d, 0.02, 1.0);
-    }
-  }
-
-  // Fast 2-pass box blur on depth for smooth volumetric parallax without harsh tears
-  const depths = new Float32Array(count);
-  for (let y = 0; y < gridH; y++) {
-    for (let x = 0; x < gridW; x++) {
-      let sum = 0;
-      let n = 0;
-      for (let dy = -2; dy <= 2; dy++) {
-        const yy = THREE.MathUtils.clamp(y + dy, 0, gridH - 1);
-        for (let dx = -2; dx <= 2; dx++) {
-          const xx = THREE.MathUtils.clamp(x + dx, 0, gridW - 1);
-          sum += rawDepth[yy * gridW + xx];
-          n++;
-        }
-      }
-      depths[y * gridW + x] = sum / n;
-    }
-  }
-
-  const aspect = (img.naturalWidth || gridW) / Math.max(1, img.naturalHeight || gridH);
-  const clampedAspect = THREE.MathUtils.clamp(aspect, 0.65, 1.85);
-  const worldH = 2.75;
-  const worldW = worldH * clampedAspect;
-
-  const positions = new Float32Array(count * 3);
-  const flatPositions = new Float32Array(count * 3);
-  const colors = new Float32Array(count * 3);
-  const scales = new Float32Array(count);
-  const opacities = new Float32Array(count);
-
-  for (let y = 0; y < gridH; y++) {
-    const v = 0.5 - y / (gridH - 1);
-    for (let x = 0; x < gridW; x++) {
-      const u = x / (gridW - 1) - 0.5;
-      const idx = y * gridW + x;
-      const d = depths[idx];
-
-      // Flat tablet photo card coordinate
-      flatPositions[idx * 3] = u * worldW * 0.72;
-      flatPositions[idx * 3 + 1] = v * worldH * 0.72;
-      flatPositions[idx * 3 + 2] = 0.0;
-
-      // Reconstructed 3D Gaussian Splat world coordinate with perspective frustum expansion
-      const z = (d - 0.5) * 2.85; // closer pixels come forward toward viewer
-      const frustumScale = 1.0 + (0.5 - d) * 0.42;
-      positions[idx * 3] = u * worldW * frustumScale;
-      positions[idx * 3 + 1] = v * worldH * frustumScale;
-      positions[idx * 3 + 2] = z;
-
+  for (let iy = 0; iy < sampleH; iy++) {
+    const vNorm = iy / segY; // 0 = top, 1 = bottom
+    for (let ix = 0; ix < sampleW; ix++) {
+      const uNorm = ix / segX; // 0 = left, 1 = right
+      const idx = iy * sampleW + ix;
       const r = rgba[idx * 4] / 255;
       const g = rgba[idx * 4 + 1] / 255;
       const b = rgba[idx * 4 + 2] / 255;
-      colors[idx * 3] = r;
-      colors[idx * 3 + 1] = g;
-      colors[idx * 3 + 2] = b;
+      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+      const warm = Math.max(0, r - b);
+      const dxC = Math.abs(uNorm - 0.5) * 2; // 0 at center, 1 at left/right edge
 
-      // Splat size slightly larger in smooth background regions to avoid gaps
-      scales[idx] = 0.85 + (1 - edge[idx]) * 0.45 + (1 - d) * 0.25;
-      // Softly feather extreme corners so the memory blends organically into the real room
-      const edgeFade = 1 - Math.pow(Math.max(Math.abs(u * 2), Math.abs(v * 2)), 7);
-      opacities[idx] = THREE.MathUtils.clamp(0.78 + lum[idx] * 0.22, 0.35, 1.0) * THREE.MathUtils.clamp(edgeFade, 0.08, 1.0);
+      let d = 0.5;
+      if (profile === 'corridor') {
+        // Real 3D rectangular sanctuary corridor:
+        // - Left & right marble walls fold forward toward the visitor (dxC > 0.38)
+        // - Carpet floor extends smoothly toward the visitor's feet (vNorm > 0.56)
+        // - Crystal chandelier ceiling arches forward overhead (vNorm < 0.25)
+        // - Central golden shrine sits deep at the far end of the hall!
+        const leftRightWall = Math.pow(THREE.MathUtils.clamp((dxC - 0.26) / 0.74, 0, 1), 1.25) * 0.94;
+        const floorForward = Math.pow(THREE.MathUtils.clamp((vNorm - 0.52) / 0.48, 0, 1), 1.15) * 0.96;
+        const ceilingArch = Math.pow(THREE.MathUtils.clamp((0.26 - vNorm) / 0.26, 0, 1), 1.45) * 0.55;
+        const shrineCore = Math.exp(-Math.pow((uNorm - 0.5) * 3.4, 2) - Math.pow((vNorm - 0.44) * 3.8, 2));
+        d = Math.max(leftRightWall, floorForward, ceilingArch) * (1 - shrineCore * 0.72) + warm * 0.05 + lum * 0.03;
+      } else if (profile === 'rooftop') {
+        // Real 3D rooftop terrace + skylight pyramid + twin rising golden minarets + curved twilight sky
+        const isBlueSky = vNorm < 0.58 && b > r + 0.07;
+        const terraceFloor = Math.pow(THREE.MathUtils.clamp((vNorm - 0.54) / 0.46, 0, 1), 1.05) * 0.96;
+        const sideDomes = Math.pow(dxC, 1.8) * Math.max(0, (vNorm - 0.5) * 2) * 0.65;
+        const minaretRelief = !isBlueSky && vNorm < 0.68 ? 0.36 + warm * 0.24 : 0.03;
+        d = isBlueSky
+          ? 0.02 + (1 - vNorm) * 0.02
+          : Math.max(terraceFloor, sideDomes, minaretRelief) + lum * 0.03;
+      } else {
+        // Real 3D courtyard: wide ground plaza & pilgrims near, ornate tiled wall & gate mid, sky dome far
+        const isSky = vNorm < 0.52 && lum > 0.64 && Math.abs(r - b) < 0.14;
+        const courtyardGround = Math.pow(THREE.MathUtils.clamp((vNorm - 0.62) / 0.38, 0, 1), 1.05) * 0.95;
+        const sideWings = Math.pow(dxC, 1.5) * (vNorm > 0.5 ? 0.68 : 0.22);
+        const gateFacade = !isSky && vNorm >= 0.34 && vNorm <= 0.78 ? 0.42 + warm * 0.14 : 0.04;
+        d = isSky ? 0.03 : Math.max(courtyardGround, sideWings, gateFacade) + lum * 0.03;
+      }
+
+      rawDepth[idx] = THREE.MathUtils.clamp(d, 0.0, 1.0);
     }
   }
 
-  return { positions, flatPositions, colors, scales, opacities, depths };
-}
-
-function rChannelAt(rgba: Uint8ClampedArray, idx: number): number {
-  return rgba[idx * 4] / 255;
-}
-function bChannelAt(rgba: Uint8ClampedArray, idx: number): number {
-  return rgba[idx * 4 + 2] / 255;
-}
-
-/** Export reconstructed 3D Gaussian Splats as a standard .PLY file (compatible with MetalSplatter / SuperSplat). */
-function downloadGaussianPly(
-  positions: Float32Array,
-  colors: Float32Array,
-  scales: Float32Array,
-  opacities: Float32Array,
-  filename: string
-): void {
-  const count = positions.length / 3;
-  // Subsample stride 2 for fast browser download (~9,680 splats, ~900 KB)
-  const stride = 2;
-  const exported = Math.floor(count / stride);
-  const lines: string[] = [
-    'ply',
-    'format ascii 1.0',
-    'comment Generated by ALQAMI Walk Into Memory (ML-SHARP 3DGS Engine)',
-    `element vertex ${exported}`,
-    'property float x',
-    'property float y',
-    'property float z',
-    'property float f_dc_0',
-    'property float f_dc_1',
-    'property float f_dc_2',
-    'property float opacity',
-    'property float scale_0',
-    'property float scale_1',
-    'property float scale_2',
-    'end_header',
-  ];
-  const SH_C0 = 0.28209479177387814;
-  for (let i = 0; i < count; i += stride) {
-    const x = positions[i * 3].toFixed(4);
-    const y = positions[i * 3 + 1].toFixed(4);
-    const z = positions[i * 3 + 2].toFixed(4);
-    const dc0 = ((colors[i * 3] - 0.5) / SH_C0).toFixed(4);
-    const dc1 = ((colors[i * 3 + 1] - 0.5) / SH_C0).toFixed(4);
-    const dc2 = ((colors[i * 3 + 2] - 0.5) / SH_C0).toFixed(4);
-    const op = Math.log(Math.max(0.01, opacities[i]) / Math.max(0.01, 1 - opacities[i] * 0.98)).toFixed(3);
-    const sc = Math.log(0.014 * scales[i]).toFixed(3);
-    lines.push(`${x} ${y} ${z} ${dc0} ${dc1} ${dc2} ${op} ${sc} ${sc} ${sc}`);
+  // Smooth depth field with 3x3 blur so the 3D mesh surfaces (walls, carpet, domes) are silky smooth
+  const smoothDepth = new Float32Array(count);
+  for (let iy = 0; iy < sampleH; iy++) {
+    for (let ix = 0; ix < sampleW; ix++) {
+      let sum = 0;
+      let n = 0;
+      for (let dy = -2; dy <= 2; dy++) {
+        const yy = THREE.MathUtils.clamp(iy + dy, 0, sampleH - 1);
+        for (let dx = -2; dx <= 2; dx++) {
+          const xx = THREE.MathUtils.clamp(ix + dx, 0, sampleW - 1);
+          sum += rawDepth[yy * sampleW + xx];
+          n++;
+        }
+      }
+      smoothDepth[iy * sampleW + ix] = sum / n;
+    }
   }
-  const blob = new Blob([lines.join('\n')], { type: 'application/octet-stream' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 2500);
+
+  // Displace every vertex into true 3D room perspective (perspective un-projection!)
+  for (let iy = 0; iy < sampleH; iy++) {
+    const v = 0.5 - iy / segY; // +0.5 top, -0.5 bottom
+    for (let ix = 0; ix < sampleW; ix++) {
+      const u = ix / segX - 0.5; // -0.5 left, +0.5 right
+      const idx = iy * sampleW + ix;
+      const d = smoothDepth[idx]; // 0 = far back (-depthMeters), 1 = closest foreground (0)
+
+      // Z ranges from -depthMeters (far shrine/sky) up to +0.2 (right at portal entrance)
+      const z = -(1 - d) * depthMeters;
+      // Perspective frustum expansion: deeper points expand naturally so straight corridor lines stay true!
+      const frustumExpand = 0.58 + (1 - d) * 0.92;
+      const x = u * baseW * frustumExpand;
+      const y = v * baseH * frustumExpand;
+
+      pos.setXYZ(idx, x, y, z);
+    }
+  }
+
+  pos.needsUpdate = true;
+  geo.computeVertexNormals();
+  return geo;
 }
 
 export const WalkIntoMemoryApp: React.FC<WalkIntoMemoryAppProps> = ({ lang = 'ar' }) => {
   const isAr = lang === 'ar';
   const t = (ar: string, en: string) => (isAr ? ar : en);
 
-  // Build quick-select gallery: 3 Featured Al-Abbas Holy Shrine Memories FIRST, then iconic Al-Kafeel Museum treasures
-  const museumSamples = useMemo<MemorySample[]>(() => {
-    const picks = [
-      'KFL-SWD-2126',
-      'KFL-KSH-2165',
-      'KFL-TXT-1739',
-      'KFL-MSS-1870',
-      'KFL-KUF-1701',
-      'KFL-SHR-1689',
-    ];
-    const picked: MemorySample[] = [...FEATURED_SHRINE_MEMORIES];
-    for (const id of picks) {
-      const a = ALQAMI_ARTIFACTS.find((x) => x.id === id);
-      if (a) {
-        picked.push({
-          id: a.id,
-          titleAr: a.title.ar,
-          titleEn: a.title.en,
-          image: a.image,
-          artifact: a,
-        });
-      }
-    }
-    if (picked.length < 6) {
-      for (const a of ALQAMI_ARTIFACTS.slice(0, 8)) {
-        if (!picked.some((p) => p.id === a.id)) {
-          picked.push({
-            id: a.id,
-            titleAr: a.title.ar,
-            titleEn: a.title.en,
-            image: a.image,
-            artifact: a,
-          });
-        }
-      }
-    }
-    return picked;
-  }, []);
+  const [activeSceneIdx, setActiveSceneIdx] = useState<number>(0);
+  const [deployedInRoom, setDeployedInRoom] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [depthMeters, setDepthMeters] = useState<number>(8.5);
+  const [walkPct, setWalkPct] = useState<number>(18); // 0 = outside portal in your room, 100 = deep inside the 3D scene
+  const [insidePortal, setInsidePortal] = useState<boolean>(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
 
-  const [activeSample, setActiveSample] = useState<MemorySample>(() => museumSamples[0]);
-  const [customPhotoUrl, setCustomPhotoUrl] = useState<string | null>(null);
-  const [pulledOut, setPulledOut] = useState<boolean>(true); // true = volumetric 3DGS room-anchored; false = flat tablet photo
-  const [walkDepth, setWalkDepth] = useState<number>(36); // 0..100 walking into the 3DGS memory
-  const [depthStrength, setDepthStrength] = useState<number>(1.0); // 0.3..1.8 SHARP parallax depth multiplier
-  const [splatSize, setSplatSize] = useState<number>(1.15); // 0.6..2.0 Gaussian splat scale
-  const [roomPassthrough, setRoomPassthrough] = useState<boolean>(false);
-  const [reconMs, setReconMs] = useState<number>(68);
-  const [showTechInfo, setShowTechInfo] = useState<boolean>(false);
-  const [portalOpen, setPortalOpen] = useState<boolean>(false);
-  const [controlsOpen, setControlsOpen] = useState<boolean>(true);
+  const activeScene = SHRINE_SCENES[activeSceneIdx];
 
   const mountRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const lastSplatDataRef = useRef<{
-    positions: Float32Array;
-    colors: Float32Array;
-    scales: Float32Array;
-    opacities: Float32Array;
-  } | null>(null);
 
-  // Refs for real-time 60fps Three.js loop
-  const pulledOutRef = useRef(pulledOut);
-  pulledOutRef.current = pulledOut;
-  const walkDepthRef = useRef(walkDepth);
-  walkDepthRef.current = walkDepth;
-  const depthStrengthRef = useRef(depthStrength);
-  depthStrengthRef.current = depthStrength;
-  const splatSizeRef = useRef(splatSize);
-  splatSizeRef.current = splatSize;
-  const passthroughRef = useRef(roomPassthrough);
-  passthroughRef.current = roomPassthrough;
+  // Live 3D walk & look state shared with the 60fps Three.js loop
+  const camStateRef = useRef({
+    x: 0,
+    y: -0.15,
+    z: 2.8, // > 0.35 = outside the portal in your real room; < 0.35 = stepped INSIDE the 3D shrine mesh!
+    yaw: 0,
+    pitch: 0,
+  });
+  const gyroRef = useRef({ yaw: 0, pitch: 0 });
+  const keysRef = useRef<{ f: boolean; b: boolean; l: boolean; r: boolean }>({
+    f: false,
+    b: false,
+    l: false,
+    r: false,
+  });
+  const dragRef = useRef({ active: false, x: 0, y: 0 });
+  const deployedRef = useRef(deployedInRoom);
+  deployedRef.current = deployedInRoom;
+  const depthRef = useRef(depthMeters);
+  depthRef.current = depthMeters;
 
-  const lookRef = useRef<{ yaw: number; pitch: number }>({ yaw: 0, pitch: 0 });
-  const gyroRef = useRef<{ yaw: number; pitch: number }>({ yaw: 0, pitch: 0 });
-  const dragRef = useRef<{ active: boolean; x: number; y: number }>({ active: false, x: 0, y: 0 });
-
-  const activeImageUrl = customPhotoUrl || assetUrl(activeSample.image);
-
-  // Live Camera Passthrough for Vision Pro-style room anchoring
+  // Toggle Live Room Camera Passthrough when deployed in room
   useEffect(() => {
     let stream: MediaStream | null = null;
-    if (!roomPassthrough) {
+    if (!deployedInRoom) {
       if (videoRef.current) videoRef.current.srcObject = null;
+      setCameraError(null);
       return;
     }
     navigator.mediaDevices
       ?.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false })
       .then((s) => {
         stream = s;
+        setCameraError(null);
         if (videoRef.current) {
           videoRef.current.srcObject = s;
           videoRef.current.play().catch(() => {});
         }
       })
       .catch(() => {
-        setRoomPassthrough(false);
+        setCameraError(
+          isAr
+            ? 'تعذّر فتح الكاميرا — يمكنك المشي داخل المشهد ثلاثي الأبعاد مباشرة'
+            : 'Camera unavailable — walking directly in full 3D immersive mode'
+        );
       });
     return () => {
       stream?.getTracks().forEach((tr) => tr.stop());
     };
-  }, [roomPassthrough]);
+  }, [deployedInRoom, isAr]);
 
-  // Gyroscope parallax on mobile devices
+  // Request iOS/Android DeviceOrientation (360° Head Look) + Step Motion walking
+  const enableRoomSensors = useCallback(async () => {
+    try {
+      const DOE = DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> };
+      if (typeof DOE?.requestPermission === 'function') {
+        await DOE.requestPermission();
+      }
+    } catch {
+      /* non-iOS or denied */
+    }
+  }, []);
+
   useEffect(() => {
     const onOrient = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null) return;
       gyroRef.current = {
-        yaw: THREE.MathUtils.clamp((e.gamma / 45) * 0.45, -0.5, 0.5),
-        pitch: THREE.MathUtils.clamp(((e.beta - 55) / 45) * 0.3, -0.35, 0.35),
+        yaw: THREE.MathUtils.clamp((e.gamma / 45) * 0.55, -0.75, 0.75),
+        pitch: THREE.MathUtils.clamp(((e.beta - 60) / 45) * 0.35, -0.45, 0.45),
       };
     };
+    // Subtle physical step detector on phones when deployed in room
+    let lastStepMs = 0;
+    const onMotion = (e: DeviceMotionEvent) => {
+      if (!deployedRef.current) return;
+      const a = e.accelerationIncludingGravity;
+      if (!a) return;
+      const mag = Math.hypot(a.x || 0, a.y || 0, a.z || 0);
+      const now = performance.now();
+      if (mag > 12.6 && now - lastStepMs > 420) {
+        lastStepMs = now;
+        const minZ = -(depthRef.current * 0.62);
+        camStateRef.current.z = Math.max(minZ, camStateRef.current.z - 0.48);
+      }
+    };
     window.addEventListener('deviceorientation', onOrient, { passive: true });
-    return () => window.removeEventListener('deviceorientation', onOrient);
+    window.addEventListener('devicemotion', onMotion, { passive: true });
+    return () => {
+      window.removeEventListener('deviceorientation', onOrient);
+      window.removeEventListener('devicemotion', onMotion);
+    };
   }, []);
 
-  // Main Three.js + WebGL 3D Gaussian Splatting (ML-SHARP) Renderer
+  // Keyboard WASD / Arrow Keys for smooth walking inside the 3D scene
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent, down: boolean) => {
+      const k = e.key.toLowerCase();
+      if (k === 'w' || k === 'arrowup') keysRef.current.f = down;
+      if (k === 's' || k === 'arrowdown') keysRef.current.b = down;
+      if (k === 'a' || k === 'arrowleft') keysRef.current.l = down;
+      if (k === 'd' || k === 'arrowright') keysRef.current.r = down;
+    };
+    const kd = (e: KeyboardEvent) => onKey(e, true);
+    const ku = (e: KeyboardEvent) => onKey(e, false);
+    window.addEventListener('keydown', kd);
+    window.addEventListener('keyup', ku);
+    return () => {
+      window.removeEventListener('keydown', kd);
+      window.removeEventListener('keyup', ku);
+    };
+  }, []);
+
+  // Main Three.js Full-Depth 3D Mesh + Room-Scale Glowing Portal Renderer
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
     let disposed = false;
 
-    const width = container.clientWidth || 960;
-    const height = container.clientHeight || 600;
+    const width = container.clientWidth || window.innerWidth;
+    const height = container.clientHeight || window.innerHeight;
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -422,170 +339,218 @@ export const WalkIntoMemoryApp: React.FC<WalkIntoMemoryAppProps> = ({ lang = 'ar
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(width, height);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.06;
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.05, 50);
-    camera.position.set(0, 0, 3.6);
+    const camera = new THREE.PerspectiveCamera(62, width / height, 0.05, 80);
 
-    // Subtle spatial floor grid anchor (like VisionOS spatial anchoring)
-    const gridHelper = new THREE.GridHelper(12, 24, 0xfbbf24, 0x334155);
-    gridHelper.position.y = -1.65;
-    (gridHelper.material as THREE.Material).transparent = true;
-    (gridHelper.material as THREE.Material).opacity = 0.22;
-    scene.add(gridHelper);
+    // Start standing just in front of the glowing portal entrance
+    camStateRef.current = { x: 0, y: -0.1, z: 2.35, yaw: 0, pitch: 0 };
+    setWalkPct(18);
+    setInsidePortal(false);
 
-    // Floating 3D Gaussian Splat Geometry & Custom Anisotropic Gaussian ShaderMaterial
-    const geo = new THREE.BufferGeometry();
-    const initPos = new Float32Array(SPLAT_COUNT * 3);
-    const initFlat = new Float32Array(SPLAT_COUNT * 3);
-    const initCol = new Float32Array(SPLAT_COUNT * 3);
-    const initScale = new Float32Array(SPLAT_COUNT).fill(1);
-    const initOp = new Float32Array(SPLAT_COUNT).fill(0);
+    // 1. Glowing Room-Scale Spatial Portal Arch at Z = 0.25 (anchored in your real room!)
+    const portalGroup = new THREE.Group();
+    portalGroup.position.set(0, -0.05, 0.28);
+    scene.add(portalGroup);
 
-    geo.setAttribute('position', new THREE.BufferAttribute(initPos, 3));
-    geo.setAttribute('aFlatPos', new THREE.BufferAttribute(initFlat, 3));
-    geo.setAttribute('aColor', new THREE.BufferAttribute(initCol, 3));
-    geo.setAttribute('aScale', new THREE.BufferAttribute(initScale, 1));
-    geo.setAttribute('aOpacity', new THREE.BufferAttribute(initOp, 1));
+    const archShape = new THREE.Shape();
+    const pw = 2.05;
+    const ph = 1.65;
+    archShape.moveTo(-pw, -ph);
+    archShape.lineTo(-pw, ph * 0.35);
+    archShape.absarc(0, ph * 0.35, pw, Math.PI, 0, true);
+    archShape.lineTo(pw, -ph);
 
-    const uniforms = {
-      uPull: { value: pulledOutRef.current ? 1.0 : 0.0 },
-      uDepthStrength: { value: depthStrengthRef.current },
-      uSplatSize: { value: splatSizeRef.current },
+    const archPoints = archShape.getPoints(96);
+    const archCurve = new THREE.CatmullRomCurve3(
+      archPoints.map((pt) => new THREE.Vector3(pt.x, pt.y, 0)),
+      true
+    );
+    const portalTubeGeo = new THREE.TubeGeometry(archCurve, 128, 0.045, 16, true);
+    const portalUniforms = {
       uTime: { value: 0 },
-      uPixelRatio: { value: renderer.getPixelRatio() },
+      uColor: { value: new THREE.Color(activeScene.portalColor) },
     };
-
-    const splatMat = new THREE.ShaderMaterial({
-      uniforms,
+    const portalMat = new THREE.ShaderMaterial({
+      uniforms: portalUniforms,
       transparent: true,
-      depthWrite: true,
-      depthTest: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
       vertexShader: `
-        attribute vec3 aFlatPos;
-        attribute vec3 aColor;
-        attribute float aScale;
-        attribute float aOpacity;
-
-        uniform float uPull;
-        uniform float uDepthStrength;
-        uniform float uSplatSize;
-        uniform float uTime;
-        uniform float uPixelRatio;
-
-        varying vec3 vColor;
-        varying float vOpacity;
-
+        varying vec3 vPos;
         void main() {
-          // Interpolate smoothly from 2D floating tablet photo -> volumetric 3D Gaussian Splat scene
-          vec3 volPos = vec3(position.x, position.y, position.z * uDepthStrength);
-          vec3 p = mix(aFlatPos, volPos, uPull);
-
-          // Gentle organic breathing parallax when pulled into room space
-          p.y += sin(uTime * 0.8 + p.x * 1.4) * 0.008 * uPull;
-
-          vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
-          gl_Position = projectionMatrix * mvPosition;
-
-          float dist = max(0.35, -mvPosition.z);
-          float baseSize = (18.5 * uSplatSize * aScale * uPixelRatio) / dist;
-          gl_PointSize = clamp(baseSize, 2.0, 26.0);
-
-          vColor = aColor;
-          vOpacity = aOpacity;
+          vPos = position;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
       fragmentShader: `
-        varying vec3 vColor;
-        varying float vOpacity;
-
+        uniform float uTime;
+        uniform vec3 uColor;
+        varying vec3 vPos;
         void main() {
-          vec2 c = gl_PointCoord - vec2(0.5);
-          float r2 = dot(c, c);
-          if (r2 > 0.25) discard;
-
-          // True 2D Gaussian splat kernel falloff: exp(-r^2 * k)
-          float gauss = exp(-r2 * 11.5);
-          float alpha = gauss * vOpacity;
-          if (alpha < 0.04) discard;
-
-          gl_FragColor = vec4(vColor, alpha);
+          float pulse = 0.65 + 0.35 * sin(vPos.y * 4.0 + vPos.x * 3.0 - uTime * 3.6);
+          gl_FragColor = vec4(uColor * (1.2 + pulse * 0.6), 0.88);
         }
       `,
     });
+    const portalArch = new THREE.Mesh(portalTubeGeo, portalMat);
+    portalGroup.add(portalArch);
 
-    const splatCloud = new THREE.Points(geo, splatMat);
-    scene.add(splatCloud);
+    // Subtle spatial floor guide markers leading INTO the portal
+    const guideGeo = new THREE.RingGeometry(0.18, 0.22, 32);
+    const guideMat = new THREE.MeshBasicMaterial({
+      color: activeScene.portalColor,
+      transparent: true,
+      opacity: 0.45,
+      side: THREE.DoubleSide,
+    });
+    const floorGuides: THREE.Mesh[] = [];
+    for (let i = 0; i < 4; i++) {
+      const m = new THREE.Mesh(guideGeo, guideMat);
+      m.rotation.x = -Math.PI / 2;
+      m.position.set(0, -1.65, 1.5 - i * 1.15);
+      scene.add(m);
+      floorGuides.push(m);
+    }
 
-    // Load active photo & run on-device single-pass ML-SHARP 3DGS reconstruction
+    // 2. Floating Atmospheric Golden Dust Motes inside the 3D Shrine Hall
+    const DUST = 900;
+    const dustPos = new Float32Array(DUST * 3);
+    const dustSeed = new Float32Array(DUST);
+    for (let i = 0; i < DUST; i++) {
+      dustPos[i * 3] = (Math.random() - 0.5) * 7.5;
+      dustPos[i * 3 + 1] = (Math.random() - 0.5) * 4.8;
+      dustPos[i * 3 + 2] = -Math.random() * depthMeters * 0.92;
+      dustSeed[i] = Math.random() * 6.283;
+    }
+    const dustGeo = new THREE.BufferGeometry();
+    dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+    dustGeo.setAttribute('aSeed', new THREE.BufferAttribute(dustSeed, 1));
+    const dustUniforms = {
+      uTime: { value: 0 },
+      uColor: { value: new THREE.Color(activeScene.portalColor) },
+    };
+    const dustMat = new THREE.ShaderMaterial({
+      uniforms: dustUniforms,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      vertexShader: `
+        attribute float aSeed;
+        uniform float uTime;
+        varying float vA;
+        void main() {
+          vec3 p = position;
+          p.y += sin(uTime * 0.6 + aSeed) * 0.16;
+          p.x += cos(uTime * 0.4 + aSeed * 1.3) * 0.12;
+          vec4 mv = modelViewMatrix * vec4(p, 1.0);
+          gl_Position = projectionMatrix * mv;
+          gl_PointSize = clamp(18.0 / max(-mv.z, 0.5), 1.5, 5.0);
+          vA = 0.35 + 0.45 * sin(uTime * 1.5 + aSeed * 2.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 uColor;
+        varying float vA;
+        void main() {
+          float d = length(gl_PointCoord - vec2(0.5));
+          if (d > 0.5) discard;
+          gl_FragColor = vec4(uColor, smoothstep(0.5, 0.05, d) * vA * 0.6);
+        }
+      `,
+    });
+    const dustCloud = new THREE.Points(dustGeo, dustMat);
+    scene.add(dustCloud);
+
+    // 3. Load Full-Resolution Shrine Photo & Build Solid Full-Depth 3D Mesh
+    let shrineMesh: THREE.Mesh | null = null;
+    let shrineGeo: THREE.BufferGeometry | null = null;
+    let shrineMat: THREE.MeshBasicMaterial | null = null;
+    let shrineTex: THREE.Texture | null = null;
+
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       if (disposed) return;
-      const t0 = performance.now();
-      const built = buildGaussianSplatsFromImage(
-        img,
-        GRID_W,
-        GRID_H,
-        customPhotoUrl ? 'general' : activeSample.depthProfile || 'general'
-      );
-      const dt = Math.max(12, Math.round(performance.now() - t0));
-      setReconMs(dt);
+      shrineGeo = buildFullDepth3DMesh(img, activeScene.profile, depthMeters);
+      shrineTex = new THREE.Texture(img);
+      shrineTex.colorSpace = THREE.SRGBColorSpace;
+      shrineTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      shrineTex.needsUpdate = true;
 
-      lastSplatDataRef.current = {
-        positions: built.positions,
-        colors: built.colors,
-        scales: built.scales,
-        opacities: built.opacities,
-      };
-
-      geo.setAttribute('position', new THREE.BufferAttribute(built.positions, 3));
-      geo.setAttribute('aFlatPos', new THREE.BufferAttribute(built.flatPositions, 3));
-      geo.setAttribute('aColor', new THREE.BufferAttribute(built.colors, 3));
-      geo.setAttribute('aScale', new THREE.BufferAttribute(built.scales, 1));
-      geo.setAttribute('aOpacity', new THREE.BufferAttribute(built.opacities, 1));
-      geo.computeBoundingSphere();
+      shrineMat = new THREE.MeshBasicMaterial({
+        map: shrineTex,
+        side: THREE.DoubleSide,
+      });
+      shrineMesh = new THREE.Mesh(shrineGeo, shrineMat);
+      scene.add(shrineMesh);
     };
-    img.src = activeImageUrl;
+    img.src = assetUrl(activeScene.image);
 
-    // 60fps Spatial Walk & Parallax Loop
+    // 4. 60fps Real-Time Walk-In & Room-Portal Loop
     const clock = new THREE.Clock();
     let rafId = 0;
+    let lastUiSync = 0;
 
     const animate = () => {
       if (disposed) return;
       rafId = requestAnimationFrame(animate);
+      const dt = Math.min(0.05, clock.getDelta());
       const elapsed = clock.getElapsedTime();
 
-      const targetPull = pulledOutRef.current ? 1.0 : 0.0;
-      uniforms.uPull.value = THREE.MathUtils.lerp(uniforms.uPull.value, targetPull, 0.08);
-      uniforms.uDepthStrength.value = THREE.MathUtils.lerp(
-        uniforms.uDepthStrength.value,
-        depthStrengthRef.current,
-        0.1
+      portalUniforms.uTime.value = elapsed;
+      dustUniforms.uTime.value = elapsed;
+
+      const st = camStateRef.current;
+      const moveSpeed = 2.6 * dt;
+      const minZ = -(depthMeters * 0.62); // Deep inside the 3D hall / near the shrine!
+      const maxZ = 3.2; // Standing outside the glowing portal in your room
+
+      if (keysRef.current.f) st.z = Math.max(minZ, st.z - moveSpeed);
+      if (keysRef.current.b) st.z = Math.min(maxZ, st.z + moveSpeed);
+      if (keysRef.current.l) st.x = Math.max(-1.65, st.x - moveSpeed * 0.75);
+      if (keysRef.current.r) st.x = Math.min(1.65, st.x + moveSpeed * 0.75);
+
+      // Inside portal when camera crosses Z < 0.35
+      const nowInside = st.z < 0.35;
+
+      // In Room AR mode: keep transparent clear color outside portal so real room shows around the arch!
+      // Once you step inside the portal, smoothly immerse you inside the 3D hall.
+      const clearAlpha = deployedRef.current ? (nowInside ? 0.82 : 0.0) : 1.0;
+      renderer.setClearColor(activeScene.ambientTint, clearAlpha);
+
+      // Hide portal arch softly once you walk past it
+      portalGroup.visible = st.z > -0.6;
+      floorGuides.forEach((g, idx) => {
+        g.visible = st.z > -0.8;
+        const s = 1 + 0.08 * Math.sin(elapsed * 2.5 - idx * 0.6);
+        g.scale.setScalar(s);
+      });
+
+      // Smooth camera position & 360° look-around (drag + mobile gyroscope)
+      camera.position.x = THREE.MathUtils.lerp(camera.position.x, st.x, 0.14);
+      camera.position.y = THREE.MathUtils.lerp(camera.position.y, st.y, 0.14);
+      camera.position.z = THREE.MathUtils.lerp(camera.position.z, st.z, 0.14);
+
+      const totalYaw = st.yaw + gyroRef.current.yaw;
+      const totalPitch = st.pitch + gyroRef.current.pitch;
+      const lookTarget = new THREE.Vector3(
+        camera.position.x + Math.sin(totalYaw) * 4.5,
+        camera.position.y + Math.sin(totalPitch) * 3.0,
+        camera.position.z - Math.cos(totalYaw) * 4.5
       );
-      uniforms.uSplatSize.value = THREE.MathUtils.lerp(uniforms.uSplatSize.value, splatSizeRef.current, 0.12);
-      uniforms.uTime.value = elapsed;
+      camera.lookAt(lookTarget);
 
-      // Clear background when live room camera passthrough is active
-      renderer.setClearColor(0x06080f, passthroughRef.current ? 0.0 : 1.0);
-      gridHelper.visible = !passthroughRef.current && uniforms.uPull.value > 0.25;
-
-      // Walk-in camera depth: z = 4.1 (outside) -> z = 0.65 (standing deep inside the 3DGS memory)
-      const walkT = walkDepthRef.current / 100;
-      const targetZ = THREE.MathUtils.lerp(4.05, 0.68, walkT);
-      const yaw = lookRef.current.yaw + gyroRef.current.yaw;
-      const pitch = lookRef.current.pitch + gyroRef.current.pitch;
-
-      const targetX = Math.sin(yaw) * (1.25 + (1 - walkT) * 0.45);
-      const targetY = pitch * 0.95;
-
-      camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 0.08);
-      camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, 0.08);
-      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.08);
-      camera.lookAt(0, 0, -0.35);
+      if (elapsed - lastUiSync > 0.1) {
+        lastUiSync = elapsed;
+        const pct = Math.round(THREE.MathUtils.clamp((maxZ - st.z) / (maxZ - minZ), 0, 1) * 100);
+        setWalkPct(pct);
+        setInsidePortal(nowInside);
+      }
 
       renderer.render(scene, camera);
     };
@@ -594,8 +559,8 @@ export const WalkIntoMemoryApp: React.FC<WalkIntoMemoryAppProps> = ({ lang = 'ar
 
     const onResize = () => {
       if (disposed || !mountRef.current) return;
-      const w = mountRef.current.clientWidth || 960;
-      const h = mountRef.current.clientHeight || 600;
+      const w = mountRef.current.clientWidth || window.innerWidth;
+      const h = mountRef.current.clientHeight || window.innerHeight;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
@@ -606,66 +571,76 @@ export const WalkIntoMemoryApp: React.FC<WalkIntoMemoryAppProps> = ({ lang = 'ar
       disposed = true;
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', onResize);
-      geo.dispose();
-      splatMat.dispose();
+      if (shrineGeo) shrineGeo.dispose();
+      if (shrineMat) shrineMat.dispose();
+      if (shrineTex) shrineTex.dispose();
+      portalTubeGeo.dispose();
+      portalMat.dispose();
+      guideGeo.dispose();
+      guideMat.dispose();
+      dustGeo.dispose();
+      dustMat.dispose();
       renderer.dispose();
     };
-  }, [activeImageUrl, activeSample.depthProfile, customPhotoUrl]);
+  }, [activeScene, depthMeters]);
 
-  const handleUploadPhoto = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setCustomPhotoUrl(url);
-    setPulledOut(true);
-    setWalkDepth(32);
+  // Smoothly set walk depth from slider (0% = outside portal, 100% = deep inside 3D hall)
+  const handleWalkSlider = (pct: number) => {
+    setWalkPct(pct);
+    const minZ = -(depthMeters * 0.62);
+    const maxZ = 3.2;
+    camStateRef.current.z = THREE.MathUtils.lerp(maxZ, minZ, pct / 100);
+  };
+
+  // One-tap "Deploy in Room" button: activates live room camera + fullscreen + gyro/step sensors!
+  const handleToggleDeployInRoom = async () => {
     spatialSound.playPinchTap();
-  }, []);
+    if (!deployedInRoom) {
+      await enableRoomSensors();
+      setDeployedInRoom(true);
+      setIsFullscreen(true);
+      camStateRef.current = { x: 0, y: -0.1, z: 2.65, yaw: 0, pitch: 0 };
+    } else {
+      setDeployedInRoom(false);
+    }
+  };
 
-  const handleExportPly = useCallback(() => {
-    if (!lastSplatDataRef.current) return;
-    spatialSound.playPinchTap();
-    downloadGaussianPly(
-      lastSplatDataRef.current.positions,
-      lastSplatDataRef.current.colors,
-      lastSplatDataRef.current.scales,
-      lastSplatDataRef.current.opacities,
-      `alqami-sharp-3dgs-${activeSample.id.toLowerCase()}.ply`
-    );
-  }, [activeSample.id]);
-
-  // Artifact object for the companion AirDrop Spatial Portal VFX mode
-  const portalArtifact = useMemo<AlqamiArtifact>(() => {
-    if (activeSample.artifact && !customPhotoUrl) return activeSample.artifact;
-    const fallback = ALQAMI_ARTIFACTS[0];
-    return {
-      ...fallback,
-      id: customPhotoUrl ? 'CUSTOM-MEMORY' : activeSample.id,
-      title: {
-        ar: customPhotoUrl ? 'ذكراك المكانية · صورة مرفوعة' : activeSample.titleAr,
-        en: customPhotoUrl ? 'Your Uploaded Spatial Memory' : activeSample.titleEn,
-      },
-      image: customPhotoUrl || activeSample.image,
-    };
-  }, [activeSample, customPhotoUrl]);
+  // Hold-to-walk helper for touch & mouse buttons
+  const bindWalkHold = (dir: 'f' | 'b' | 'l' | 'r') => ({
+    onPointerDown: (e: React.PointerEvent) => {
+      e.stopPropagation();
+      keysRef.current[dir] = true;
+    },
+    onPointerUp: () => {
+      keysRef.current[dir] = false;
+    },
+    onPointerLeave: () => {
+      keysRef.current[dir] = false;
+    },
+    onPointerCancel: () => {
+      keysRef.current[dir] = false;
+    },
+  });
 
   return (
     <div
       dir={isAr ? 'rtl' : 'ltr'}
-      className="relative w-full h-full overflow-hidden bg-[#06080f] text-white select-none flex flex-col"
+      className={`${
+        isFullscreen ? 'fixed inset-0 z-[150]' : 'relative w-full h-full'
+      } overflow-hidden bg-[#070a10] text-white select-none flex flex-col`}
     >
-      {/* Optional Live Camera Passthrough behind the 3D Gaussian Splat Memory */}
+      {/* Live Physical Room Camera Feed behind the 3D Portal when Deployed in Room */}
       <video
         ref={videoRef}
         playsInline
         muted
         autoPlay
         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-          roomPassthrough ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          deployedInRoom ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       />
 
-      {/* Full-viewport Three.js 3D Gaussian Splatting (ML-SHARP) Canvas */}
+      {/* Full-Viewport Three.js Full-Depth 3D Mesh & Spatial Portal Canvas */}
       <div
         ref={mountRef}
         onPointerDown={(e) => {
@@ -677,10 +652,16 @@ export const WalkIntoMemoryApp: React.FC<WalkIntoMemoryAppProps> = ({ lang = 'ar
           const dy = e.clientY - dragRef.current.y;
           dragRef.current.x = e.clientX;
           dragRef.current.y = e.clientY;
-          lookRef.current = {
-            yaw: THREE.MathUtils.clamp(lookRef.current.yaw - dx * 0.005, -0.85, 0.85),
-            pitch: THREE.MathUtils.clamp(lookRef.current.pitch + dy * 0.004, -0.45, 0.45),
-          };
+          camStateRef.current.yaw = THREE.MathUtils.clamp(
+            camStateRef.current.yaw - dx * 0.0045,
+            -1.05,
+            1.05
+          );
+          camStateRef.current.pitch = THREE.MathUtils.clamp(
+            camStateRef.current.pitch - dy * 0.0038,
+            -0.55,
+            0.55
+          );
         }}
         onPointerUp={() => {
           dragRef.current.active = false;
@@ -691,294 +672,176 @@ export const WalkIntoMemoryApp: React.FC<WalkIntoMemoryAppProps> = ({ lang = 'ar
         className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing touch-none"
       />
 
-      {/* Hidden File Input for Any Single 2D Photo */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleUploadPhoto}
-        className="hidden"
-      />
-
-      {/* Top Spatial Header HUD */}
+      {/* Top HUD: Scene Title + Deploy in Room AR Button */}
       <div className="pointer-events-none relative z-20 p-3 sm:p-4 flex flex-wrap items-start justify-between gap-2">
-        <div className="pointer-events-auto rounded-2xl bg-black/50 backdrop-blur-xl border border-white/20 px-3.5 py-2.5 max-w-md shadow-2xl">
-          <div className="flex items-center gap-2 text-[11px] font-bold text-amber-300">
+        <div className="pointer-events-auto rounded-2xl bg-black/55 backdrop-blur-xl border border-white/20 px-3.5 py-2.5 max-w-md shadow-2xl">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-300">
             <Sparkles className="w-3.5 h-3.5" />
             <span>
-              {t(
-                `ML-SHARP · 3D Gaussian Splatting (${SPLAT_COUNT.toLocaleString()} بقعة غاوسية · ${reconMs}ms)`,
-                `ML-SHARP · 3D Gaussian Splatting (${SPLAT_COUNT.toLocaleString()} splats · ${reconMs}ms)`
-              )}
+              {insidePortal
+                ? t('أنت الآن داخل المشهد ثلاثي الأبعاد الكامل', 'Inside Full-Depth 3D Scene')
+                : deployedInRoom
+                ? t('البوابة منشورة في غرفتك · تقدّم للأمام للدخول', 'Portal Deployed in Room · Walk Forward to Enter')
+                : t('مشهد ثلاثي الأبعاد كامل العمق · Full 3D Mesh', 'Full-Depth 3D Volumetric Mesh')}
             </span>
           </div>
-          <h2 className="text-sm sm:text-base font-bold text-white truncate mt-0.5">
-            {customPhotoUrl
-              ? t('صورة ذاكرتك الشخصية (3DGS)', 'Your Personal Photo Memory (3DGS)')
-              : t(activeSample.titleAr, activeSample.titleEn)}
+          <h2 className="text-sm sm:text-base font-bold text-white mt-0.5">
+            {t(activeScene.titleAr, activeScene.titleEn)}
           </h2>
-          <p className="text-[11px] text-white/70 flex items-center gap-1 mt-0.5">
+          <p className="text-[11px] text-white/75 flex items-center gap-1 mt-0.5">
             <Compass className="w-3 h-3 text-amber-300/80 shrink-0" />
-            <span>
-              {t(
-                'اسحب للنظر بتأثير العمق، أو اسحب الصورة إلى غرفتك وامشِ داخلها',
-                'Drag for real-time 3DGS parallax, or pinch out into your room & walk in'
-              )}
-            </span>
+            <span>{t(activeScene.subtitleAr, activeScene.subtitleEn)}</span>
           </p>
         </div>
 
-        {/* Top Action Pills */}
-        <div className="pointer-events-auto flex flex-wrap items-center gap-1.5">
+        <div className="pointer-events-auto flex items-center gap-2">
           <button
             type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="h-9 px-3.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 backdrop-blur-xl text-xs font-bold flex items-center gap-1.5 shadow-lg transition cursor-pointer"
-          >
-            <Upload className="w-3.5 h-3.5 text-amber-300" />
-            <span>{t('ارفع أي صورة 2D', 'Upload Photo')}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              spatialSound.playPinchTap();
-              setPortalOpen(true);
-            }}
-            className="h-9 px-3.5 rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 hover:brightness-110 text-black text-xs font-bold flex items-center gap-1.5 shadow-lg transition cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{t('بوابة AirDrop · تفكيك الجسيمات', 'AirDrop Portal VFX')}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleExportPly}
-            className="h-9 px-3 rounded-full bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/45 text-emerald-200 text-xs font-bold flex items-center gap-1.5 backdrop-blur-xl transition cursor-pointer"
-            title={t('تصدير ملف 3DGS .PLY المتوافق مع MetalSplatter', 'Export 3DGS .PLY file for MetalSplatter / SuperSplat')}
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>.PLY</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowTechInfo((v) => !v)}
-            className={`h-9 w-9 rounded-full border backdrop-blur-xl flex items-center justify-center transition cursor-pointer ${
-              showTechInfo
-                ? 'bg-amber-400 text-black border-amber-300'
-                : 'bg-black/45 hover:bg-white/20 text-white border-white/20'
+            onClick={handleToggleDeployInRoom}
+            className={`h-10 px-4 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xl transition cursor-pointer ${
+              deployedInRoom
+                ? 'bg-emerald-400 text-black'
+                : 'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-black hover:brightness-110'
             }`}
-            title={t('البنية التقنية (ML-SHARP + 3DGS + AirDrop Portal)', 'Tech Stack Breakdown')}
           >
-            <Info className="w-4 h-4" />
+            {deployedInRoom ? <CameraOff className="w-4 h-4" /> : <Camera className="w-4 h-4" />}
+            <span>
+              {deployedInRoom
+                ? t('إيقاف كاميرا الغرفة', 'Exit Room AR')
+                : t('نشر البوابة في غرفتك AR', 'Deploy in Room AR')}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsFullscreen((v) => !v)}
+            className="h-10 w-10 rounded-full bg-black/55 hover:bg-white/20 border border-white/25 backdrop-blur-xl flex items-center justify-center transition cursor-pointer"
+            title={isFullscreen ? t('تصغير', 'Exit Fullscreen') : t('ملء الشاشة', 'Fullscreen')}
+          >
+            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Expand className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      {/* Optional Tech Stack Drawer */}
-      {showTechInfo && (
-        <div className="pointer-events-auto relative z-20 mx-3 sm:mx-4 max-w-xl rounded-2xl bg-black/75 backdrop-blur-2xl border border-amber-300/30 p-3.5 text-xs space-y-2 shadow-2xl">
-          <div className="font-bold text-amber-300 flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5" />
-            <span>{t('التقنيات المدمجة في تطبيق «ادخل الذاكرة»', 'Walk Into Memory · Full Spatial VFX Pipeline')}</span>
-          </div>
-          <ul className="space-y-1 text-white/85 leading-relaxed">
-            <li>
-              <strong className="text-white">1. ML-SHARP + 3D Gaussian Splatting (3DGS):</strong>{' '}
-              {t(
-                'تحويل أي صورة 2D واحدة فورياً على الجهاز إلى آلاف البقع الغاوسية ثلاثية الأبعاد مع عمق حقيقي وتصدير .PLY.',
-                'Single-image feedforward depth estimation generating tens of thousands of oriented 3D Gaussian splats in real time with .PLY export.'
-              )}
-            </li>
-            <li>
-              <strong className="text-white">2. Pinch-Out & Room Passthrough:</strong>{' '}
-              {t(
-                'اسحب الصورة من الشاشة إلى فضاء غرفتك مع دمج الكاميرا الحية لتطفو الذاكرة في محيطك الحقيقي.',
-                'Pull the 2D photo out into room-scale volumetric space and blend it over your real room via live camera passthrough.'
-              )}
-            </li>
-            <li>
-              <strong className="text-white">3. AirDrop Particle Dissolve + Instanced 3D Rocks:</strong>{' '}
-              {t(
-                'بوابة مكانية متوهجة تفكك بكسلات الصورة إلى جسيمات دوّامة وتدخلك إلى قاعة ثلاثية الأبعاد بصخور مكررة ومجسم TripoSR.',
-                'Swirling photo-pixel particle dissolve opening a glowing room-scale portal into an instanced-rock 3D sanctuary.'
-              )}
-            </li>
-          </ul>
+      {cameraError && (
+        <div className="pointer-events-none relative z-20 mx-auto px-3.5 py-1.5 rounded-full bg-black/65 border border-amber-300/30 text-[11px] text-amber-200">
+          {cameraError}
         </div>
       )}
 
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Bottom Interactive Spatial Dock */}
-      <div className="pointer-events-none relative z-20 p-3 sm:p-4 flex flex-col items-center gap-2">
-        {/* Museum Photo Strip Selector */}
-        <div className="pointer-events-auto w-full max-w-3xl flex items-center gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none]">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="shrink-0 h-9 px-3 rounded-full bg-amber-400/20 hover:bg-amber-400/35 border border-amber-300/45 text-amber-200 text-[11px] font-bold flex items-center gap-1.5 backdrop-blur-xl cursor-pointer"
-          >
-            <ImagePlus className="w-3.5 h-3.5" />
-            <span>{t('صورتك', 'Your Photo')}</span>
-          </button>
-          {museumSamples.map((s) => {
-            const selected = !customPhotoUrl && activeSample.id === s.id;
+      {/* On-Screen Walk D-Pad (Right/Bottom) + 3 Shrine Scenes Switcher */}
+      <div className="pointer-events-none relative z-20 p-3 sm:p-4 flex flex-col items-center gap-2.5">
+        {/* ONLY the 3 Uploaded Al-Abbas Holy Shrine Scenes */}
+        <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2">
+          {SHRINE_SCENES.map((sc, idx) => {
+            const active = idx === activeSceneIdx;
             return (
               <button
-                key={s.id}
+                key={sc.id}
                 type="button"
                 onClick={() => {
                   spatialSound.playPinchTap();
-                  setCustomPhotoUrl(null);
-                  setActiveSample(s);
+                  setActiveSceneIdx(idx);
                 }}
-                className={`shrink-0 h-9 pl-2.5 pr-1.5 rounded-full border backdrop-blur-xl text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer ${
-                  selected
-                    ? 'bg-amber-400 text-black border-amber-300 font-bold shadow'
-                    : 'bg-black/55 hover:bg-white/20 text-white border-white/20'
+                className={`h-11 pl-3.5 pr-1.5 rounded-full border backdrop-blur-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer shadow-lg ${
+                  active
+                    ? 'bg-amber-400 text-black border-amber-300 scale-[1.03]'
+                    : 'bg-black/60 hover:bg-white/20 text-white border-white/20'
                 }`}
               >
                 <img
-                  src={assetUrl(s.image)}
+                  src={assetUrl(sc.image)}
                   alt=""
-                  className="w-6 h-6 rounded-full object-cover"
+                  className="w-8 h-8 rounded-full object-cover border border-white/30"
                 />
-                <span className="max-w-[130px] truncate">
-                  {t(s.titleAr, s.titleEn).replace(/\s*\(متحف.*$/, '')}
-                </span>
+                <span>{t(sc.titleAr, sc.titleEn)}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Main Walk-In & 3DGS Controls Panel */}
-        <div className="pointer-events-auto w-full max-w-3xl rounded-[24px] bg-black/60 backdrop-blur-2xl border border-white/20 px-4 py-3 shadow-[0_20px_60px_rgba(0,0,0,0.7)] space-y-2.5">
-          {/* Primary Row: Pinch Out + Walk-In Slider + Room Passthrough */}
-          <div className="flex flex-wrap items-center gap-2.5">
+        {/* Walk-In Controls Bar */}
+        <div className="pointer-events-auto w-full max-w-2xl rounded-[24px] bg-black/65 backdrop-blur-2xl border border-white/20 px-4 py-3 shadow-[0_20px_60px_rgba(0,0,0,0.75)] flex flex-wrap items-center gap-3">
+          {/* Hold-to-Walk Buttons (Forward / Back / Left / Right) */}
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
-              onClick={() => {
-                spatialSound.playPinchTap();
-                setPulledOut((v) => !v);
-              }}
-              className={`h-9 px-3.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shrink-0 ${
-                pulledOut
-                  ? 'bg-amber-400 text-black shadow-md'
-                  : 'bg-white/15 hover:bg-white/25 text-white border border-white/20'
-              }`}
+              {...bindWalkHold('f')}
+              className="h-9 px-3 rounded-full bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs flex items-center gap-1 shadow active:scale-95 cursor-pointer"
             >
-              <Hand className="w-3.5 h-3.5" />
-              <span>
-                {pulledOut
-                  ? t('ممتد في الغرفة (3DGS)', 'Pulled Into Room (3DGS)')
-                  : t('اسحب الصورة للفضاء', 'Pinch Out Into Room')}
-              </span>
+              <ArrowUp className="w-3.5 h-3.5" />
+              <span>{t('ادخل للأمام', 'Walk In')}</span>
             </button>
-
-            <div className="flex-1 min-w-[180px] flex items-center gap-2">
-              <Footprints className="w-4 h-4 text-amber-300 shrink-0" />
-              <span className="text-[11px] font-semibold text-white/80 shrink-0">
-                {t('المشي للداخل', 'Walk In')}
-              </span>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={walkDepth}
-                onChange={(e) => setWalkDepth(Number(e.target.value))}
-                className="flex-1 accent-amber-400 h-1.5 bg-white/20 rounded-lg cursor-pointer"
-              />
-              <span className="text-[11px] font-mono text-white/75 w-8 text-end">{walkDepth}%</span>
-            </div>
-
             <button
               type="button"
-              onClick={() => {
-                spatialSound.playPinchTap();
-                setRoomPassthrough((v) => !v);
-              }}
-              className={`h-9 px-3 rounded-full text-xs font-semibold flex items-center gap-1.5 border transition cursor-pointer shrink-0 ${
-                roomPassthrough
-                  ? 'bg-cyan-400 text-black border-cyan-300 font-bold'
-                  : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
-              }`}
+              {...bindWalkHold('b')}
+              className="h-9 px-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-semibold flex items-center gap-1 active:scale-95 cursor-pointer"
+              title={t('رجوع للخلف', 'Walk Back')}
             >
-              {roomPassthrough ? <CameraOff className="w-3.5 h-3.5" /> : <Camera className="w-3.5 h-3.5 text-cyan-300" />}
-              <span>{t('كاميرا الغرفة', 'Room AR')}</span>
+              <ArrowDown className="w-3.5 h-3.5" />
             </button>
-
             <button
               type="button"
-              onClick={() => setControlsOpen((v) => !v)}
-              className="h-9 w-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center transition cursor-pointer"
-              title={t('ضبط عمق وحجم البقع الغاوسية', 'Tune SHARP Depth & Splat Size')}
+              {...bindWalkHold('l')}
+              className="h-9 w-9 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center active:scale-95 cursor-pointer"
+              title={t('يسار', 'Strafe Left')}
             >
-              <Sliders className="w-3.5 h-3.5 text-white/90" />
+              <ArrowLeft className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              {...bindWalkHold('r')}
+              className="h-9 w-9 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center active:scale-95 cursor-pointer"
+              title={t('يمين', 'Strafe Right')}
+            >
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* Secondary Row: SHARP Depth Strength + Gaussian Splat Size + Recenter */}
-          {controlsOpen && (
-            <div className="flex flex-wrap items-center gap-3 pt-1.5 border-t border-white/10 text-[11px]">
-              <div className="flex-1 min-w-[160px] flex items-center gap-2">
-                <span className="text-white/70 shrink-0">{t('عمق SHARP', 'SHARP Depth')}</span>
-                <input
-                  type="range"
-                  min={30}
-                  max={180}
-                  value={Math.round(depthStrength * 100)}
-                  onChange={(e) => setDepthStrength(Number(e.target.value) / 100)}
-                  className="flex-1 accent-cyan-400 h-1 bg-white/20 rounded-lg cursor-pointer"
-                />
-                <span className="font-mono text-white/75 w-9 text-end">{depthStrength.toFixed(1)}x</span>
-              </div>
+          {/* Walk Depth Slider */}
+          <div className="flex-1 min-w-[160px] flex items-center gap-2">
+            <Footprints className="w-4 h-4 text-amber-300 shrink-0" />
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={walkPct}
+              onChange={(e) => handleWalkSlider(Number(e.target.value))}
+              aria-label={t('التقدم داخل المشهد', 'Walk Into 3D Scene')}
+              className="flex-1 accent-amber-400 h-1.5 bg-white/20 rounded-lg cursor-pointer"
+            />
+            <span className="text-xs font-mono text-white/80 w-9 text-end">{walkPct}%</span>
+          </div>
 
-              <div className="flex-1 min-w-[160px] flex items-center gap-2">
-                <span className="text-white/70 shrink-0">{t('حجم البقع 3DGS', 'Splat Size')}</span>
-                <input
-                  type="range"
-                  min={60}
-                  max={200}
-                  value={Math.round(splatSize * 100)}
-                  onChange={(e) => setSplatSize(Number(e.target.value) / 100)}
-                  className="flex-1 accent-emerald-400 h-1 bg-white/20 rounded-lg cursor-pointer"
-                />
-                <span className="font-mono text-white/75 w-9 text-end">{splatSize.toFixed(1)}x</span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  lookRef.current = { yaw: 0, pitch: 0 };
-                  setWalkDepth(36);
-                  setDepthStrength(1.0);
-                  setSplatSize(1.15);
-                  setPulledOut(true);
-                }}
-                className="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white/85 flex items-center gap-1 cursor-pointer"
-              >
-                <RotateCcw className="w-3 h-3" />
-                <span>{t('إعادة ضبط', 'Reset')}</span>
-              </button>
-            </div>
-          )}
+          {/* 3D Depth Strength + Reset */}
+          <div className="flex items-center gap-2 shrink-0 text-[11px]">
+            <span className="text-white/70">{t('العمق 3D', '3D Depth')}</span>
+            <input
+              type="range"
+              min={4}
+              max={13}
+              step={0.5}
+              value={depthMeters}
+              onChange={(e) => setDepthMeters(Number(e.target.value))}
+              className="w-16 accent-cyan-400 h-1 bg-white/20 rounded-lg cursor-pointer"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                camStateRef.current = { x: 0, y: -0.1, z: 2.35, yaw: 0, pitch: 0 };
+                setWalkPct(18);
+              }}
+              className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer"
+              title={t('إعادة ضبط الموقع', 'Reset Position')}
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
-
-      {/* Companion AirDrop Particle-Dissolve Room-Scale Spatial Portal Mode */}
-      {portalOpen && (
-        <Suspense fallback={null}>
-          <SpatialPortalVFX
-            open={portalOpen}
-            onClose={() => setPortalOpen(false)}
-            artifact={portalArtifact}
-            lang={lang}
-          />
-        </Suspense>
-      )}
     </div>
   );
 };
