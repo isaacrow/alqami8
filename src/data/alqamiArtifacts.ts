@@ -874,5 +874,56 @@ export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
       },
     },
   },
+  {
+    id: 'ALQ-SHR-014',
+    slug: 'shrine-interior-zarih-full',
+    title: {
+      ar: 'الروضة المباركة والضريح المقدس (مشهد معماري 3D كامل)',
+      en: 'Sacred Sanctuary & Zarih Interior (Full 3D Architecture)',
+    },
+    subtitle: {
+      ar: 'العتبة العباسية المقدسة • كربلاء المقدسة (مجسّم معماري ثلاثي الأبعاد)',
+      en: 'Al-Abbas Holy Shrine • Karbala (Full 3D Architectural Reconstruction)',
+    },
+    category: 'museum',
+    categoryLabel: {
+      ar: 'العمارة المقدسة 3D',
+      en: 'Sacred Architecture 3D',
+    },
+    period: {
+      ar: '2026 م • توثيق معماري ثلاثي الأبعاد',
+      en: '2026 CE • 3D Architectural Capture',
+    },
+    creator: {
+      ar: 'العتبة العباسية المقدسة • استوديو علقمي المكاني',
+      en: 'Al-Abbas Holy Shrine • Alqami Spatial Studio',
+    },
+    institution: {
+      ar: 'العتبة العباسية المقدسة، كربلاء المقدسة',
+      en: 'Al-Abbas Holy Shrine, Karbala',
+    },
+    itemCode: 'ALQ-SHR-014',
+    uri: 'https://alqami.net/artifact/shrine-interior-zarih-full',
+    image: '/images/shrine-interior-zarih-full.jpg',
+    model: {
+      glb: '/models/shrine_interior_zarih_full.glb',
+      scale: 1.0,
+    },
+    description: {
+      ar: 'مجسّم معماري ثلاثي الأبعاد كامل للروضة العباسية المباركة والضريح الشريف، يوثق الجدران الرخامية الخضراء والأفاريز الخطية الزرقاء والثريا الكريستالية والشبّاك الذهبي المذهب بدقة عالية.',
+      en: 'Full 3D architectural reconstruction of the Sacred Sanctuary interior and golden Zarih of the Al-Abbas Holy Shrine in Karbala, capturing the green marble walls, calligraphic friezes, crystal chandelier, and gilded shrine enclosure.',
+    },
+    details: {
+      dimensions: 'مجسّم معماري كامل للروضة المباركة (10 أجزاء هندسية)',
+      material: {
+        ar: 'رخام أخضر، ذهب وفضة، مرايا معشّقة، قاشاني كربلائي',
+        en: 'Green marble, gilded gold & silver zarih, mirrorwork, Karbala tilework',
+      },
+      condition: {
+        ar: 'توثيق رقمي ثلاثي الأبعاد عالي الدقة (39.2 MB GLB)',
+        en: 'High-resolution 3D architectural digitization (39.2 MB GLB)',
+      },
+    },
+  },
 ];
 

@@ -24,6 +24,7 @@ import {
   ScanLine,
   Trash2,
   RotateCcw,
+  ArrowUpDown,
 } from 'lucide-react';
 import { activePhone } from '../../remoteCam/phoneCamera';
 import QRCode from 'qrcode';
@@ -139,6 +140,23 @@ interface AlqamiSpatialAppProps {
   onNavChange?: (nav: 'grid' | 'search' | 'user' | 'favorites' | 'cart') => void;
 }
 
+/** Parse historical year (BCE negative, CE positive, Hijri converted to CE) for Oldest -> Newest sorting. */
+function extractChronologicalYear(a: AlqamiArtifact, idx: number): number {
+  const txt = `${a.period?.en || ''} ${a.period?.ar || ''} ${a.subtitle?.en || ''} ${a.title?.en || ''}`;
+  const bce = /(\d{2,4})\s*(?:BCE|BC|ق\.?\s*م)/i.exec(txt);
+  if (bce) return -parseInt(bce[1], 10);
+  const ce = /(\d{3,4})\s*(?:CE|AD|م)/i.exec(txt);
+  if (ce) return parseInt(ce[1], 10);
+  const ah = /(\d{3,4})\s*(?:AH|هـ)/i.exec(txt);
+  if (ah) return Math.round(parseInt(ah[1], 10) * 0.9702 + 622);
+  const cent = /(\d{1,2})(?:st|nd|rd|th)\s*century/i.exec(txt);
+  if (cent) return (parseInt(cent[1], 10) - 1) * 100 + 50;
+  const plainYear = /(1[0-9]{3}|20[0-2][0-9])/.exec(txt);
+  if (plainYear) return parseInt(plainYear[1], 10);
+  if (/contemporary|modern|الحديث/i.test(txt)) return 2025;
+  return 1850 + idx * 0.001;
+}
+
 export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   onPreviewInSpace,
   lang: propLang = 'ar',
@@ -213,6 +231,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   const [favoriteToast, setFavoriteToast] = useState<string | null>(null);
   const [deletedMap, setDeletedMap] = useState<Record<string, boolean>>(() => getInitialDeletedMap());
   const [deletedToast, setDeletedToast] = useState<{ id: string; title: string } | null>(null);
+  const [sortOrder, setSortOrder] = useState<'oldest' | 'newest'>('oldest');
   useEffect(() => {
     let active = true;
     hydrateDeletedItems().then((synced) => {
@@ -498,13 +517,17 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
   const isFavoritesMode = activeNav === 'favorites';
   useEffect(() => setShownCount(24), [filteredArtifacts.length, isFavoritesMode]);
-  const displayedArtifacts = filteredArtifacts.filter((a) => {
-    if (deletedMap[a.id]) return false;
-    if (isFavoritesMode) {
-      return !!liked[a.id];
-    }
-    return true;
-  });
+  const displayedArtifacts = filteredArtifacts
+    .filter((a) => {
+      if (deletedMap[a.id]) return false;
+      if (isFavoritesMode) {
+        return !!liked[a.id];
+      }
+      return true;
+    })
+    .map((a, idx) => ({ a, yr: extractChronologicalYear(a, idx), idx }))
+    .sort((x, y) => (sortOrder === 'oldest' ? x.yr - y.yr : y.yr - x.yr))
+    .map((x) => x.a);
 
   const deletedCount = Object.keys(deletedMap).filter((k) => deletedMap[k]).length;
 
@@ -884,6 +907,26 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
               {/* Header Action Buttons: Live 3D Toggle AND 3D Popout Inspect side-by-side (Matching Image 1 in red circle) */}
               <div className="flex items-center gap-2">
+                {/* Sort Order Toggle: Oldest -> Newest (default) / Newest -> Oldest */}
+                <button
+                  onClick={() => {
+                    spatialSound.playPinchTap();
+                    setSortOrder((prev) => (prev === 'oldest' ? 'newest' : 'oldest'));
+                  }}
+                  className="h-9 px-3 rounded-full bg-white/20 hover:bg-white/35 border border-white/25 text-white text-[11.5px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+                  title={isAr ? 'تبديل الترتيب الزمني (الأقدم إلى الأحدث / الأحدث إلى الأقدم)' : 'Toggle chronological sort (Oldest to Newest / Newest to Oldest)'}
+                >
+                  <ArrowUpDown className="w-3.5 h-3.5 text-amber-300" />
+                  <span>
+                    {sortOrder === 'oldest'
+                      ? isAr
+                        ? 'الأقدم ← الأحدث'
+                        : 'Oldest → Newest'
+                      : isAr
+                      ? 'الأحدث ← الأقدم'
+                      : 'Newest → Oldest'}
+                  </span>
+                </button>
                 {/* Search button (phone + desktop) */}
                 <button
                   onClick={() => {
