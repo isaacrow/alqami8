@@ -22,6 +22,8 @@ import {
   Copy,
   Smartphone,
   ScanLine,
+  Trash2,
+  RotateCcw,
 } from 'lucide-react';
 import { activePhone } from '../../remoteCam/phoneCamera';
 import QRCode from 'qrcode';
@@ -34,6 +36,7 @@ import { ScannerLoading } from '../scan/ScannerLoading';
 const AlqamiARKitObjectScanner = lazy(() => import('./AlqamiARKitObjectScanner').then((m) => ({ default: m.AlqamiARKitObjectScanner })));
 import { spatialSound } from '../../utils/spatialSound';
 import { getInitialFavoritesMap, hydrateFavorites, saveFavoritesMap, subscribeFavorites } from '../../utils/favoritesStore';
+import { getInitialDeletedMap, hydrateDeletedItems, saveDeletedMap, subscribeDeletedItems } from '../../utils/deletedItemsStore';
 import { assetUrl } from '../../utils/assetUrl';
 import { MoonRecordPanel } from '../moon/MoonRecordCard';
 import { MoonRecordSheet, MoonShelf } from '../moon/MoonCatalogue';
@@ -208,6 +211,21 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   const [quantity, setQuantity] = useState(1);
   const [liked, setLiked] = useState<Record<string, boolean>>(() => getInitialFavoritesMap());
   const [favoriteToast, setFavoriteToast] = useState<string | null>(null);
+  const [deletedMap, setDeletedMap] = useState<Record<string, boolean>>(() => getInitialDeletedMap());
+  const [deletedToast, setDeletedToast] = useState<{ id: string; title: string } | null>(null);
+  useEffect(() => {
+    let active = true;
+    hydrateDeletedItems().then((synced) => {
+      if (active) setDeletedMap(synced);
+    });
+    const unsub = subscribeDeletedItems((next) => {
+      if (active) setDeletedMap(next);
+    });
+    return () => {
+      active = false;
+      unsub();
+    };
+  }, []);
   useEffect(() => {
     let active = true;
     hydrateFavorites().then((synced) => {
@@ -481,11 +499,53 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   const isFavoritesMode = activeNav === 'favorites';
   useEffect(() => setShownCount(24), [filteredArtifacts.length, isFavoritesMode]);
   const displayedArtifacts = filteredArtifacts.filter((a) => {
+    if (deletedMap[a.id]) return false;
     if (isFavoritesMode) {
       return !!liked[a.id];
     }
     return true;
   });
+
+  const deletedCount = Object.keys(deletedMap).filter((k) => deletedMap[k]).length;
+
+  const handleDeleteItem = (prod: AlqamiArtifact, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    spatialSound.playPinchTap();
+    setDeletedMap((prev) => {
+      const next = { ...prev, [prod.id]: true };
+      saveDeletedMap(next);
+      return next;
+    });
+    setLiked((prev) => {
+      if (!prev[prod.id]) return prev;
+      const next = { ...prev };
+      delete next[prod.id];
+      saveFavoritesMap(next);
+      return next;
+    });
+    setDeletedToast({ id: prod.id, title: isAr ? prod.title.ar : prod.title.en });
+    if (view === 'detail' && currentArtifact.id === prod.id) {
+      transitionToView('catalog');
+    }
+  };
+
+  const handleUndoDelete = (id: string) => {
+    spatialSound.playPinchTap();
+    setDeletedMap((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      saveDeletedMap(next);
+      return next;
+    });
+    setDeletedToast(null);
+  };
+
+  const handleRestoreAllDeleted = () => {
+    spatialSound.playPinchTap();
+    setDeletedMap({});
+    saveDeletedMap({});
+    setDeletedToast(null);
+  };
 
   const toggleLike = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -527,6 +587,29 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
       {/* Dissolve Transition for AR placement */}
       {isDissolvingForAR && (
         <div aria-hidden="true" className="absolute inset-0 z-50 rounded-[38px] ikea-ar-dissolve pointer-events-none" />
+      )}
+
+      {/* Deleted Item Undo Toast */}
+      {deletedToast && (
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-4 py-2 rounded-full vision-glass border border-red-400/50 bg-black/85 text-white text-xs font-semibold shadow-2xl pointer-events-auto">
+          <Trash2 className="h-3.5 w-3.5 text-red-400 shrink-0" />
+          <span className="max-w-[200px] truncate">
+            {isAr ? `تم حذف: ${deletedToast.title}` : `Deleted: ${deletedToast.title}`}
+          </span>
+          <button
+            onClick={() => handleUndoDelete(deletedToast.id)}
+            className="px-2.5 py-0.5 rounded-full bg-amber-400 hover:bg-amber-300 text-black font-bold text-[11px] cursor-pointer transition"
+          >
+            {isAr ? 'تراجع' : 'Undo'}
+          </button>
+          <button
+            onClick={() => setDeletedToast(null)}
+            className="text-white/60 hover:text-white cursor-pointer"
+            aria-label="Dismiss"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
       )}
 
       {/* Favorite Saved / Removed Toast Notification */}
@@ -787,6 +870,16 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                     <span>{isAr ? 'كافة المقتنيات' : 'All Artifacts'}</span>
                   </button>
                 )}
+                {deletedCount > 0 && (
+                  <button
+                    onClick={handleRestoreAllDeleted}
+                    className="text-xs px-3 py-1 rounded-full bg-red-500/20 hover:bg-red-500/35 text-red-200 flex items-center gap-1.5 transition cursor-pointer border border-red-400/35 active:scale-95"
+                    title={isAr ? 'استعادة كافة القطع المحذوفة' : 'Restore all deleted items'}
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>{isAr ? `استعادة المحذوف (${deletedCount})` : `Restore (${deletedCount})`}</span>
+                  </button>
+                )}
               </div>
 
               {/* Header Action Buttons: Live 3D Toggle AND 3D Popout Inspect side-by-side (Matching Image 1 in red circle) */}
@@ -961,6 +1054,14 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
                       {/* Action buttons styled as circular frosted glass buttons (exact style of Image 5) */}
                       <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={(e) => handleDeleteItem(prod, e)}
+                          className="w-8 h-8 rounded-full bg-white/15 hover:bg-red-500/85 active:scale-95 border border-white/20 hover:border-red-300 flex items-center justify-center text-white/85 hover:text-white shadow-md transition-all cursor-pointer"
+                          title={isAr ? 'حذف القطعة' : 'Delete item'}
+                          aria-label={isAr ? 'حذف القطعة' : 'Delete item'}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                         <button
                           onClick={(e) => toggleLike(prod.id, e)}
                           className={`w-8 h-8 rounded-full border border-white/25 flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md ${

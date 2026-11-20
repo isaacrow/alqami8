@@ -123,7 +123,23 @@ export default {
     try {
       if (pathname === '/token' && request.method === 'GET') return json(await liveToken(env), 200, headers);
       if (pathname === '/ask' && request.method === 'POST') return json(await ask(env, await request.json()), 200, headers);
-      if (pathname === '/favorites') {
+      if (pathname === '/favorites' || pathname === '/deleted') {
+        const prefix = pathname === '/deleted' ? 'del' : 'fav';
+        const userKey = `${prefix}:${(urlObj.searchParams.get('user') || 'isaac-owner').replace(/[^a-zA-Z0-9_-]/g, '')}`;
+        if (request.method === 'GET') {
+          const raw = env.FAVORITES_KV ? await env.FAVORITES_KV.get(userKey) : null;
+          const data = raw ? JSON.parse(raw) : { ids: [], updatedAt: 0 };
+          return json(data, 200, headers);
+        }
+        if (request.method === 'PUT') {
+          const body = await request.json();
+          const ids = Array.isArray(body?.ids) ? body.ids.filter((x) => typeof x === 'string').slice(0, 500) : [];
+          const payload = { ids, updatedAt: Number(body?.updatedAt) || Date.now() };
+          if (env.FAVORITES_KV) await env.FAVORITES_KV.put(userKey, JSON.stringify(payload));
+          return json(payload, 200, headers);
+        }
+      }
+      if (false) {
         const userKey = `fav:${(urlObj.searchParams.get('user') || 'isaac-owner').replace(/[^a-zA-Z0-9_-]/g, '')}`;
         if (request.method === 'GET') {
           const raw = env.FAVORITES_KV ? await env.FAVORITES_KV.get(userKey) : null;

@@ -151,6 +151,11 @@ export const ControlCenter3Panel: React.FC<ControlCenter3PanelProps> = ({
       subtitle: 'WebGL Wave Shader',
       bg: 'linear-gradient(180deg, #1e0038 0%, #002244 55%, #000000 100%)',
     },
+    'solid-black': {
+      name: 'Solid Black',
+      subtitle: 'Pure Black #000',
+      bg: '#000000',
+    },
   };
 
   return (
@@ -459,6 +464,7 @@ export const ControlCenter3Panel: React.FC<ControlCenter3PanelProps> = ({
                   'sunset-clouds',
                   'wood-studio',
                   'cafe-lounge',
+                  'solid-black',
                 ];
                 const nextEnv = order[(order.indexOf(currentEnv) + 1) % order.length];
                 onSelectEnv(nextEnv);

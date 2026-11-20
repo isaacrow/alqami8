@@ -971,6 +971,9 @@ export function App() {
               </Suspense>
             </div>
           )}
+          {currentEnv === 'solid-black' && (
+            <div data-room-bg="true" className="w-full h-full bg-black" />
+          )}
 
           {/* Immersion Dimming Scrim controlled by Control Center Immersion Slider */}
           <div
@@ -1213,6 +1216,7 @@ export function App() {
             'sunset-clouds',
             'wood-studio',
             'cafe-lounge',
+            'solid-black',
           ];
           setCurrentEnv(order[(order.indexOf(currentEnv) + 1) % order.length]);
         }}
