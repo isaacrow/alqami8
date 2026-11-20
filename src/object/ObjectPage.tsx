@@ -89,7 +89,11 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
     });
   };
   const flat = view === 'page';
-  const effectiveGlb = a.model.glb;
+  const [modelLayerView, setModelLayerView] = useState<'original' | 'multilayer'>('original');
+  const effectiveGlb =
+    modelLayerView === 'multilayer' && a.model.glb.includes('/models/alkafeel/')
+      ? a.model.glb.replace('/models/alkafeel/', '/models/alkafeel-pro/').split('?')[0] + '?v=ml1'
+      : a.model.glb;
   useEffect(() => {
     if (!flat) {
       void loadModelViewer().catch(() => undefined);
@@ -154,6 +158,26 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
           <PageWithPins a={a} lang={lang} open={openPin} onOpen={setOpenPin} />
         ) : (
           <div className="relative h-[52vh] min-h-[320px] bg-gradient-to-b from-[#1b1714] to-[#0c0a09]">
+            {a.model.glb.includes('/models/alkafeel/') && (
+              <div className="absolute top-3 left-3 z-20 flex items-center gap-1 p-1 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-[11px] font-semibold">
+                <button
+                  onClick={() => setModelLayerView('original')}
+                  className={`px-2.5 py-1 rounded-full transition ${
+                    modelLayerView === 'original' ? 'bg-white text-black font-bold' : 'text-white/80'
+                  }`}
+                >
+                  {t('العرض الأصلي', 'Original')}
+                </button>
+                <button
+                  onClick={() => setModelLayerView('multilayer')}
+                  className={`px-2.5 py-1 rounded-full transition ${
+                    modelLayerView === 'multilayer' ? 'bg-amber-400 text-black font-bold' : 'text-white/80'
+                  }`}
+                >
+                  {t('متعدد الطبقات PBR', 'Multi-Layer PBR')}
+                </button>
+              </div>
+            )}
             {React.createElement(
               'model-viewer',
               {

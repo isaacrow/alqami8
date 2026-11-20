@@ -231,6 +231,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   const [deletedMap, setDeletedMap] = useState<Record<string, boolean>>(() => getInitialDeletedMap());
   const [deletedToast, setDeletedToast] = useState<{ id: string; title: string } | null>(null);
   const [sortOrder, setSortOrder] = useState<'oldest' | 'newest'>('oldest');
+  const [modelLayerView, setModelLayerView] = useState<'original' | 'multilayer'>('original');
   useEffect(() => {
     let active = true;
     hydrateDeletedItems().then((synced) => {
@@ -1321,7 +1322,45 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
               className="flex-1 w-full relative flex items-center justify-center rounded-2xl"
             >
               {!isPopOut3D && (
-                <AlqamiArtifact3DCanvas glbUrl={currentArtifact.model.glb} mode="embedded" autoRotate={true} />
+                <>
+                  <AlqamiArtifact3DCanvas
+                    glbUrl={
+                      modelLayerView === 'multilayer' && currentArtifact.model.glb.includes('/models/alkafeel/')
+                        ? currentArtifact.model.glb.replace('/models/alkafeel/', '/models/alkafeel-pro/').split('?')[0] + '?v=ml1'
+                        : currentArtifact.model.glb
+                    }
+                    mode="embedded"
+                    autoRotate={true}
+                  />
+                  {currentArtifact.model.glb.includes('/models/alkafeel/') && (
+                    <div className="absolute top-3 left-3 z-20 flex items-center gap-1 p-1 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-[11px] font-semibold shadow-lg">
+                      <button
+                        onClick={() => {
+                          spatialSound.playPinchTap();
+                          setModelLayerView('original');
+                        }}
+                        className={`px-2.5 py-1 rounded-full cursor-pointer transition ${
+                          modelLayerView === 'original' ? 'bg-white text-black font-bold' : 'text-white/80 hover:text-white'
+                        }`}
+                      >
+                        {isAr ? 'العرض الأصلي' : 'Original'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          spatialSound.playPinchTap();
+                          setModelLayerView('multilayer');
+                        }}
+                        className={`px-2.5 py-1 rounded-full cursor-pointer transition ${
+                          modelLayerView === 'multilayer'
+                            ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-black font-bold shadow'
+                            : 'text-white/80 hover:text-white'
+                        }`}
+                      >
+                        {isAr ? 'متعدد الطبقات PBR' : 'Multi-Layer PBR'}
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Curved Orbit Track + 3D Rotate Pop-Out Button Beneath Artifact */}

@@ -103,6 +103,7 @@ export const KafeelScannerApp: React.FC = () => {
   const [envLightRgb, setEnvLightRgb] = useState<[number, number, number]>([255, 248, 238]);
   const [cleanArView, setCleanArView] = useState<boolean>(false);
   const [autoTourActive, setAutoTourActive] = useState<boolean>(false);
+  const [modelLayerView, setModelLayerView] = useState<'original' | 'multilayer'>('original');
   const [cameraReady, setCameraReady] = useState<boolean>(false);
   const [gyroOffset, setGyroOffset] = useState<{ yaw: number; pitch: number }>({ yaw: 0, pitch: 0 });
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
@@ -646,7 +647,11 @@ export const KafeelScannerApp: React.FC = () => {
       {/* 2. PRIMARY FULL-VIEWPORT 3D AUGMENTED REALITY STAGE (Three.js WebGL + Raycasting + Smart Part Focus + WebXR) */}
       <div className="absolute inset-0 z-10">
         <KafeelPrimaryARStage
-          glbUrl={activeArtifact.model.glb}
+          glbUrl={
+            modelLayerView === 'multilayer' && activeArtifact.model.glb.includes('/models/alkafeel/')
+              ? activeArtifact.model.glb.replace('/models/alkafeel/', '/models/alkafeel-pro/').split('?')[0] + '?v=ml1'
+              : activeArtifact.model.glb
+          }
           viewAngleDeg={viewAngle}
           autoRotate={autoRotate3D}
           arScale={arScale}
