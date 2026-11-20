@@ -96,6 +96,9 @@ const Spatial3DStudioApp = lazy(() =>
 const SpatialToolsHubApp = lazy(() =>
   import('./components/apps/SpatialToolsHubApp').then((module) => ({ default: module.SpatialToolsHubApp }))
 );
+const WalkIntoMemoryApp = lazy(() =>
+  import('./components/apps/WalkIntoMemoryApp').then((module) => ({ default: module.WalkIntoMemoryApp }))
+);
 const AlqamiLoginScreen = lazy(() => import('./components/login/AlqamiLoginScreen'));
 import { getMoonSession } from './moon/moonAuth';
 const isTouchPhone = () =>
@@ -292,6 +295,17 @@ const getInitialWindows = (): Record<AppId, WindowState> => {
     width: 1040,
     height: 580,
     zIndex: 36,
+  },
+  'memory-portal': {
+    id: 'memory-portal',
+    title: 'ادخل الذاكرة 3DGS · Walk Into Memory (ML-SHARP & AirDrop Portal)',
+    isOpen: false,
+    x: 0,
+    y: -10,
+    z: 32,
+    width: bigWidth,
+    height: bigHeight,
+    zIndex: 37,
   },
   };
 };
@@ -834,6 +848,7 @@ export function App() {
         {win.id === 'aircanvas' && <SpatialAirCanvasApp />}
         {win.id === 'anchors' && <SpatialWorldAnchorsApp />}
         {win.id === 'studio3d' && <Spatial3DStudioApp />}
+        {win.id === 'memory-portal' && <WalkIntoMemoryApp lang={lang} />}
         {win.id === 'tools-hub' && (
           <SpatialToolsHubApp
             onOpenApp={(id) => openSingleOrFocusApp(id, false)}

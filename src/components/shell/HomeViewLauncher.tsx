@@ -66,6 +66,7 @@ interface HomeAppItem {
 
 const MAIN: HomeAppItem[] = [
   { key: 'heritage', id: 'ikea', ar: 'تراث علقمي', en: 'Alqami Heritage', bg: 'linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%)', Icon: Landmark },
+  { key: 'memory-portal', id: 'memory-portal', ar: 'ادخل الذاكرة 3DGS', en: 'Walk Into Memory', bg: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #7c3aed 100%)', Icon: Sparkles },
   { key: 'museum-lens', href: './museum-lens.html', ar: 'عدسة المتحف', en: 'Museum Lens', bg: 'rgba(255, 255, 255, 0.35)', Icon: Aperture },
   { key: 'scanner', id: 'object-tracking', ar: 'الماسح', en: 'Scanner', bg: 'linear-gradient(180deg, #ffd60a 0%, #f59e0b 100%)', Icon: ScanLine },
   { key: 'kafeel-scan', href: './kafeel-scan.html', ar: 'ماسح الأجزاء', en: 'Spatial Part Scanner', bg: 'linear-gradient(135deg, #10b981 0%, #047857 55%, #d97706 100%)', Icon: Crosshair },
