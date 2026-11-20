@@ -103,7 +103,7 @@ export const KafeelScannerApp: React.FC = () => {
   const [envLightRgb, setEnvLightRgb] = useState<[number, number, number]>([255, 248, 238]);
   const [cleanArView, setCleanArView] = useState<boolean>(false);
   const [autoTourActive, setAutoTourActive] = useState<boolean>(false);
-  const [modelLayerView, setModelLayerView] = useState<'original' | 'multilayer'>('original');
+  const [modelLayerView, setModelLayerView] = useState<'original' | 'multilayer'>('multilayer');
   const [cameraReady, setCameraReady] = useState<boolean>(false);
   const [gyroOffset, setGyroOffset] = useState<{ yaw: number; pitch: number }>({ yaw: 0, pitch: 0 });
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
@@ -649,7 +649,7 @@ export const KafeelScannerApp: React.FC = () => {
         <KafeelPrimaryARStage
           glbUrl={
             modelLayerView === 'multilayer' && activeArtifact.model.glb.includes('/models/alkafeel/')
-              ? activeArtifact.model.glb.replace('/models/alkafeel/', '/models/alkafeel-pro/').split('?')[0] + '?v=ml1'
+              ? activeArtifact.model.glb.replace('/models/alkafeel/', '/models/alkafeel-pro/').split('?')[0] + '?v=ml2'
               : activeArtifact.model.glb
           }
           viewAngleDeg={viewAngle}

@@ -89,10 +89,10 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
     });
   };
   const flat = view === 'page';
-  const [modelLayerView, setModelLayerView] = useState<'original' | 'multilayer'>('original');
+  const [modelLayerView, setModelLayerView] = useState<'original' | 'multilayer'>('multilayer');
   const effectiveGlb =
     modelLayerView === 'multilayer' && a.model.glb.includes('/models/alkafeel/')
-      ? a.model.glb.replace('/models/alkafeel/', '/models/alkafeel-pro/').split('?')[0] + '?v=ml1'
+      ? a.model.glb.replace('/models/alkafeel/', '/models/alkafeel-pro/').split('?')[0] + '?v=ml2'
       : a.model.glb;
   useEffect(() => {
     if (!flat) {
