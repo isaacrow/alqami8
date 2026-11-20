@@ -754,6 +754,48 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
               {/* Header Action Buttons: Live 3D Toggle AND 3D Popout Inspect side-by-side (Matching Image 1 in red circle) */}
               <div className="flex items-center gap-2">
+                {/* Search button (phone + desktop) */}
+                <button
+                  onClick={() => {
+                    spatialSound.playPinchTap();
+                    setIsSearchOpen((prev) => {
+                      const next = !prev;
+                      if (next) setTimeout(() => searchInputRef.current?.focus(), 60);
+                      else setSearchQuery('');
+                      return next;
+                    });
+                  }}
+                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm border active:scale-95 ${
+                    isSearchOpen
+                      ? 'bg-[#FFD60A] border-[#FFD60A] text-black scale-105'
+                      : 'bg-white/20 hover:bg-white/35 border-white/25 text-white'
+                  }`}
+                  aria-label={isAr ? 'بحث في المقتنيات' : 'Search artifacts'}
+                  title={isAr ? 'بحث في المقتنيات' : 'Search artifacts'}
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+                {/* Favorites button (phone + desktop) */}
+                <button
+                  onClick={() => {
+                    spatialSound.playPinchTap();
+                    onNavChange?.(isFavoritesMode ? 'grid' : 'favorites');
+                  }}
+                  className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm border active:scale-95 ${
+                    isFavoritesMode
+                      ? 'bg-rose-500 border-rose-400 text-white shadow-[0_0_14px_rgba(244,63,94,0.55)] scale-105'
+                      : 'bg-white/20 hover:bg-white/35 border-white/25 text-white'
+                  }`}
+                  aria-label={isAr ? 'المقتنيات المفضلة' : 'Favorite models'}
+                  title={isAr ? 'المقتنيات المفضلة' : 'Favorite models'}
+                >
+                  <Heart className={`w-4 h-4 ${isFavoritesMode || Object.values(liked).some(Boolean) ? 'fill-current' : ''}`} />
+                  {Object.values(liked).filter(Boolean).length > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[9.5px] font-bold flex items-center justify-center border border-white/40">
+                      {Object.values(liked).filter(Boolean).length}
+                    </span>
+                  )}
+                </button>
                 {/* Scan: QR labels, book barcodes and recognition by sight, all opening Moon records */}
                 <button
                   onClick={() => {
