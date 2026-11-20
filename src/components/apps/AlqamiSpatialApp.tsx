@@ -36,6 +36,7 @@ const AlqamiARKitObjectScanner = lazy(() => import('./AlqamiARKitObjectScanner')
 const AlKafeelMuseumGuideModal = lazy(() => import('../museum/AlKafeelMuseumGuideModal').then((m) => ({ default: m.AlKafeelMuseumGuideModal })));
 const SpatialPortalVFX = lazy(() => import('../three/SpatialPortalVFX').then((m) => ({ default: m.SpatialPortalVFX })));
 import { spatialSound } from '../../utils/spatialSound';
+import { getInitialFavoritesMap, hydrateFavorites, saveFavoritesMap, subscribeFavorites } from '../../utils/favoritesStore';
 import { assetUrl } from '../../utils/assetUrl';
 import { MoonRecordPanel } from '../moon/MoonRecordCard';
 import { MoonRecordSheet, MoonShelf } from '../moon/MoonCatalogue';
@@ -208,11 +209,21 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
     return () => window.removeEventListener('alqami:phone', on);
   }, []);
   const [quantity, setQuantity] = useState(1);
-  const [liked, setLiked] = useState<Record<string, boolean>>(() => ({
-    'ALQ-TAB-004': true,
-    'ALQ-HLM-001': true,
-    'ALQ-SWD-005': true,
-  }));
+  const [liked, setLiked] = useState<Record<string, boolean>>(() => getInitialFavoritesMap());
+  const [favoriteToast, setFavoriteToast] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    hydrateFavorites().then((synced) => {
+      if (active) setLiked(synced);
+    });
+    const unsub = subscribeFavorites((nextMap) => {
+      if (active) setLiked(nextMap);
+    });
+    return () => {
+      active = false;
+      unsub();
+    };
+  }, []);
   const [cartCount, setCartCount] = useState(0);
   const [openAccordion, setOpenAccordion] = useState<string | null>('details');
   const [addedToast, setAddedToast] = useState(false);
@@ -484,7 +495,24 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   const toggleLike = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     spatialSound.playPinchTap();
-    setLiked((prev) => ({ ...prev, [id]: !prev[id] }));
+    setLiked((prev) => {
+      const willBeLiked = !prev[id];
+      const next = { ...prev };
+      if (willBeLiked) next[id] = true;
+      else delete next[id];
+      saveFavoritesMap(next);
+      setFavoriteToast(
+        willBeLiked
+          ? isAr
+            ? 'تم حفظ القطعة في المفضلة ♥'
+            : 'Saved to Favorites ♥'
+          : isAr
+          ? 'تمت إزالة القطعة من المفضلة'
+          : 'Removed from Favorites'
+      );
+      window.setTimeout(() => setFavoriteToast(null), 2000);
+      return next;
+    });
   };
 
   const handleAddToCart = () => {
@@ -504,6 +532,14 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
       {/* Dissolve Transition for AR placement */}
       {isDissolvingForAR && (
         <div aria-hidden="true" className="absolute inset-0 z-50 rounded-[38px] ikea-ar-dissolve pointer-events-none" />
+      )}
+
+      {/* Favorite Saved / Removed Toast Notification */}
+      {favoriteToast && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-full vision-glass border border-rose-400/50 bg-black/75 text-rose-200 text-xs font-semibold shadow-[0_8px_24px_rgba(244,63,94,0.35)] pointer-events-none">
+          <Heart className="h-3.5 w-3.5 fill-rose-400 text-rose-400" />
+          <span>{favoriteToast}</span>
+        </div>
       )}
 
       {/* Cart Toast Notification */}

@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Heart } from 'lucide-react';
+import { getInitialFavoritesMap, hydrateFavorites, saveFavoritesMap, subscribeFavorites } from '../utils/favoritesStore';
 import { ALQAMI_ARTIFACTS, AlqamiArtifact } from '../data/alqamiArtifacts';
 import { assetUrl } from '../utils/assetUrl';
 import { loadModelViewer } from '../components/three/ModelOverlay';
@@ -63,6 +65,30 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
   const has3d = !a.model.flat;
   const [view, setView] = useState<'page' | '3d'>(hasPage ? 'page' : '3d');
   const [texMode, setTexMode] = useState<'hd' | 'classic'>('hd');
+  const [favMap, setFavMap] = useState<Record<string, boolean>>(() => getInitialFavoritesMap());
+  useEffect(() => {
+    let active = true;
+    hydrateFavorites().then((synced) => {
+      if (active) setFavMap(synced);
+    });
+    const unsub = subscribeFavorites((next) => {
+      if (active) setFavMap(next);
+    });
+    return () => {
+      active = false;
+      unsub();
+    };
+  }, []);
+  const isFavorited = Boolean(favMap[a.id]);
+  const toggleFav = () => {
+    setFavMap((prev) => {
+      const next = { ...prev };
+      if (next[a.id]) delete next[a.id];
+      else next[a.id] = true;
+      saveFavoritesMap(next);
+      return next;
+    });
+  };
   const flat = view === 'page';
   const effectiveGlb =
     texMode === 'classic' && a.model.glb.includes('/alkafeel/')
@@ -100,6 +126,19 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
           علقمي <span className="text-white/50 font-normal">ALQAMI</span>
         </a>
         <span className="flex-1" />
+        <button
+          onClick={toggleFav}
+          className={`h-9 px-3 rounded-full text-[13px] font-semibold flex items-center gap-1.5 border transition ${
+            isFavorited
+              ? 'bg-rose-500/25 border-rose-400/60 text-rose-200'
+              : 'bg-white/10 border-white/15 text-white/85 hover:bg-white/20'
+          }`}
+          aria-pressed={isFavorited}
+          aria-label={t('المفضلة', 'Favorite')}
+        >
+          <Heart className={`w-4 h-4 ${isFavorited ? 'fill-rose-400 text-rose-400' : ''}`} />
+          <span>{isFavorited ? t('في المفضلة', 'Favorited') : t('حفظ بالمفضلة', 'Favorite')}</span>
+        </button>
         <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className="h-9 px-3 rounded-full bg-white/10 text-[13px]" aria-label="Language">
           {lang === 'ar' ? 'EN' : 'عربي'}
         </button>
