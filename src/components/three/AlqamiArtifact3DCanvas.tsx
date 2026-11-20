@@ -101,14 +101,14 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
 
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
     const renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      antialias: !isMobile,
       alpha: true,
       powerPreference: isMobile ? 'low-power' : 'high-performance',
     });
-    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    renderer.setPixelRatio(Math.min(isMobile ? 1.25 : 2, window.devicePixelRatio || 1));
     renderer.setSize(width, height);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
+    renderer.toneMappingExposure = 1.35;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     container.replaceChildren(renderer.domElement);
 
@@ -119,7 +119,7 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
     scene.environment = roomEnv;
 
     // Enhanced Museum Studio Lighting (Warm Key, Cool Fill, Gold Specular Highlights)
-    const ambient = new THREE.AmbientLight(0xffffff, 0.48);
+    const ambient = new THREE.AmbientLight(0xffffff, 1.8);
     scene.add(ambient);
 
     const keyLight = new THREE.DirectionalLight(0xfffaec, 2.8);
@@ -190,7 +190,7 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
         try {
           const root = gltf.scene;
           loadedRoot = root;
-          if (isMobile) downscaleTextures(root, 1024);
+          if (isMobile) downscaleTextures(root, 512);
           root.updateMatrixWorld(true);
           root.traverse((child) => {
             if ((child as THREE.Mesh).isMesh) {
@@ -201,34 +201,16 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
                 const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
                 materials.forEach((mat) => {
                   const stdMat = mat as THREE.MeshStandardMaterial;
-                  const maxAniso = renderer.capabilities.getMaxAnisotropy();
                   if (stdMat.map) {
                     stdMat.map.colorSpace = THREE.SRGBColorSpace;
-                    stdMat.map.anisotropy = maxAniso;
                     stdMat.map.needsUpdate = true;
                     if (stdMat.color) stdMat.color.setHex(0xffffff);
                     if (typeof stdMat.metalness === 'number' && !stdMat.metalnessMap) {
                       stdMat.metalness = Math.min(0.22, stdMat.metalness);
                     }
                   }
-                  if (stdMat.normalMap) {
-                    stdMat.normalMap.anisotropy = maxAniso;
-                    stdMat.normalMap.needsUpdate = true;
-                  }
-                  if (stdMat.roughnessMap) {
-                    stdMat.roughnessMap.anisotropy = maxAniso;
-                    stdMat.roughnessMap.needsUpdate = true;
-                  }
-                  if (stdMat.metalnessMap) {
-                    stdMat.metalnessMap.anisotropy = maxAniso;
-                    stdMat.metalnessMap.needsUpdate = true;
-                  }
-                  if (stdMat.aoMap) {
-                    stdMat.aoMap.anisotropy = maxAniso;
-                    stdMat.aoMap.needsUpdate = true;
-                  }
                   if ('envMapIntensity' in mat) {
-                    stdMat.envMapIntensity = 1.18;
+                    stdMat.envMapIntensity = 0.65;
                   }
                   if ('roughness' in mat && typeof (mat as THREE.MeshStandardMaterial).roughness === 'number') {
                     const m = mat as THREE.MeshStandardMaterial;
