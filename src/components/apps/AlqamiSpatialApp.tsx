@@ -22,7 +22,6 @@ import {
   Copy,
   Smartphone,
   ScanLine,
-  Landmark,
 } from 'lucide-react';
 import { activePhone } from '../../remoteCam/phoneCamera';
 import QRCode from 'qrcode';
@@ -33,8 +32,6 @@ import { AlqamiDuoFoldShowcase } from '../effects/AlqamiDuoFoldShowcase';
 // The scanner (recognition, image tracking) loads only when it is opened.
 import { ScannerLoading } from '../scan/ScannerLoading';
 const AlqamiARKitObjectScanner = lazy(() => import('./AlqamiARKitObjectScanner').then((m) => ({ default: m.AlqamiARKitObjectScanner })));
-const AlKafeelMuseumGuideModal = lazy(() => import('../museum/AlKafeelMuseumGuideModal').then((m) => ({ default: m.AlKafeelMuseumGuideModal })));
-const SpatialPortalVFX = lazy(() => import('../three/SpatialPortalVFX').then((m) => ({ default: m.SpatialPortalVFX })));
 import { spatialSound } from '../../utils/spatialSound';
 import { getInitialFavoritesMap, hydrateFavorites, saveFavoritesMap, subscribeFavorites } from '../../utils/favoritesStore';
 import { assetUrl } from '../../utils/assetUrl';
@@ -229,8 +226,6 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   const [addedToast, setAddedToast] = useState(false);
   const [deployedToast, setDeployedToast] = useState<string | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
-  const [museumGuideOpen, setMuseumGuideOpen] = useState(false);
-  const [spatialPortalOpen, setSpatialPortalOpen] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [qrCopied, setQrCopied] = useState(false);
 
@@ -688,7 +683,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
               <p className="text-[13px] text-white/80">
                 {isAr ? 'مقتنيات فريدة، قصص خالدة، حضارة عريقة' : 'Unique artifacts, rich stories, timeless culture'}
               </p>
-              <div className="pt-2 flex flex-wrap items-center gap-2">
+              <div className="pt-2 flex items-center gap-2.5">
                 <button
                   onClick={() => {
                     spatialSound.playPinchTap();
@@ -699,27 +694,6 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                 >
                   <span>{isAr ? 'استكشف المعرض' : 'Discover'}</span>
                   <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
-                </button>
-                <button
-                  onClick={() => {
-                    spatialSound.playPinchTap();
-                    setMuseumGuideOpen(true);
-                  }}
-                  className="h-9 px-4 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 text-white font-semibold text-[12.5px] flex items-center gap-1.5 backdrop-blur-md hover:scale-105 active:scale-95 transition cursor-pointer shadow-md"
-                >
-                  <Landmark className="w-3.5 h-3.5 text-amber-300" />
-                  <span>{isAr ? 'دليل متحف الكفيل' : 'Museum Guide'}</span>
-                </button>
-                <button
-                  onClick={() => {
-                    spatialSound.playPinchTap();
-                    setActiveArtifactIndex(bannerArtifactIndex);
-                    setSpatialPortalOpen(true);
-                  }}
-                  className="h-9 px-4 rounded-full bg-gradient-to-r from-amber-400/95 to-orange-500/95 hover:brightness-110 text-black font-bold text-[12.5px] flex items-center gap-1.5 hover:scale-105 active:scale-95 transition cursor-pointer shadow-md"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{isAr ? 'بوابة الزمن 3D' : 'Step Into 3D'}</span>
                 </button>
               </div>
             </div>
@@ -1237,17 +1211,6 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                 <Box className="w-4 h-4" />
                 <span>{isAr ? 'معاينة في المكان' : 'Preview in your space'}</span>
               </button>
-              <button
-                onClick={() => {
-                  spatialSound.playPinchTap();
-                  setSpatialPortalOpen(true);
-                }}
-                className="vision-btn whitespace-nowrap h-10 px-3.5 rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 hover:brightness-110 text-black text-[13px] font-bold flex items-center gap-1.5 shadow-md cursor-pointer transition-all active:scale-95"
-                title={isAr ? 'بوابة AirDrop المكانية · تفكيك الجسيمات والدخول 3D' : 'AirDrop Spatial Portal · Particle Dissolve & Walk-In 3D'}
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>{isAr ? 'بوابة الزمن · ادخل اللحظة' : 'Step Into Moment'}</span>
-              </button>
               <div className="flex items-center gap-2.5">
                 {/* Round yellow AR Mode button with SVG Scan icon (User Request) */}
                 <a
@@ -1624,33 +1587,6 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
             </div>
           </div>
         </div>
-      )}
-      {museumGuideOpen && (
-        <Suspense fallback={null}>
-          <AlKafeelMuseumGuideModal
-            open={museumGuideOpen}
-            onClose={() => setMuseumGuideOpen(false)}
-            lang={lang}
-            onSelectHall={(prefix) => {
-              const idx = artifacts.findIndex((a) => a.id.startsWith(prefix));
-              if (idx >= 0) {
-                setActiveArtifactIndex(idx);
-                transitionToView('detail');
-              }
-            }}
-            onOpenPortal={() => setSpatialPortalOpen(true)}
-          />
-        </Suspense>
-      )}
-      {spatialPortalOpen && (
-        <Suspense fallback={null}>
-          <SpatialPortalVFX
-            open={spatialPortalOpen}
-            onClose={() => setSpatialPortalOpen(false)}
-            artifact={currentArtifact}
-            lang={lang}
-          />
-        </Suspense>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
@@ -8,7 +8,6 @@ import {
   Camera,
   Compass,
   Eye,
-  Landmark,
   Maximize2,
   Rotate3d,
   Ruler,
@@ -38,12 +37,6 @@ import { speak, stopSpeaking } from '../voice/speak';
 import { spatialSound } from '../utils/spatialSound';
 import { getSpatialPartsForArtifact, SpatialPartNode } from './partAnatomy';
 
-const AlKafeelMuseumGuideModal = lazy(() =>
-  import('../components/museum/AlKafeelMuseumGuideModal').then((m) => ({ default: m.AlKafeelMuseumGuideModal }))
-);
-const SpatialPortalVFX = lazy(() =>
-  import('../components/three/SpatialPortalVFX').then((m) => ({ default: m.SpatialPortalVFX }))
-);
 
 type Lang = 'ar' | 'en';
 
@@ -115,8 +108,6 @@ export const KafeelScannerApp: React.FC = () => {
   const [gyroOffset, setGyroOffset] = useState<{ yaw: number; pitch: number }>({ yaw: 0, pitch: 0 });
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [catalogOpen, setCatalogOpen] = useState<boolean>(false);
-  const [museumGuideOpen, setMuseumGuideOpen] = useState<boolean>(false);
-  const [spatialPortalOpen, setSpatialPortalOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [hallFilter, setHallFilter] = useState<string>('ALL');
   const [scanPulse, setScanPulse] = useState<boolean>(false);
@@ -1168,22 +1159,6 @@ export const KafeelScannerApp: React.FC = () => {
               <span>{t('التقط وحلّل AR', 'Catch & Analyze AR')}</span>
             </button>
             <button
-              onClick={() => setSpatialPortalOpen(true)}
-              className="h-10 px-3.5 rounded-full bg-gradient-to-r from-amber-400/95 to-orange-500/95 hover:brightness-110 text-black font-bold text-[12px] flex items-center gap-1.5 shadow-lg active:scale-95 transition"
-              title={t('بوابة AirDrop المكانية · ادخل اللحظة 3D', 'AirDrop Spatial Portal · Step Into 3D')}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{t('بوابة الزمن', 'Portal VFX')}</span>
-            </button>
-            <button
-              onClick={() => setMuseumGuideOpen(true)}
-              className="h-10 px-3 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white text-[12px] font-semibold flex items-center gap-1.5 transition"
-              title={t('عن متحف الكفيل للنفائس والمخطوطات', 'Al-Kafeel Museum Guide')}
-            >
-              <Landmark className="w-4 h-4 text-amber-300" />
-              <span className="hidden md:inline">{t('عن المتحف', 'Museum')}</span>
-            </button>
-            <button
               onClick={() => fileInputRef.current?.click()}
               className="h-10 px-3 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/50 text-emerald-200 text-[12px] font-semibold flex sm:hidden items-center gap-1"
               title={t('فحص صورة', 'Photo Scan')}
@@ -1334,30 +1309,6 @@ export const KafeelScannerApp: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
-      {museumGuideOpen && (
-        <Suspense fallback={null}>
-          <AlKafeelMuseumGuideModal
-            open={museumGuideOpen}
-            onClose={() => setMuseumGuideOpen(false)}
-            lang={lang}
-            onSelectHall={(prefix) => {
-              const found = allScanArtifacts.find((a) => a.id.startsWith(prefix));
-              if (found) lockOnArtifact(found, 0.98, 'ar-lock', 0, { x: 0.5, y: 0.46 });
-            }}
-            onOpenPortal={() => setSpatialPortalOpen(true)}
-          />
-        </Suspense>
-      )}
-      {spatialPortalOpen && (
-        <Suspense fallback={null}>
-          <SpatialPortalVFX
-            open={spatialPortalOpen}
-            onClose={() => setSpatialPortalOpen(false)}
-            artifact={activeArtifact}
-            lang={lang}
-          />
-        </Suspense>
       )}
     </div>
   );

@@ -14,8 +14,7 @@ export type AppId =
   | 'aircanvas'
   | 'anchors'
   | 'studio3d'
-  | 'tools-hub'
-  | 'memory-portal';
+  | 'tools-hub';
 
 export type EnvironmentId =
   | 'living-room'

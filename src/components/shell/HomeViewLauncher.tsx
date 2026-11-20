@@ -37,7 +37,6 @@ import {
 import { AppId } from '../../types/spatial';
 import { spatialSound } from '../../utils/spatialSound';
 import { morph, navigateFrom, shrinkAway } from './viewTransition';
-import { MoonLoginButton } from '../../moon/MoonLoginModal';
 
 interface HomeViewLauncherProps {
   lang?: 'ar' | 'en';
@@ -66,7 +65,6 @@ interface HomeAppItem {
 
 const MAIN: HomeAppItem[] = [
   { key: 'heritage', id: 'ikea', ar: 'تراث علقمي', en: 'Alqami Heritage', bg: 'linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%)', Icon: Landmark },
-  { key: 'memory-portal', id: 'memory-portal', ar: 'ادخل الذاكرة 3DGS', en: 'Walk Into Memory', bg: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #7c3aed 100%)', Icon: Sparkles },
   { key: 'museum-lens', href: './museum-lens.html', ar: 'عدسة المتحف', en: 'Museum Lens', bg: 'rgba(255, 255, 255, 0.35)', Icon: Aperture },
   { key: 'scanner', id: 'object-tracking', ar: 'الماسح', en: 'Scanner', bg: 'linear-gradient(180deg, #ffd60a 0%, #f59e0b 100%)', Icon: ScanLine },
   { key: 'kafeel-scan', href: './kafeel-scan.html', ar: 'ماسح الأجزاء', en: 'Spatial Part Scanner', bg: 'linear-gradient(135deg, #10b981 0%, #047857 55%, #d97706 100%)', Icon: Crosshair },
@@ -173,19 +171,8 @@ export const HomeViewLauncher: React.FC<HomeViewLauncherProps> = ({ isOpen, onLa
       </div>
 
       <div className="w-full max-w-[560px] flex-1 min-h-0 flex flex-col px-4">
-        <div className="mb-3 text-center space-y-1.5">
-          <div className="flex items-center justify-center gap-2.5">
-            <h1 className="text-[22px] font-semibold tracking-tight text-white drop-shadow">{lang === 'ar' ? 'تطبيقاتك' : 'Your apps'}</h1>
-            <MoonLoginButton lang={lang} compact />
-          </div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/15 border border-amber-400/35 text-amber-200 text-[11.5px] font-medium shadow">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>
-              {lang === 'ar'
-                ? 'متحف الكفيل للنفائس والمخطوطات • ٣٠ مجسّم 3D حقيقي'
-                : 'Al-Kafeel Museum Collection • 30 Real 360° 3D Models'}
-            </span>
-          </div>
+        <div className="mb-3 text-center">
+          <h1 className="text-[22px] font-semibold tracking-tight text-white drop-shadow">{lang === 'ar' ? 'تطبيقاتك' : 'Your apps'}</h1>
         </div>
         {/* Quick-jump 3D treasures strip from Al-Kafeel Museum */}
         <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className="flex items-center gap-2 overflow-x-auto pb-3 mb-2 [scrollbar-width:none]">
