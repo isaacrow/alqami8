@@ -96,6 +96,8 @@ const Spatial3DStudioApp = lazy(() =>
 const SpatialToolsHubApp = lazy(() =>
   import('./components/apps/SpatialToolsHubApp').then((module) => ({ default: module.SpatialToolsHubApp }))
 );
+const AlqamiLoginScreen = lazy(() => import('./components/login/AlqamiLoginScreen'));
+import { getMoonSession } from './moon/moonAuth';
 const isTouchPhone = () =>
   /iPhone|iPod|Android/i.test(navigator.userAgent) || window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches;
 
@@ -318,6 +320,12 @@ export function App() {
   const [windows, setWindows] = useState<Record<AppId, WindowState>>(getInitialWindows);
   const [topZ, setTopZ] = useState(40);
   const [homeOpen, setHomeOpen] = useState(false);
+  const [ownerSession, setOwnerSession] = useState(() => getMoonSession());
+  useEffect(() => {
+    const sync = () => setOwnerSession(getMoonSession());
+    window.addEventListener('alqami:moon-auth-changed', sync);
+    return () => window.removeEventListener('alqami:moon-auth-changed', sync);
+  }, []);
   const [controlCenterOpen, setControlCenterOpen] = useState(false);
   const [currentEnv, setCurrentEnv] = useState<EnvironmentId>('living-room');
   const [immersionLevel, setImmersionLevel] = useState<number>(65);
@@ -963,6 +971,9 @@ export function App() {
               </Suspense>
             </div>
           )}
+          {currentEnv === 'solid-black' && (
+            <div data-room-bg="true" className="w-full h-full bg-black" />
+          )}
 
           {/* Immersion Dimming Scrim controlled by Control Center Immersion Slider */}
           <div
@@ -1177,6 +1188,18 @@ export function App() {
       )}
 
       {/* Home View 13-App Honeycomb Launcher (images.jpg) */}
+      {!ownerSession && (
+        <Suspense fallback={null}>
+          <AlqamiLoginScreen
+            initialLang={lang}
+            session={ownerSession}
+            locked={true}
+            onSessionChange={(next) => setOwnerSession(next)}
+            onClose={() => setOwnerSession(getMoonSession())}
+          />
+        </Suspense>
+      )}
+
       <HomeViewLauncher
         lang={lang}
         isOpen={homeOpen}
@@ -1193,6 +1216,7 @@ export function App() {
             'sunset-clouds',
             'wood-studio',
             'cafe-lounge',
+            'solid-black',
           ];
           setCurrentEnv(order[(order.indexOf(currentEnv) + 1) % order.length]);
         }}

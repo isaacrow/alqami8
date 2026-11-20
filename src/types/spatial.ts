@@ -22,7 +22,8 @@ export type EnvironmentId =
   | 'thorsmork'
   | 'sunset-clouds'
   | 'cafe-lounge'
-  | 'chromatic-wave';
+  | 'chromatic-wave'
+  | 'solid-black';
 
 export type QuickLookShaderMode = 'original' | 'plain' | 'wireframe' | 'uv';
 

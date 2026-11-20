@@ -1,7 +1,7 @@
 import { Decider, Decision, IndexEntry, rank } from './decide';
 import { Embedder } from './embedder';
 import { encodeView, loadRecognitionIndex } from './recognitionIndex';
-import { sightBackend } from './backend';
+import { forceWasmBackend, sightBackend, WASM_BACKEND } from './backend';
 
 export type SightTarget = { kind: 'moon'; recordId: string } | { kind: 'artifact'; id: string };
 
@@ -30,14 +30,27 @@ export class SightRecognizer {
   /** The model this phone uses (WebGPU after a self-test, else WASM): see backend.ts. */
   backend = '';
 
-  /** Loads the index and the model. Rejects when either is unavailable (no signal on first use, missing index). */
+  /** Loads the index and the model. Automatically falls back from WebGPU to WASM on OOM or GPU failure. */
   prepare(): Promise<void> {
     this.ready ??= (async () => {
-      const b = await sightBackend();
-      const embedder = new Embedder(b.device, b.dtype);
+      let b = await sightBackend();
+      let embedder = new Embedder(b.device, b.dtype);
+      try {
+        await embedder.load();
+      } catch (err) {
+        await embedder.dispose().catch(() => {});
+        if (b.device === 'webgpu') {
+          console.warn('WebGPU failed (likely OOM), falling back to WASM int8:', err);
+          forceWasmBackend();
+          b = WASM_BACKEND;
+          embedder = new Embedder(b.device, b.dtype);
+          await embedder.load();
+        } else {
+          throw err;
+        }
+      }
       this.embedder = embedder;
       this.backend = `${b.device} ${b.dtype}`;
-      await embedder.load();
       // Objects taught under the other model are re-learnt from their photos with this one.
       const reembed = async (photos: Blob[]) => {
         const out: string[] = [];

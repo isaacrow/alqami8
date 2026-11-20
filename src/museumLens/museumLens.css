@@ -1,0 +1,92 @@
+/* Alqami Museum Lens — Built from 0 with exact https://css.glass material */
+
+.ml-glass {
+  /* From https://css.glass */
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.61);
+}
+
+.ml-glass-pill {
+  /* From https://css.glass */
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 9999px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.61);
+}
+
+.ml-glass-strong {
+  /* From https://css.glass — slightly brighter legibility for dense cards */
+  background: rgba(255, 255, 255, 0.48);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.14);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.61);
+}
+
+@keyframes ml-scan-sweep {
+  0% {
+    transform: translateY(0%);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  88% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.ml-scan-beam {
+  animation: ml-scan-sweep 2.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+@keyframes ml-pin-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  70% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+
+.ml-pin-ring {
+  animation: ml-pin-pulse 2s cubic-bezier(0.2, 0.7, 0.4, 1) infinite;
+}
+
+@keyframes ml-lock-flash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.85);
+  }
+  100% {
+    box-shadow: 0 0 0 22px rgba(255, 255, 255, 0);
+  }
+}
+
+.ml-lock-flash {
+  animation: ml-lock-flash 0.65s ease-out;
+}
+
+.ml-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.ml-no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

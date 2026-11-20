@@ -22,6 +22,8 @@ import {
   Copy,
   Smartphone,
   ScanLine,
+  Trash2,
+  RotateCcw,
 } from 'lucide-react';
 import { activePhone } from '../../remoteCam/phoneCamera';
 import QRCode from 'qrcode';
@@ -33,6 +35,8 @@ import { AlqamiDuoFoldShowcase } from '../effects/AlqamiDuoFoldShowcase';
 import { ScannerLoading } from '../scan/ScannerLoading';
 const AlqamiARKitObjectScanner = lazy(() => import('./AlqamiARKitObjectScanner').then((m) => ({ default: m.AlqamiARKitObjectScanner })));
 import { spatialSound } from '../../utils/spatialSound';
+import { getInitialFavoritesMap, hydrateFavorites, saveFavoritesMap, subscribeFavorites } from '../../utils/favoritesStore';
+import { getInitialDeletedMap, hydrateDeletedItems, saveDeletedMap, subscribeDeletedItems } from '../../utils/deletedItemsStore';
 import { assetUrl } from '../../utils/assetUrl';
 import { MoonRecordPanel } from '../moon/MoonRecordCard';
 import { MoonRecordSheet, MoonShelf } from '../moon/MoonCatalogue';
@@ -157,6 +161,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   const [shownCount, setShownCount] = useState(24);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [texMode, setTexMode] = useState<'hd' | 'classic'>('hd');
   const [activeHotspotId, setActiveHotspotId] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -204,11 +209,36 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
     return () => window.removeEventListener('alqami:phone', on);
   }, []);
   const [quantity, setQuantity] = useState(1);
-  const [liked, setLiked] = useState<Record<string, boolean>>(() => ({
-    'ALQ-TAB-004': true,
-    'ALQ-HLM-001': true,
-    'ALQ-SWD-005': true,
-  }));
+  const [liked, setLiked] = useState<Record<string, boolean>>(() => getInitialFavoritesMap());
+  const [favoriteToast, setFavoriteToast] = useState<string | null>(null);
+  const [deletedMap, setDeletedMap] = useState<Record<string, boolean>>(() => getInitialDeletedMap());
+  const [deletedToast, setDeletedToast] = useState<{ id: string; title: string } | null>(null);
+  useEffect(() => {
+    let active = true;
+    hydrateDeletedItems().then((synced) => {
+      if (active) setDeletedMap(synced);
+    });
+    const unsub = subscribeDeletedItems((next) => {
+      if (active) setDeletedMap(next);
+    });
+    return () => {
+      active = false;
+      unsub();
+    };
+  }, []);
+  useEffect(() => {
+    let active = true;
+    hydrateFavorites().then((synced) => {
+      if (active) setLiked(synced);
+    });
+    const unsub = subscribeFavorites((nextMap) => {
+      if (active) setLiked(nextMap);
+    });
+    return () => {
+      active = false;
+      unsub();
+    };
+  }, []);
   const [cartCount, setCartCount] = useState(0);
   const [openAccordion, setOpenAccordion] = useState<string | null>('details');
   const [addedToast, setAddedToast] = useState(false);
@@ -469,16 +499,75 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   const isFavoritesMode = activeNav === 'favorites';
   useEffect(() => setShownCount(24), [filteredArtifacts.length, isFavoritesMode]);
   const displayedArtifacts = filteredArtifacts.filter((a) => {
+    if (deletedMap[a.id]) return false;
     if (isFavoritesMode) {
       return !!liked[a.id];
     }
     return true;
   });
 
+  const deletedCount = Object.keys(deletedMap).filter((k) => deletedMap[k]).length;
+
+  const handleDeleteItem = (prod: AlqamiArtifact, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    spatialSound.playPinchTap();
+    setDeletedMap((prev) => {
+      const next = { ...prev, [prod.id]: true };
+      saveDeletedMap(next);
+      return next;
+    });
+    setLiked((prev) => {
+      if (!prev[prod.id]) return prev;
+      const next = { ...prev };
+      delete next[prod.id];
+      saveFavoritesMap(next);
+      return next;
+    });
+    setDeletedToast({ id: prod.id, title: isAr ? prod.title.ar : prod.title.en });
+    if (view === 'detail' && currentArtifact.id === prod.id) {
+      transitionToView('catalog');
+    }
+  };
+
+  const handleUndoDelete = (id: string) => {
+    spatialSound.playPinchTap();
+    setDeletedMap((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      saveDeletedMap(next);
+      return next;
+    });
+    setDeletedToast(null);
+  };
+
+  const handleRestoreAllDeleted = () => {
+    spatialSound.playPinchTap();
+    setDeletedMap({});
+    saveDeletedMap({});
+    setDeletedToast(null);
+  };
+
   const toggleLike = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     spatialSound.playPinchTap();
-    setLiked((prev) => ({ ...prev, [id]: !prev[id] }));
+    setLiked((prev) => {
+      const willBeLiked = !prev[id];
+      const next = { ...prev };
+      if (willBeLiked) next[id] = true;
+      else delete next[id];
+      saveFavoritesMap(next);
+      setFavoriteToast(
+        willBeLiked
+          ? isAr
+            ? 'تم حفظ القطعة في المفضلة ♥'
+            : 'Saved to Favorites ♥'
+          : isAr
+          ? 'تمت إزالة القطعة من المفضلة'
+          : 'Removed from Favorites'
+      );
+      window.setTimeout(() => setFavoriteToast(null), 2000);
+      return next;
+    });
   };
 
   const handleAddToCart = () => {
@@ -498,6 +587,37 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
       {/* Dissolve Transition for AR placement */}
       {isDissolvingForAR && (
         <div aria-hidden="true" className="absolute inset-0 z-50 rounded-[38px] ikea-ar-dissolve pointer-events-none" />
+      )}
+
+      {/* Deleted Item Undo Toast */}
+      {deletedToast && (
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-4 py-2 rounded-full vision-glass border border-red-400/50 bg-black/85 text-white text-xs font-semibold shadow-2xl pointer-events-auto">
+          <Trash2 className="h-3.5 w-3.5 text-red-400 shrink-0" />
+          <span className="max-w-[200px] truncate">
+            {isAr ? `تم حذف: ${deletedToast.title}` : `Deleted: ${deletedToast.title}`}
+          </span>
+          <button
+            onClick={() => handleUndoDelete(deletedToast.id)}
+            className="px-2.5 py-0.5 rounded-full bg-amber-400 hover:bg-amber-300 text-black font-bold text-[11px] cursor-pointer transition"
+          >
+            {isAr ? 'تراجع' : 'Undo'}
+          </button>
+          <button
+            onClick={() => setDeletedToast(null)}
+            className="text-white/60 hover:text-white cursor-pointer"
+            aria-label="Dismiss"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Favorite Saved / Removed Toast Notification */}
+      {favoriteToast && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-full vision-glass border border-rose-400/50 bg-black/75 text-rose-200 text-xs font-semibold shadow-[0_8px_24px_rgba(244,63,94,0.35)] pointer-events-none">
+          <Heart className="h-3.5 w-3.5 fill-rose-400 text-rose-400" />
+          <span>{favoriteToast}</span>
+        </div>
       )}
 
       {/* Cart Toast Notification */}
@@ -750,10 +870,62 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                     <span>{isAr ? 'كافة المقتنيات' : 'All Artifacts'}</span>
                   </button>
                 )}
+                {deletedCount > 0 && (
+                  <button
+                    onClick={handleRestoreAllDeleted}
+                    className="text-xs px-3 py-1 rounded-full bg-red-500/20 hover:bg-red-500/35 text-red-200 flex items-center gap-1.5 transition cursor-pointer border border-red-400/35 active:scale-95"
+                    title={isAr ? 'استعادة كافة القطع المحذوفة' : 'Restore all deleted items'}
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>{isAr ? `استعادة المحذوف (${deletedCount})` : `Restore (${deletedCount})`}</span>
+                  </button>
+                )}
               </div>
 
               {/* Header Action Buttons: Live 3D Toggle AND 3D Popout Inspect side-by-side (Matching Image 1 in red circle) */}
               <div className="flex items-center gap-2">
+                {/* Search button (phone + desktop) */}
+                <button
+                  onClick={() => {
+                    spatialSound.playPinchTap();
+                    setIsSearchOpen((prev) => {
+                      const next = !prev;
+                      if (next) setTimeout(() => searchInputRef.current?.focus(), 60);
+                      else setSearchQuery('');
+                      return next;
+                    });
+                  }}
+                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm border active:scale-95 ${
+                    isSearchOpen
+                      ? 'bg-[#FFD60A] border-[#FFD60A] text-black scale-105'
+                      : 'bg-white/20 hover:bg-white/35 border-white/25 text-white'
+                  }`}
+                  aria-label={isAr ? 'بحث في المقتنيات' : 'Search artifacts'}
+                  title={isAr ? 'بحث في المقتنيات' : 'Search artifacts'}
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+                {/* Favorites button (phone + desktop) */}
+                <button
+                  onClick={() => {
+                    spatialSound.playPinchTap();
+                    onNavChange?.(isFavoritesMode ? 'grid' : 'favorites');
+                  }}
+                  className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm border active:scale-95 ${
+                    isFavoritesMode
+                      ? 'bg-rose-500 border-rose-400 text-white shadow-[0_0_14px_rgba(244,63,94,0.55)] scale-105'
+                      : 'bg-white/20 hover:bg-white/35 border-white/25 text-white'
+                  }`}
+                  aria-label={isAr ? 'المقتنيات المفضلة' : 'Favorite models'}
+                  title={isAr ? 'المقتنيات المفضلة' : 'Favorite models'}
+                >
+                  <Heart className={`w-4 h-4 ${isFavoritesMode || Object.values(liked).some(Boolean) ? 'fill-current' : ''}`} />
+                  {Object.values(liked).filter(Boolean).length > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[9.5px] font-bold flex items-center justify-center border border-white/40">
+                      {Object.values(liked).filter(Boolean).length}
+                    </span>
+                  )}
+                </button>
                 {/* Scan: QR labels, book barcodes and recognition by sight, all opening Moon records */}
                 <button
                   onClick={() => {
@@ -882,6 +1054,14 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
                       {/* Action buttons styled as circular frosted glass buttons (exact style of Image 5) */}
                       <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={(e) => handleDeleteItem(prod, e)}
+                          className="w-8 h-8 rounded-full bg-white/15 hover:bg-red-500/85 active:scale-95 border border-white/20 hover:border-red-300 flex items-center justify-center text-white/85 hover:text-white shadow-md transition-all cursor-pointer"
+                          title={isAr ? 'حذف القطعة' : 'Delete item'}
+                          aria-label={isAr ? 'حذف القطعة' : 'Delete item'}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                         <button
                           onClick={(e) => toggleLike(prod.id, e)}
                           className={`w-8 h-8 rounded-full border border-white/25 flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md ${
@@ -1099,7 +1279,15 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
               className="flex-1 w-full relative flex items-center justify-center rounded-2xl"
             >
               {!isPopOut3D && (
-                <AlqamiArtifact3DCanvas glbUrl={currentArtifact.model.glb} mode="embedded" autoRotate={true} />
+                <>
+                <AlqamiArtifact3DCanvas glbUrl={texMode === 'classic' && currentArtifact.model.glb.includes('/alkafeel/') ? currentArtifact.model.glb.replace('/alkafeel/', '/alkafeel-classic/') : currentArtifact.model.glb} mode="embedded" autoRotate={true} />
+                  {currentArtifact.model.glb.includes('/alkafeel/') && (
+                    <div className="absolute top-3 left-3 z-20 flex items-center gap-1 p-1 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-[11px] font-semibold">
+                      <button onClick={() => setTexMode('hd')} className={`px-2.5 py-1 rounded-full cursor-pointer transition ${texMode === 'hd' ? 'bg-[#FFD60A] text-black font-bold' : 'text-white/80'}`}>{isAr ? 'نسيج HD' : 'HD Photo'}</button>
+                      <button onClick={() => setTexMode('classic')} className={`px-2.5 py-1 rounded-full cursor-pointer transition ${texMode === 'classic' ? 'bg-emerald-400 text-black font-bold' : 'text-white/80'}`}>{isAr ? 'النسيج القديم 3D' : 'Old 3D Tex'}</button>
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Curved Orbit Track + 3D Rotate Pop-Out Button Beneath Artifact */}

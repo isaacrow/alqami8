@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Heart } from 'lucide-react';
+import { getInitialFavoritesMap, hydrateFavorites, saveFavoritesMap, subscribeFavorites } from '../utils/favoritesStore';
 import { ALQAMI_ARTIFACTS, AlqamiArtifact } from '../data/alqamiArtifacts';
 import { assetUrl } from '../utils/assetUrl';
 import { loadModelViewer } from '../components/three/ModelOverlay';
@@ -62,7 +64,36 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
   const hasPage = Boolean(a.pagePins?.length);
   const has3d = !a.model.flat;
   const [view, setView] = useState<'page' | '3d'>(hasPage ? 'page' : '3d');
+  const [texMode, setTexMode] = useState<'hd' | 'classic'>('hd');
+  const [favMap, setFavMap] = useState<Record<string, boolean>>(() => getInitialFavoritesMap());
+  useEffect(() => {
+    let active = true;
+    hydrateFavorites().then((synced) => {
+      if (active) setFavMap(synced);
+    });
+    const unsub = subscribeFavorites((next) => {
+      if (active) setFavMap(next);
+    });
+    return () => {
+      active = false;
+      unsub();
+    };
+  }, []);
+  const isFavorited = Boolean(favMap[a.id]);
+  const toggleFav = () => {
+    setFavMap((prev) => {
+      const next = { ...prev };
+      if (next[a.id]) delete next[a.id];
+      else next[a.id] = true;
+      saveFavoritesMap(next);
+      return next;
+    });
+  };
   const flat = view === 'page';
+  const effectiveGlb =
+    texMode === 'classic' && a.model.glb.includes('/alkafeel/')
+      ? a.model.glb.replace('/alkafeel/', '/alkafeel-classic/')
+      : a.model.glb;
   useEffect(() => {
     if (!flat) {
       void loadModelViewer().catch(() => undefined);
@@ -95,6 +126,19 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
           علقمي <span className="text-white/50 font-normal">ALQAMI</span>
         </a>
         <span className="flex-1" />
+        <button
+          onClick={toggleFav}
+          className={`h-9 px-3 rounded-full text-[13px] font-semibold flex items-center gap-1.5 border transition ${
+            isFavorited
+              ? 'bg-rose-500/25 border-rose-400/60 text-rose-200'
+              : 'bg-white/10 border-white/15 text-white/85 hover:bg-white/20'
+          }`}
+          aria-pressed={isFavorited}
+          aria-label={t('المفضلة', 'Favorite')}
+        >
+          <Heart className={`w-4 h-4 ${isFavorited ? 'fill-rose-400 text-rose-400' : ''}`} />
+          <span>{isFavorited ? t('في المفضلة', 'Favorited') : t('حفظ بالمفضلة', 'Favorite')}</span>
+        </button>
         <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className="h-9 px-3 rounded-full bg-white/10 text-[13px]" aria-label="Language">
           {lang === 'ar' ? 'EN' : 'عربي'}
         </button>
@@ -114,10 +158,26 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
           <PageWithPins a={a} lang={lang} open={openPin} onOpen={setOpenPin} />
         ) : (
           <div className="relative h-[52vh] min-h-[320px] bg-gradient-to-b from-[#1b1714] to-[#0c0a09]">
+            {a.model.glb.includes('/alkafeel/') && (
+              <div className="absolute top-3 left-3 z-20 flex items-center gap-1 p-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-[11px] font-semibold">
+                <button
+                  onClick={() => setTexMode('hd')}
+                  className={`px-2.5 py-1 rounded-full transition ${texMode === 'hd' ? 'bg-[#FFD60A] text-black font-bold' : 'text-white/80'}`}
+                >
+                  {t('نسيج HD', 'HD Photo')}
+                </button>
+                <button
+                  onClick={() => setTexMode('classic')}
+                  className={`px-2.5 py-1 rounded-full transition ${texMode === 'classic' ? 'bg-emerald-400 text-black font-bold' : 'text-white/80'}`}
+                >
+                  {t('النسيج القديم 3D', 'Old 3D Tex')}
+                </button>
+              </div>
+            )}
             {React.createElement(
               'model-viewer',
               {
-                src: assetUrl(a.model.glb),
+                src: assetUrl(effectiveGlb),
                 poster: assetUrl(a.image),
                 alt: a.title[lang],
                 'camera-controls': true,
