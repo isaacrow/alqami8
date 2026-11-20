@@ -10,7 +10,7 @@
  * SHARP is an Apple Machine Learning Research Model, licensed for research only; the page says so.
  */
 import * as THREE from 'three';
-import { SparkRenderer, SplatEdit, SplatEditRgbaBlendMode, SplatEditSdf, SplatEditSdfType, SplatMesh } from '../vendor/spark/index.js';
+import { SparkRenderer, SplatMesh } from '../vendor/spark/index.js';
 import { VisualGyro } from '../character/visualGyro';
 import './memories.css';
 
@@ -30,7 +30,8 @@ interface Memory {
 
 const MEMORIES: Memory[] = [
   { id: 'shrine-gate', ar: 'عند الباب', en: 'At the gate', noteAr: 'زائرون أمام باب الحرم والحمام يحلّق', noteEn: 'Pilgrims before the shrine gate, pigeons overhead' },
-  { id: 'shrine-zarih', ar: 'داخل الحرم', en: 'Inside the shrine', noteAr: 'الشبّاك الشريف تحت الثريّا', noteEn: 'The shrine screen beneath the chandelier' },
+  // Inside the shrine (shrine-zarih) follows once SHARP finishes it: its first run stalled on this PC's GPU.
+  // { id: 'shrine-zarih', ar: 'داخل الحرم', en: 'Inside the shrine', noteAr: 'الشبّاك الشريف تحت الثريّا', noteEn: 'The shrine screen beneath the chandelier' },
   { id: 'shrine-dome', ar: 'على السطح', en: 'On the roof', noteAr: 'القبّة والمئذنتان عند الغروب', noteEn: 'The dome and minarets at dusk' },
 ];
 
@@ -108,7 +109,6 @@ const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 4000);
 const holder = new THREE.Group();
 scene.add(holder);
 let splat: SplatMesh | null = null;
-let edit: SplatEdit | null = null;
 let meta: Meta | null = null;
 let current: Memory | null = null;
 let mode: 'screen' | 'room' = 'screen';
@@ -258,34 +258,30 @@ async function open(m: Memory, from: HTMLImageElement) {
   ensureRenderer();
   meta = (await fetch(asset(m.id + '.json')).then((r) => r.json())) as Meta;
   if (current !== m) return;
-  look.depth = Math.max(1, meta.medianDepth * 0.6);
+  look.depth = Math.max(1, meta.medianDepth * 0.35);
   look.yaw = look.pitch = 0;
   look.dist = 1;
   look.intro = 0;
   tilt = { yaw: 0, pitch: 0, base: null };
   resize();
-  clearSplat();
-  const mesh = new SplatMesh({ url: asset(m.id + '.spz') });
-  mesh.quaternion.set(1, 0, 0, 0); // SHARP's axes (y down, z forward) → three.js (y up, looking down −z)
-  splat = mesh;
-  holder.add(mesh);
-  await mesh.initialized;
+  showScene('screen');
+  await Promise.all([loadSplat(m.id + '.spz').initialized, loadSplat(m.id + '-room.spz').initialized]);
   if (current !== m) return;
+  showScene(mode);
   loading.hidden = true;
   // Once the scene has drawn a couple of frames from the photo's viewpoint, the photo fades away into it.
   requestAnimationFrame(() => requestAnimationFrame(() => (flat.style.opacity = '0')));
 }
 
+/** The loaded scene files of the open memory (full and room), kept so switching does not dispose one mid-draw. */
+const loaded = new Map<string, SplatMesh>();
 function clearSplat() {
-  if (splat) {
-    holder.remove(splat);
-    splat.dispose();
-    splat = null;
+  for (const mesh of loaded.values()) {
+    holder.remove(mesh);
+    mesh.dispose();
   }
-  if (edit) {
-    holder.remove(edit);
-    edit = null;
-  }
+  loaded.clear();
+  splat = null;
 }
 
 function close() {
@@ -309,11 +305,14 @@ async function setMode(next: 'screen' | 'room') {
     hint.textContent = 'تظهر الذكرى أمامك في الغرفة. أدر الهاتف حولها، اسحب لتديرها، واقرص لتكبّرها. · The memory floats in your room: turn the phone around it, drag to turn it, pinch to resize.';
     flat.style.opacity = '0';
     placed = false;
+    // The room is seen from the phone itself: back to the origin, whatever looking around on screen did.
+    camera.position.set(0, 0, 0);
+    camera.quaternion.identity();
     roomStart = t0;
     roomScale = 1;
     gyro.has = false;
     visual.reset();
-    fitToRoom();
+    showScene('room');
     try {
       video.srcObject = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
       await video.play();
@@ -329,42 +328,64 @@ async function setMode(next: 'screen' | 'room') {
     holder.scale.setScalar(1);
     holder.visible = true;
     recenterBtn.hidden = true;
-    if (edit) {
-      holder.remove(edit);
-      edit = null;
-    }
-    if (splat) splat.position.set(0, 0, 0), splat.scale.setScalar(1);
+    showScene('screen');
   }
   resize();
 }
 
 /**
- * In the room the scene becomes a miniature about 1.2 m wide: its middle part (5th–95th percentile, the far sky cut
- * at 1.3 × the middle depth) is centred on the holder and scaled down, and a soft-edged box fades out the rest.
+ * Both scene files of a memory are loaded when it opens and stay in the scene: the full one for the screen, the
+ * trimmed `-room` one (made by memory-splat.py) for the room. Spark drew nothing, or solid black, when a scene was
+ * swapped in or out after the first frame, so the one not in use is just shrunk to nothing.
  */
-function fitToRoom() {
-  if (!splat || !meta) return;
-  const [x0, y0, z0] = meta.box.min, [x1, y1, z1raw] = meta.box.max;
-  const z1 = Math.min(z1raw, meta.medianDepth * 1.3);
-  const size = Math.max(x1 - x0, y1 - y0, z1 - z0);
-  const s = 1.2 / size;
+function loadSplat(file: string) {
+  let mesh = loaded.get(file);
+  if (!mesh) {
+    mesh = new SplatMesh({ url: asset(file) });
+    mesh.quaternion.set(1, 0, 0, 0); // SHARP's axes (y down, z forward) → three.js (y up, looking down −z)
+    hide(mesh);
+    loaded.set(file, mesh);
+    holder.add(mesh);
+  }
+  return mesh;
+}
+
+const HIDDEN = 1e-6;
+/** Shrunk AND moved far below: shrunk alone about the camera it would still draw (each point keeps its line of sight). */
+const hide = (mesh: SplatMesh) => {
+  mesh.scale.setScalar(HIDDEN);
+  mesh.position.set(0, -1e5, 0);
+};
+/** Shows the full scene (screen) or the room miniature: about 1.2 m wide, its middle part centred on the holder. */
+function showScene(which: 'screen' | 'room') {
+  if (!current) return;
+  const full = loadSplat(current.id + '.spz');
+  const room = loadSplat(current.id + '-room.spz');
+  if (which === 'screen' || !meta) {
+    full.scale.setScalar(1);
+    full.position.set(0, 0, 0);
+    hide(room);
+    splat = full;
+    return;
+  }
+  const [x0, y0, z0] = meta.box.min, [x1, y1, z1] = meta.box.max;
+  const s = 1.2 / Math.max(x1 - x0, y1 - y0, z1 - z0);
   // Centre in SHARP's axes, turned to three's (y and z flip with the 180° turn about x).
   const c = new THREE.Vector3((x0 + x1) / 2, -(y0 + y1) / 2, -(z0 + z1) / 2);
-  splat.scale.setScalar(s);
-  splat.position.copy(c).multiplyScalar(-s);
-  edit = new SplatEdit({ rgbaBlendMode: SplatEditRgbaBlendMode.MULTIPLY, softEdge: 0.06, invert: true });
-  const box = new SplatEditSdf({ type: SplatEditSdfType.BOX, opacity: 0 });
-  box.scale.set(((x1 - x0) / 2) * s, ((y1 - y0) / 2) * s, ((z1 - z0) / 2) * s);
-  edit.addSdf(box);
-  holder.add(edit);
+  room.scale.setScalar(s);
+  room.position.copy(c).multiplyScalar(-s);
+  hide(full);
+  splat = room;
 }
 
 // ── Frame ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 let last = performance.now();
 function frame(now: number) {
-  const dt = Math.min(0.05, (now - last) / 1000);
+  const real = Math.min(1, (now - last) / 1000);
+  const dt = Math.min(0.05, real);
   last = now;
-  t0 += dt;
+  t0 += real; // real time, so the grow-in keeps its length on a slow phone
+  look.intro = Math.min(1, look.intro + Math.max(0, real - dt) / (reduced ? 0.01 : 2.6)); // same for the dolly-zoom
   if (viewer.hidden || !renderer) return;
   if (mode === 'room') roomFrame();
   else placeScreenCamera(dt);

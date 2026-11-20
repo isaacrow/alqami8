@@ -1,6 +1,7 @@
 {
  "name": "shrine-gate",
  "gaussians": 450000,
+ "roomGaussians": 250000,
  "from": 1179648,
  "axes": "opencv (x right, y down, z forward)",
  "box": {
@@ -12,7 +13,7 @@
   "max": [
    99.264,
    5.903,
-   237.287
+   158.193
   ]
  },
  "medianDepth": 168.309,

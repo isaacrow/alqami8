@@ -1,6 +1,7 @@
 {
  "name": "shrine-dome",
  "gaussians": 450000,
+ "roomGaussians": 250000,
  "from": 1179648,
  "axes": "opencv (x right, y down, z forward)",
  "box": {
@@ -12,7 +13,7 @@
   "max": [
    136.186,
    23.813,
-   302.174
+   184.592
   ]
  },
  "medianDepth": 196.33,
