@@ -33,7 +33,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2126",
     "image": "./images/alkafeel/kfl-2126.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2126.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2126.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -88,7 +88,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2127",
     "image": "./images/alkafeel/kfl-2127.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2127.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2127.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -143,7 +143,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2128",
     "image": "./images/alkafeel/kfl-2128.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2128.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2128.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -198,7 +198,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2129",
     "image": "./images/alkafeel/kfl-2129.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2129.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2129.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -253,7 +253,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2135",
     "image": "./images/alkafeel/kfl-2135.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2135.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2135.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -308,7 +308,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2191",
     "image": "./images/alkafeel/kfl-2191.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2191.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2191.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -363,7 +363,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2244",
     "image": "./images/alkafeel/kfl-2244.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2244.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2244.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -418,7 +418,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2313",
     "image": "./images/alkafeel/kfl-2313.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2313.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2313.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -473,7 +473,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2174",
     "image": "./images/alkafeel/kfl-2174.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2174.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2174.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -528,7 +528,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2175",
     "image": "./images/alkafeel/kfl-2175.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2175.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2175.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -583,7 +583,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2176",
     "image": "./images/alkafeel/kfl-2176.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2176.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2176.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -638,7 +638,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2177",
     "image": "./images/alkafeel/kfl-2177.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2177.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2177.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -693,7 +693,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2178",
     "image": "./images/alkafeel/kfl-2178.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2178.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2178.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -748,7 +748,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2179",
     "image": "./images/alkafeel/kfl-2179.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2179.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2179.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -803,7 +803,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2180",
     "image": "./images/alkafeel/kfl-2180.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2180.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2180.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -858,7 +858,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2181",
     "image": "./images/alkafeel/kfl-2181.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2181.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2181.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -913,7 +913,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2218",
     "image": "./images/alkafeel/kfl-2218.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2218.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2218.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -968,7 +968,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2219",
     "image": "./images/alkafeel/kfl-2219.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2219.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2219.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1023,7 +1023,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2220",
     "image": "./images/alkafeel/kfl-2220.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2220.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2220.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1078,7 +1078,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2221",
     "image": "./images/alkafeel/kfl-2221.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2221.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2221.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1133,7 +1133,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2222",
     "image": "./images/alkafeel/kfl-2222.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2222.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2222.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1188,7 +1188,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2223",
     "image": "./images/alkafeel/kfl-2223.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2223.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2223.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1243,7 +1243,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2182",
     "image": "./images/alkafeel/kfl-2182.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2182.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2182.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1298,7 +1298,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2183",
     "image": "./images/alkafeel/kfl-2183.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2183.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2183.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1353,7 +1353,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2184",
     "image": "./images/alkafeel/kfl-2184.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2184.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2184.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1408,7 +1408,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2185",
     "image": "./images/alkafeel/kfl-2185.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2185.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2185.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1463,7 +1463,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2201",
     "image": "./images/alkafeel/kfl-2201.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2201.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2201.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1518,7 +1518,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2202",
     "image": "./images/alkafeel/kfl-2202.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2202.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2202.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1573,7 +1573,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2266",
     "image": "./images/alkafeel/kfl-2266.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2266.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2266.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1628,7 +1628,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2267",
     "image": "./images/alkafeel/kfl-2267.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2267.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2267.glb?v=swd7",
       "scale": 1
     },
     "description": {
@@ -1683,7 +1683,7 @@ export const ALKAFEEL_ARTIFACTS: AlqamiArtifact[] = [
     "itemCode": "alkafeel:2268",
     "image": "./images/alkafeel/kfl-2268.jpg",
     "model": {
-      "glb": "./models/alkafeel/kfl-2268.glb?v=hd6",
+      "glb": "./models/alkafeel/kfl-2268.glb?v=swd7",
       "scale": 1
     },
     "description": {
