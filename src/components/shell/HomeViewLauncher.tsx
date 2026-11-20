@@ -72,6 +72,7 @@ const MAIN: HomeAppItem[] = [
   { key: 'a3-360', href: './alqami3-360.html', ar: 'التعرّف 360°', en: '360° recognition', bg: 'linear-gradient(180deg, #14b8a6 0%, #0f766e 100%)', Icon: Rotate3d },
   { key: 'jawahiri', href: './jawahiri.html', ar: 'الجواهري', en: 'al-Jawahiri', bg: 'radial-gradient(circle at 50% 30%, #6b5536, #1a140c)', Icon: Feather },
   { key: 'mutanabbi', href: './mutanabbi.html', ar: 'المتنبي', en: 'al-Mutanabbi', bg: 'radial-gradient(circle at 50% 30%, #7a5a2e, #1a1209)', Icon: Swords },
+  { key: 'memories', href: './memories.html', ar: 'ذكريات', en: 'Memories', bg: 'linear-gradient(180deg, #1e3a8a 0%, #0b1530 100%)', Icon: Sparkles },
   { key: 'waili', href: './waili.html', ar: 'الوائلي', en: 'al-Waili', bg: 'radial-gradient(circle at 50% 30%, #4a3a2a, #120d08)', Icon: Mic },
   { key: 'labels', href: './labels.html', ar: 'ملصقات QR', en: 'QR labels', bg: 'linear-gradient(180deg, #f8fafc 0%, #94a3b8 100%)', Icon: QrCode },
 ];

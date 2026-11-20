@@ -1,0 +1,31 @@
+{
+ "name": "shrine-gate",
+ "gaussians": 450000,
+ "roomGaussians": 250000,
+ "from": 1179648,
+ "axes": "opencv (x right, y down, z forward)",
+ "box": {
+  "min": [
+   -103.316,
+   -75.946,
+   4.593
+  ],
+  "max": [
+   99.264,
+   5.903,
+   158.193
+  ]
+ },
+ "medianDepth": 168.309,
+ "camera": {
+  "width": 2000,
+  "height": 1216,
+  "fx": 1622.95,
+  "fy": 1622.95,
+  "cx": 1000.0,
+  "cy": 608.0,
+  "vfov": 41.075,
+  "colorSpace": 0
+ },
+ "source": "Apple SHARP (Apple Machine Learning Research Model, research use only)"
+}
