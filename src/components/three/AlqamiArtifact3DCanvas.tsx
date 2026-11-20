@@ -101,11 +101,11 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
 
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
     const renderer = new THREE.WebGLRenderer({
-      antialias: !isMobile,
+      antialias: true,
       alpha: true,
       powerPreference: isMobile ? 'low-power' : 'high-performance',
     });
-    renderer.setPixelRatio(Math.min(isMobile ? 1.25 : 2, window.devicePixelRatio || 1));
+    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
     renderer.setSize(width, height);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.35;
@@ -190,7 +190,7 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
         try {
           const root = gltf.scene;
           loadedRoot = root;
-          if (isMobile) downscaleTextures(root, 512);
+          if (isMobile) downscaleTextures(root, 1024);
           root.updateMatrixWorld(true);
           root.traverse((child) => {
             if ((child as THREE.Mesh).isMesh) {
@@ -201,8 +201,10 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
                 const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
                 materials.forEach((mat) => {
                   const stdMat = mat as THREE.MeshStandardMaterial;
+                  const maxAniso = renderer.capabilities.getMaxAnisotropy();
                   if (stdMat.map) {
                     stdMat.map.colorSpace = THREE.SRGBColorSpace;
+                    stdMat.map.anisotropy = maxAniso;
                     stdMat.map.needsUpdate = true;
                     if (stdMat.color) stdMat.color.setHex(0xffffff);
                     if (typeof stdMat.metalness === 'number' && !stdMat.metalnessMap) {
