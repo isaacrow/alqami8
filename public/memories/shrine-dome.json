@@ -1,0 +1,30 @@
+{
+ "name": "shrine-dome",
+ "gaussians": 450000,
+ "from": 1179648,
+ "axes": "opencv (x right, y down, z forward)",
+ "box": {
+  "min": [
+   -141.115,
+   -100.7,
+   4.626
+  ],
+  "max": [
+   136.186,
+   23.813,
+   302.174
+  ]
+ },
+ "medianDepth": 196.33,
+ "camera": {
+  "width": 2000,
+  "height": 1333,
+  "fx": 1666.54,
+  "fy": 1666.54,
+  "cx": 1000.0,
+  "cy": 666.5,
+  "vfov": 43.596,
+  "colorSpace": 0
+ },
+ "source": "Apple SHARP (Apple Machine Learning Research Model, research use only)"
+}

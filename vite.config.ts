@@ -21,6 +21,19 @@ const threeForMindAR: Plugin = {
   },
 };
 
+/** Spark (Gaussian splats) needs three >= 0.180: it and the Memories page use the three180 alias; everything else stays on 0.170. */
+const threeForSpark: Plugin = {
+  name: 'three-r180-for-spark',
+  enforce: 'pre',
+  async resolveId(source, importer, options) {
+    if (!importer || !(source === 'three' || source.startsWith('three/'))) return null;
+    const imp = importer.replace(/\\/g, '/');
+    if (!imp.includes('/src/vendor/spark/') && !imp.includes('/src/memories/')) return null;
+    const mapped = source === 'three' ? 'three180' : source.replace(/^three\/addons\//, 'three180/examples/jsm/').replace(/^three\//, 'three180/');
+    return this.resolve(mapped, importer, { ...options, skipSelf: true });
+  },
+};
+
 function serveUsdModels(publicDir: string) {
   return async (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse, next: (error?: Error) => void) => {
     const pathname = decodeURIComponent((req.url ?? '').split('?')[0]);
@@ -103,18 +116,18 @@ const alqamiTransitions: Plugin = {
 
 export default defineConfig({
   base: './',
-  plugins: [threeForMindAR, react(), usdzContentType, basicSsl(), offlineManifest, alqamiTransitions],
+  plugins: [threeForMindAR, threeForSpark, react(), usdzContentType, basicSsl(), offlineManifest, alqamiTransitions],
   build: {
     rollupOptions: {
       // jawahiri.html is the talking character (src/character). object.html is an object's own page, opened by its QR
       // label in any phone camera; labels.html prints every object's label (src/object). bench.html measures recognition by sight on a phone (see src/bench/sightBench.ts).
-      input: { main: resolve(__dirname, 'index.html'), bench: resolve(__dirname, 'bench.html'), jawahiri: resolve(__dirname, 'jawahiri.html'), mutanabbi: resolve(__dirname, 'mutanabbi.html'), waili: resolve(__dirname, 'waili.html'), object: resolve(__dirname, 'object.html'), labels: resolve(__dirname, 'labels.html'), alqami3Scan: resolve(__dirname, 'alqami3-scan.html'), alqami3Sweep: resolve(__dirname, 'alqami3-360.html'), kafeelScan: resolve(__dirname, 'kafeel-scan.html') },
+      input: { main: resolve(__dirname, 'index.html'), bench: resolve(__dirname, 'bench.html'), jawahiri: resolve(__dirname, 'jawahiri.html'), mutanabbi: resolve(__dirname, 'mutanabbi.html'), waili: resolve(__dirname, 'waili.html'), object: resolve(__dirname, 'object.html'), labels: resolve(__dirname, 'labels.html'), alqami3Scan: resolve(__dirname, 'alqami3-scan.html'), alqami3Sweep: resolve(__dirname, 'alqami3-360.html'), kafeelScan: resolve(__dirname, 'kafeel-scan.html'), memories: resolve(__dirname, 'memories.html') },
     },
   },
   optimizeDeps: {
     entries: ['index.html', 'jawahiri.html', 'object.html', 'labels.html', 'kafeel-scan.html'],
     include: ['three', 'three/examples/jsm/loaders/GLTFLoader.js', 'three/examples/jsm/environments/RoomEnvironment.js'],
-    exclude: ['mind-ar', 'three150'],
+    exclude: ['mind-ar', 'three150', 'three180'],
   },
   server: {
     port: 5173,
