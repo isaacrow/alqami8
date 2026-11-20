@@ -62,7 +62,12 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
   const hasPage = Boolean(a.pagePins?.length);
   const has3d = !a.model.flat;
   const [view, setView] = useState<'page' | '3d'>(hasPage ? 'page' : '3d');
+  const [texMode, setTexMode] = useState<'hd' | 'classic'>('hd');
   const flat = view === 'page';
+  const effectiveGlb =
+    texMode === 'classic' && a.model.glb.includes('/alkafeel/')
+      ? a.model.glb.replace('/alkafeel/', '/alkafeel-classic/')
+      : a.model.glb;
   useEffect(() => {
     if (!flat) {
       void loadModelViewer().catch(() => undefined);
@@ -114,10 +119,26 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
           <PageWithPins a={a} lang={lang} open={openPin} onOpen={setOpenPin} />
         ) : (
           <div className="relative h-[52vh] min-h-[320px] bg-gradient-to-b from-[#1b1714] to-[#0c0a09]">
+            {a.model.glb.includes('/alkafeel/') && (
+              <div className="absolute top-3 left-3 z-20 flex items-center gap-1 p-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-[11px] font-semibold">
+                <button
+                  onClick={() => setTexMode('hd')}
+                  className={`px-2.5 py-1 rounded-full transition ${texMode === 'hd' ? 'bg-[#FFD60A] text-black font-bold' : 'text-white/80'}`}
+                >
+                  {t('نسيج HD', 'HD Photo')}
+                </button>
+                <button
+                  onClick={() => setTexMode('classic')}
+                  className={`px-2.5 py-1 rounded-full transition ${texMode === 'classic' ? 'bg-emerald-400 text-black font-bold' : 'text-white/80'}`}
+                >
+                  {t('النسيج القديم 3D', 'Old 3D Tex')}
+                </button>
+              </div>
+            )}
             {React.createElement(
               'model-viewer',
               {
-                src: assetUrl(a.model.glb),
+                src: assetUrl(effectiveGlb),
                 poster: assetUrl(a.image),
                 alt: a.title[lang],
                 'camera-controls': true,

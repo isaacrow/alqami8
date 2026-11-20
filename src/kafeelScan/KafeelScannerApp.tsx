@@ -102,6 +102,7 @@ export const KafeelScannerApp: React.FC = () => {
   const [envLightRgb, setEnvLightRgb] = useState<[number, number, number]>([255, 248, 238]);
   const [cleanArView, setCleanArView] = useState<boolean>(false);
   const [autoTourActive, setAutoTourActive] = useState<boolean>(false);
+  const [texMode, setTexMode] = useState<'hd' | 'classic'>('hd');
   const [cameraReady, setCameraReady] = useState<boolean>(false);
   const [gyroOffset, setGyroOffset] = useState<{ yaw: number; pitch: number }>({ yaw: 0, pitch: 0 });
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
@@ -645,7 +646,11 @@ export const KafeelScannerApp: React.FC = () => {
       {/* 2. PRIMARY FULL-VIEWPORT 3D AUGMENTED REALITY STAGE (Three.js WebGL + Raycasting + Smart Part Focus + WebXR) */}
       <div className="absolute inset-0 z-10">
         <KafeelPrimaryARStage
-          glbUrl={activeArtifact.model.glb}
+          glbUrl={
+            texMode === 'classic' && activeArtifact.model.glb.includes('/alkafeel/')
+              ? activeArtifact.model.glb.replace('/alkafeel/', '/alkafeel-classic/')
+              : activeArtifact.model.glb
+          }
           viewAngleDeg={viewAngle}
           autoRotate={autoRotate3D}
           arScale={arScale}
@@ -912,6 +917,17 @@ export const KafeelScannerApp: React.FC = () => {
           >
             <Box className="w-3.5 h-3.5 text-emerald-300" />
             <span>{Math.round(arScale * 100)}%</span>
+          </button>
+          <button
+            onClick={() => setTexMode((m) => (m === 'hd' ? 'classic' : 'hd'))}
+            className={`h-10 px-3 rounded-full border text-[11.5px] font-bold flex items-center gap-1 transition ${
+              texMode === 'classic'
+                ? 'bg-emerald-400 text-black border-emerald-300'
+                : 'bg-black/55 hover:bg-white/20 text-amber-200 border-amber-400/40'
+            }`}
+            title={t('التبديل بين نسيج الصورة HD والنسيج القديم 3D', 'Switch between HD Photo texture and Old 3D texture')}
+          >
+            <span>{texMode === 'classic' ? t('النسيج القديم 3D', 'Old 3D Tex') : t('نسيج HD', 'HD Tex')}</span>
           </button>
           <button
             onClick={() => setXrLabOpen((v) => !v)}

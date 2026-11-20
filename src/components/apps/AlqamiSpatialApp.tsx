@@ -157,6 +157,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   const [shownCount, setShownCount] = useState(24);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [texMode, setTexMode] = useState<'hd' | 'classic'>('hd');
   const [activeHotspotId, setActiveHotspotId] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -1141,7 +1142,15 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
               className="flex-1 w-full relative flex items-center justify-center rounded-2xl"
             >
               {!isPopOut3D && (
-                <AlqamiArtifact3DCanvas glbUrl={currentArtifact.model.glb} mode="embedded" autoRotate={true} />
+                <>
+                <AlqamiArtifact3DCanvas glbUrl={texMode === 'classic' && currentArtifact.model.glb.includes('/alkafeel/') ? currentArtifact.model.glb.replace('/alkafeel/', '/alkafeel-classic/') : currentArtifact.model.glb} mode="embedded" autoRotate={true} />
+                  {currentArtifact.model.glb.includes('/alkafeel/') && (
+                    <div className="absolute top-3 left-3 z-20 flex items-center gap-1 p-1 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-[11px] font-semibold">
+                      <button onClick={() => setTexMode('hd')} className={`px-2.5 py-1 rounded-full cursor-pointer transition ${texMode === 'hd' ? 'bg-[#FFD60A] text-black font-bold' : 'text-white/80'}`}>{isAr ? 'نسيج HD' : 'HD Photo'}</button>
+                      <button onClick={() => setTexMode('classic')} className={`px-2.5 py-1 rounded-full cursor-pointer transition ${texMode === 'classic' ? 'bg-emerald-400 text-black font-bold' : 'text-white/80'}`}>{isAr ? 'النسيج القديم 3D' : 'Old 3D Tex'}</button>
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Curved Orbit Track + 3D Rotate Pop-Out Button Beneath Artifact */}
