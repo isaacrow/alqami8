@@ -1352,7 +1352,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                         }}
                         className={`px-2.5 py-1 rounded-full cursor-pointer transition ${
                           modelLayerView === 'multilayer'
-                            ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-black font-bold shadow'
+                            ? 'bg-[#FFD60A] text-black font-bold shadow'
                             : 'text-white/80 hover:text-white'
                         }`}
                       >

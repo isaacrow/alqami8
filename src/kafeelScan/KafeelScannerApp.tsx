@@ -1028,7 +1028,7 @@ export const KafeelScannerApp: React.FC = () => {
                 setMeasureCm(null);
               }}
               className={`h-9 rounded-xl border text-[11px] font-bold flex items-center justify-center gap-1 transition ${
-                measureMode ? 'bg-amber-400 text-black border-amber-300' : 'bg-white/10 text-white border-white/15'
+                measureMode ? 'bg-[#FFD60A] text-black border-[#FFD60A]' : 'bg-white/10 text-white border-white/15'
               }`}
             >
               <Ruler className="w-3.5 h-3.5" />

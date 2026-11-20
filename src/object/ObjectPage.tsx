@@ -171,7 +171,7 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
                 <button
                   onClick={() => setModelLayerView('multilayer')}
                   className={`px-2.5 py-1 rounded-full transition ${
-                    modelLayerView === 'multilayer' ? 'bg-amber-400 text-black font-bold' : 'text-white/80'
+                    modelLayerView === 'multilayer' ? 'bg-[#FFD60A] text-black font-bold' : 'text-white/80'
                   }`}
                 >
                   {t('متعدد الطبقات PBR', 'Multi-Layer PBR')}
