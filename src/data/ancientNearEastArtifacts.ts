@@ -20,7 +20,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-001',
     uri: 'https://alqami.net/artifact/ane-storage-jar-mountain-goats',
     image: './images/ane/ane-01.jpg',
-    model: { glb: './models/ane-pro/ane-01.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-01.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'جرة فخارية بيضاوية كبيرة من الألف الرابع قبل الميلاد، مزينة بوعول جبلية ذات قرون مقوسة واسعة وخطوط هندسية متعرجة باللون البني الداكن على طين مصفر، وُجدت أمثالها في المدافن والطقوس الجنائزية.',
       en: 'An ovoid fourth-millennium BCE storage jar painted in dark brown on buff clay with stylized mountain goats (ibexes) whose sweeping curved horns echo the vessel’s girth within geometric zigzag frames.',
@@ -44,7 +44,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-002',
     uri: 'https://alqami.net/artifact/ane-striding-horned-figure',
     image: './images/ane/ane-02.jpg',
-    model: { glb: './models/ane-pro/ane-02.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-02.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'تمثال مصبوب بطريقة الشمع المفقود من سبيكة النحاس يجسّد شخصية أسطورية بقرون وأحذية معقوفة، يجمع بين القوة والهيبة رغم صغر حجمه في فجر حضارة المدن الأولى.',
       en: 'A solid-cast lost-wax copper alloy sculpture conveying monumentality and mythic power on a small scale at the dawn of urban civilization in Mesopotamia and Elam.',
@@ -68,7 +68,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-003',
     uri: 'https://alqami.net/artifact/ane-kneeling-bull-spouted-vessel',
     image: './images/ane/ane-03.jpg',
-    model: { glb: './models/ane-pro/ane-03.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-03.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'تحفة فضية نادرة لثور راكع يرتدي ثوباً منقوشاً ويحمل بين حوافره إناءً طقسياً ذا مصبّ، تمثل براعة الحرفيين العيلاميين في المزج بين السمات الحيوانية والبشرية.',
       en: 'An extraordinary early Elamite silver sculpture of a kneeling bull wearing a patterned garment and clutching a spouted ritual vessel, blending animal majesty with human posture.',
@@ -92,7 +92,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-004',
     uri: 'https://alqami.net/artifact/ane-proto-cuneiform-tablet',
     image: './images/ane/ane-04.jpg',
-    model: { glb: './models/ane-pro/ane-04.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-04.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'أحد أقدم الألواح الطينية المكتوبة بالخط المسماري البدائي من جنوب العراق (عصر جمدة نصر)، يوثق حسابات إدارية وتوزيع الشعير والمنتجات الزراعية مع طبعات أختام أسطوانية.',
       en: 'One of the earliest administrative clay tablets from southern Mesopotamia, recording accounts in proto-cuneiform script alongside rolled cylinder seal impressions.',
@@ -116,7 +116,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-005',
     uri: 'https://alqami.net/artifact/ane-standing-male-worshiper-eshnunna',
     image: './images/ane/ane-05.jpg',
-    model: { glb: './models/ane-pro/ane-05.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-05.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'تمثال نذري سومري من حجر الجبس (المرمر) اكتُشف في معبد إشنونا (تل أسمر بالعراق)، يقف بيدين معقودتين في خشوع وعينين واسعتين مطعّمتين بالصدف والحجر الجيري الأسود.',
       en: 'A Sumerian gypsum alabaster votive statue excavated at Eshnunna (modern Tell Asmar, Iraq), standing in eternal prayer with clasped hands and inlaid shell-and-black-limestone eyes.',
@@ -140,7 +140,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-006',
     uri: 'https://alqami.net/artifact/ane-vessel-stand-ibex-support',
     image: './images/ane/ane-06.jpg',
-    model: { glb: './models/ane-pro/ane-06.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-06.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'حامل إناء طقسي من سبيكة النحاس كان يُستخدم لتقديم القرابين والبخور في المعابد السومرية، يرتكز على تمثال مجسم لوعل جبلي مهيب.',
       en: 'A Mesopotamian copper alloy ritual stand used in temple offerings of food, drink, and incense, supported by a finely cast ibex figure.',
@@ -164,7 +164,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-007',
     uri: 'https://alqami.net/artifact/ane-royal-headdress-ur',
     image: './images/ane/ane-07.jpg',
-    model: { glb: './models/ane-pro/ane-07.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-07.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'حلية رأس ملكية سومرية مصنوعة من أوراق الذهب المطروق الرقيق وخرز اللازورد الأزرق والعقيق الأحمر، اكتُشفت في المقبرة الملكية الشهيرة بمدينة أور (تل المقير، جنوب العراق).',
       en: 'A Sumerian royal headdress of hammered gold beech leaves strung with deep-blue lapis lazuli and red carnelian beads, excavated from the Royal Cemetery at Ur (modern Tell al-Muqayyar, Iraq).',
@@ -188,7 +188,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-008',
     uri: 'https://alqami.net/artifact/ane-akkadian-cylinder-seal-hunting',
     image: './images/ane/ane-08.jpg',
-    model: { glb: './models/ane-pro/ane-08.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-08.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'ختم أسطواني أكدي منحوت بدقة فائقة في الحجر مع طبعته الحديثة، يُظهر مشهد صيد حيوي في جبال الرافدين كان يُدحرج على الألواح الطينية لتوثيق الهوية والملكية.',
       en: 'A finely carved Late Akkadian stone cylinder seal with its modern clay impression depicting a dynamic mountain hunting scene, rolled across clay tablets to authenticate ownership.',
@@ -212,7 +212,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-009',
     uri: 'https://alqami.net/artifact/ane-foundation-peg-snarling-lion',
     image: './images/ane/ane-09.jpg',
-    model: { glb: './models/ane-pro/ane-09.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-09.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'وتد تأسيس معبد من سبيكة النحاس على هيئة مقدم أسد زائر يمد مخالبه فوق لوح منقوش بالكتابة المسمارية الحورية، يُعد من أقدم النقوش الحورية المعروفة.',
       en: 'A copper alloy temple foundation peg cast as a snarling lion bracing its forepaws over an inscribed plaque — preserving one of the earliest known Hurrian cuneiform inscriptions.',
@@ -236,7 +236,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-010',
     uri: 'https://alqami.net/artifact/ane-statue-of-gudea-lagash',
     image: './images/ane/ane-10.jpg',
-    model: { glb: './models/ane-pro/ane-10.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-10.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'أشهر تماثيل كوديا حاكم مدينة لكش السومرية (جنوب العراق)، منحوت من حجر الديوريت الأسود الصلب، يجلس بخشوع ويداه معقودتان، ويغطي ثوبه نقش مسماري سومري طويل يكرّس المعبد.',
       en: 'Iconic hard black diorite statue of Gudea, ruler of the Sumerian city-state of Lagash (modern Telloh, Iraq), seated in pious devotion with a lengthy Sumerian cuneiform dedication across his robe.',
@@ -260,7 +260,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-011',
     uri: 'https://alqami.net/artifact/ane-head-of-a-ruler',
     image: './images/ane/ane-11.jpg',
-    model: { glb: './models/ane-pro/ane-11.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-11.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'رأس حاكم بالحجم الطبيعي مسبوك بمهارة فائقة من سبيكة النحاس بتقنية الشمع المفقود، يتميز بلحية مضفرة متقنة وملامح ملكية تجمع بين الواقعية والهيبة الرمزية.',
       en: 'A lifesize lost-wax copper alloy royal portrait head demonstrating extraordinary metallurgical mastery, with intricately braided beard and idealized sovereign features.',
@@ -284,7 +284,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-012',
     uri: 'https://alqami.net/artifact/ane-silver-shaft-hole-axe',
     image: './images/ane/ane-12.jpg',
-    model: { glb: './models/ane-pro/ane-12.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-12.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'فأس طقسية مسبوكة من الفضة ومكسوة برقائق الذهب، تصور مخلوقاً مجنحاً برأس طائر يصارع خنزيراً برياً وتنيناً في نحت مجسم وبارز فائق الدقة.',
       en: 'A ceremonial shaft-hole axe cast in silver and gilded with gold foil, sculpted both in the round and in relief with a bird-headed hero wrestling a boar and dragon.',
@@ -308,7 +308,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-013',
     uri: 'https://alqami.net/artifact/ane-old-assyrian-cuneiform-tablet-case',
     image: './images/ane/ane-13.jpg',
-    model: { glb: './models/ane-pro/ane-13.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-13.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'عقد تجاري مسماري باللغة الآشورية القديمة محفوظ داخل مغلفه الطيني المختوم بأختام أسطوانية، يوثق شبكة التجارة الدولية بين آشور (شمال العراق) والأناضول.',
       en: 'An Old Assyrian cuneiform legal tablet and its sealed clay envelope from the merchant colony of Kanesh (Kültepe), documenting trade links with Assur in northern Mesopotamia.',
@@ -332,7 +332,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-014',
     uri: 'https://alqami.net/artifact/ane-ivory-sphinx-furniture-support',
     image: './images/ane/ane-14.jpg',
-    model: { glb: './models/ane-pro/ane-14.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-14.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'إحدى أربع دعامات لعرش أو أثاث ملكي منحوتة من عاج فرس النهر على شكل أبو الهول الجالس، مع آثار تذهيب أصلي وتطعيم في العينين.',
       en: 'One of four throne or furniture supports carved from hippopotamus ivory as a compact seated sphinx, preserving traces of original gold foil and color.',
@@ -356,7 +356,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-015',
     uri: 'https://alqami.net/artifact/ane-old-babylonian-gold-pendants-dilbat',
     image: './images/ane/ane-15.jpg',
-    model: { glb: './models/ane-pro/ane-15.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-15.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'مجموعة نفيسة من الحلي والدلايات الذهبية البابلية القديمة المزينة بتقنية التحبيب الدقيق (الكرانيوليشن) ورموز الشمس والقمر وعشتار من مدينة دلبات الأثرية في العراق.',
       en: 'An important assemblage of Old Babylonian granulated gold necklaces and cosmic emblems (sun disk, crescent moon, forked lightning) attributed to Dilbat in central Iraq.',
@@ -380,7 +380,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-016',
     uri: 'https://alqami.net/artifact/ane-elamite-bronze-helmet-divine-figures',
     image: './images/ane/ane-16.jpg',
-    model: { glb: './models/ane-pro/ane-16.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-16.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'خوذة احتفالية عيلامية من البرونز المطعّم برقائق الذهب والفضة، تزين واجهتها ثلاث شخصيات إلهية بارزة يظلّلها طائر جارح باسط الجناحين.',
       en: 'A ceremonial Middle Elamite bronze helmet inlaid with gold and silver foil depicting three protective deities beneath an outspread bird of prey.',
@@ -404,7 +404,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-017',
     uri: 'https://alqami.net/artifact/ane-hittite-silver-stag-vessel',
     image: './images/ane/ane-17.jpg',
-    model: { glb: './models/ane-pro/ane-17.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-17.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'كأس طقسي ملكي من الفضة المطعّمة بالذهب من الإمبراطورية الحثية يتخذ شكل مقدم أيل ذي قرون متشعبة، يزين عنقه شريط نافر لمشهد تقديم قرابين.',
       en: 'A Hittite Empire silver drinking vessel (bibru) shaped as a fully antlered stag with a gold-inlaid frieze around the neck depicting a royal libation scene.',
@@ -428,7 +428,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-018',
     uri: 'https://alqami.net/artifact/ane-enthroned-deity-levant',
     image: './images/ane/ane-18.jpg',
-    model: { glb: './models/ane-pro/ane-18.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-18.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'تمثال برونزي صغير مكسو برقائق الذهب يمثل شخصية إلهية جالسة بتاج مخروطي طويل، كان يُثبّت على عرش خشبي أو معدني في معابد بلاد الشام.',
       en: 'A small Late Bronze Age bronze figure sheathed in gold foil representing an enthroned deity wearing a tall conical headdress.',
@@ -452,7 +452,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-019',
     uri: 'https://alqami.net/artifact/ane-relief-king-ashurnasirpal-ii',
     image: './images/ane/ane-19.jpg',
-    model: { glb: './models/ane-pro/ane-19.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-19.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'لوح نحت بارز ضخم من حجر الجبس (المرمر الموصلي) من قصر الملك آشور ناصر بال الثاني في نمرود (العراق)، يصوّر الملك بتاجه الملكي وحاشيته والجنّي المجنّح الحارس مع نقش مسماري معياري.',
       en: 'A monumental gypsum alabaster wall relief from the Northwest Palace of Ashurnasirpal II at Kalhu (modern Nimrud, Iraq), showing the king attended by court officials and winged protective spirits.',
@@ -476,7 +476,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-020',
     uri: 'https://alqami.net/artifact/ane-lamassu-winged-lion-nimrud',
     image: './images/ane/ane-20.jpg',
-    model: { glb: './models/ane-pro/ane-20.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-20.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'تمثال حارس بوابة ضخم (لاماسو) على هيئة أسد مجنح برأس بشري وتاج مقرن وخمس قوائم، كان يحرس مداخل قصر آشور ناصر بال الثاني في نمرود بشمال العراق.',
       en: 'A colossal protective gateway guardian (Lamassu) combining human intellect, lion strength, and eagle wings — originally flanking the royal doorways of Ashurnasirpal II’s palace at Nimrud, Iraq.',
@@ -500,7 +500,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-021',
     uri: 'https://alqami.net/artifact/ane-ivory-tribute-bearer-nimrud',
     image: './images/ane/ane-21.jpg',
-    model: { glb: './models/ane-pro/ane-21.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-21.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'تمثال عاجي بديع عُثر عليه في حصن شلمنصر بنمرود (العراق)، يجسد حامل هدايا يقود غزالاً ويحمل قرداً على كتفه ضمن وفود الجزية للقصر الآشوري.',
       en: 'An exquisite carved ivory statuette excavated at Nimrud (Iraq), depicting a tribute bearer leading an oryx while carrying a monkey on his shoulder.',
@@ -524,7 +524,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-022',
     uri: 'https://alqami.net/artifact/ane-bronze-sphinx-plaques-syria',
     image: './images/ane/ane-22.jpg',
-    model: { glb: './models/ane-pro/ane-22.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-22.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'زوج من الألواح البرونزية المطروقة المتقابلة على هيئة أبو الهول المجنح، كانت تزين العرش أو العربة الملكية بأسلوب يمزج التقاليد السورية والمصرية والآشورية.',
       en: 'A mirrored pair of hammered sheet-bronze plaques shaped as striding winged sphinxes that originally adorned royal furniture or chariot fittings.',
@@ -548,7 +548,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-023',
     uri: 'https://alqami.net/artifact/ane-babylon-striding-lion-panel',
     image: './images/ane/ane-23.jpg',
-    model: { glb: './models/ane-pro/ane-23.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-23.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'لوحة آجر مزجج بارز لأسد بابل الخالد بألوان الفيروز واللازورد والذهب، كانت تزين جدران شارع الموكب المؤدي إلى بوابة عشتار في بابل (الحلة الحديثة، العراق) في عهد الملك نبوخذ نصر الثاني.',
       en: 'Iconic molded glazed-brick relief of a striding lion — symbol of the goddess Ishtar — from the Processional Way leading to the Ishtar Gate in Babylon (modern Hillah, Iraq), reign of Nebuchadnezzar II.',
@@ -572,7 +572,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-024',
     uri: 'https://alqami.net/artifact/ane-south-arabian-bronze-incense-burner',
     image: './images/ane/ane-24.jpg',
-    model: { glb: './models/ane-pro/ane-24.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-24.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'مبخرة طقسية برونزية نادرة من جنوب غرب الجزيرة العربية، تتألف من كوب على قاعدة مخروطية وخلفية معمارية شرفاتية يقف أمامها تمثال وعل جبلي مجسم.',
       en: 'A bronze ritual incense burner from southwestern Arabia combining a cylindrical cup on a conical base with a crenelated architectural backdrop and cast ibex figurine.',
@@ -596,7 +596,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-025',
     uri: 'https://alqami.net/artifact/ane-achaemenid-gold-lion-rhyton',
     image: './images/ane/ane-25.jpg',
-    model: { glb: './models/ane-pro/ane-25.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-25.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'إحدى أروع تحف الصياغة الذهبية في العالم القديم: كأس ملكي من الذهب الخالص ينتهي بمقدم أسد أسطوري بزخارف لولبية ولبدات محفورة بدقة مذهلة.',
       en: 'A supreme masterpiece of Achaemenid royal goldwork shaped as a roaring winged-lion drinking vessel with finely chased mane, fluted beaker, and gold-wire rim.',
@@ -620,7 +620,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-026',
     uri: 'https://alqami.net/artifact/ane-persepolis-attendants-relief',
     image: './images/ane/ane-26.jpg',
-    model: { glb: './models/ane-pro/ane-26.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-26.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'جزء من نحت بارز حجري كان يزين درج القصر الملكي في برسيبوليس، يصوّر خدم البلاط وهم يصعدون الدرج حاملين أواني الوليمة الملكية.',
       en: 'A carved limestone stairway relief from Persepolis depicting Persian and Median attendants ascending steps bearing covered bowls and wine skins for the royal banquet.',
@@ -644,7 +644,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-027',
     uri: 'https://alqami.net/artifact/ane-parthian-silver-wildcat-rhyton',
     image: './images/ane/ane-27.jpg',
-    model: { glb: './models/ane-pro/ane-27.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-27.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'إناء شرب طقسي (رايتون) على هيئة قرن منحني من الفضة المذهبة بالزئبق، ينتهي بمقدم سنور بري مزخرف بشريط من أوراق العنب الذهبية.',
       en: 'A curving Parthian silver drinking horn (rhyton) with mercury gilding, terminating in a leaping wild cat (lynx/caracal) beneath a gilded ivy-and-grapevine frieze.',
@@ -668,7 +668,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-028',
     uri: 'https://alqami.net/artifact/ane-palmyra-banquet-gravestone',
     image: './images/ane/ane-28.jpg',
-    model: { glb: './models/ane-pro/ane-28.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-28.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'نحت بارز تدمري من الحجر الجيري يوثق مشهد مأدبة جنائزية لرجل مستلقٍ يحيط به ابنه وابنتاه بأزياء تدمرية مزخرفة تعكس تلاقي الثقافات العربية والشرقية والرومانية.',
       en: 'A high-relief limestone funerary banquet stele from Palmyra, Syria, portraying a reclining nobleman flanked by his son and two daughters in richly draped garments.',
@@ -692,7 +692,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-029',
     uri: 'https://alqami.net/artifact/ane-sasanian-silver-head-of-king',
     image: './images/ane/ane-29.jpg',
-    model: { glb: './models/ane-pro/ane-29.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-29.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'تحفة استثنائية من فن المعادن الساساني: رأس ملك مطروق من صفيحة فضية ومذهّب بالزئبق، يعتمر تاجاً ملكياً مقبباً ومشرفاً بأدق تفاصيل الشعر واللحية.',
       en: 'An exquisite Sasanian royal portrait head hammered from silver sheet with mercury gilding, crowned with a crenelated diadem and globe.',
@@ -716,7 +716,7 @@ export const ANCIENT_NEAR_EAST_ARTIFACTS: AlqamiArtifact[] = [
     itemCode: 'ANE-030',
     uri: 'https://alqami.net/artifact/ane-sasanian-plate-bahram-gur-hunting',
     image: './images/ane/ane-30.jpg',
-    model: { glb: './models/ane-pro/ane-30.glb?v=ane4', scale: 1.0 },
+    model: { glb: './models/ane-pro/ane-30.glb?v=ane5', scale: 1.0 },
     description: {
       ar: 'طبق احتفالي ساساني من الفضة المذهّبة بالزئبق والنييلو، يصوّر أقدم تمثيل فني معروف لأسطورة صيد الملك بهرام الخامس (بهرام غور) مع العازفة آزاده على ظهر جمل.',
       en: 'A Sasanian silver-gilt and niello ceremonial plate preserving the earliest known depiction of King Bahram V (Bahram Gur) hunting gazelles from camelback with the harpist Azadeh.',

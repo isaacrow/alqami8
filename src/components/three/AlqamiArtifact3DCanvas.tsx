@@ -201,7 +201,7 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
                 const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
                 materials.forEach((mat) => {
                   const stdMat = mat as THREE.MeshStandardMaterial;
-                  const maxAniso = renderer.capabilities.getMaxAnisotropy();
+                  const maxAniso = Math.min(16, renderer.capabilities.getMaxAnisotropy());
                   if (stdMat.map) {
                     stdMat.map.colorSpace = THREE.SRGBColorSpace;
                     stdMat.map.anisotropy = maxAniso;
@@ -211,13 +211,30 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
                       stdMat.metalness = Math.min(0.22, stdMat.metalness);
                     }
                   }
+                  if (stdMat.normalMap) {
+                    stdMat.normalMap.anisotropy = maxAniso;
+                    stdMat.normalMap.needsUpdate = true;
+                  }
+                  if (stdMat.roughnessMap) {
+                    stdMat.roughnessMap.anisotropy = maxAniso;
+                    stdMat.roughnessMap.needsUpdate = true;
+                  }
+                  if (stdMat.metalnessMap) {
+                    stdMat.metalnessMap.anisotropy = maxAniso;
+                    stdMat.metalnessMap.needsUpdate = true;
+                  }
+                  if (stdMat.aoMap) {
+                    stdMat.aoMap.anisotropy = maxAniso;
+                    stdMat.aoMap.needsUpdate = true;
+                  }
+                  const isMetallic = (typeof stdMat.metalness === 'number' && stdMat.metalness > 0.32) || Boolean(stdMat.metalnessMap);
                   if ('envMapIntensity' in mat) {
-                    stdMat.envMapIntensity = 0.65;
+                    stdMat.envMapIntensity = isMetallic ? 1.15 : 0.78;
                   }
                   if ('roughness' in mat && typeof (mat as THREE.MeshStandardMaterial).roughness === 'number') {
                     const m = mat as THREE.MeshStandardMaterial;
                     if (m.metalness > 0.3) {
-                      m.roughness = Math.max(0.12, m.roughness * 0.9);
+                      m.roughness = Math.max(0.12, m.roughness * 0.88);
                     }
                   }
                   mat.needsUpdate = true;
