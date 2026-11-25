@@ -393,7 +393,13 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
     spatialSound.playPinchTap();
     setFoldDirection(1);
     setIsFoldTransitionActive(true);
-    setActiveArtifactIndex((prev) => (prev + 1) % artifacts.length);
+    setActiveArtifactIndex((prev) => {
+      for (let step = 1; step <= artifacts.length; step++) {
+        const idx = (prev + step) % artifacts.length;
+        if (!deletedMap[artifacts[idx].id]) return idx;
+      }
+      return prev;
+    });
   };
 
   const handlePrevArtifact = (e?: React.MouseEvent) => {
@@ -401,7 +407,13 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
     spatialSound.playPinchTap();
     setFoldDirection(-1);
     setIsFoldTransitionActive(true);
-    setActiveArtifactIndex((prev) => (prev - 1 + artifacts.length) % artifacts.length);
+    setActiveArtifactIndex((prev) => {
+      for (let step = 1; step <= artifacts.length; step++) {
+        const idx = (prev - step + artifacts.length) % artifacts.length;
+        if (!deletedMap[artifacts[idx].id]) return idx;
+      }
+      return prev;
+    });
   };
 
   // Auto-randomize the hero banner 3D artifact periodically
@@ -537,6 +549,13 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
   const handleDeleteItem = (prod: AlqamiArtifact, e?: React.MouseEvent) => {
     e?.stopPropagation();
     spatialSound.playPinchTap();
+    const label = isAr ? prod.title.ar : prod.title.en;
+    const confirmed = window.confirm(
+      isAr
+        ? `هل تريد حذف "${label}" نهائياً من المعرض؟`
+        : `Permanently delete "${label}" from the museum?`
+    );
+    if (!confirmed) return;
     setDeletedMap((prev) => {
       const next = { ...prev, [prod.id]: true };
       saveDeletedMap(next);
@@ -549,7 +568,8 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
       saveFavoritesMap(next);
       return next;
     });
-    setDeletedToast({ id: prod.id, title: isAr ? prod.title.ar : prod.title.en });
+    setDeletedToast({ id: prod.id, title: label });
+    window.setTimeout(() => setDeletedToast(null), 2600);
     if (view === 'detail' && currentArtifact.id === prod.id) {
       transitionToView('catalog');
     }
@@ -1316,6 +1336,18 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
         >
           {/* Left Pane: Warm Stone-Gray 3D Studio Viewport (#CBC9C5). On a phone it sits on top, the details below. */}
           <div className="shrink-0 h-[50vh] min-h-[300px] sm:h-auto sm:min-h-0 sm:col-span-7 bg-[#CBC9C5] text-stone-900 relative flex flex-col justify-between p-4 sm:p-6 overflow-hidden">
+            {/* Top-Left Back Button directly on the 3D Stage Viewport */}
+            <button
+              onClick={() => {
+                spatialSound.playPinchTap();
+                transitionToView('catalog');
+              }}
+              className="vision-btn absolute top-4 left-4 z-30 w-10 h-10 rounded-full bg-stone-800/75 hover:bg-stone-900 text-white flex items-center justify-center shadow-lg backdrop-blur-md border border-white/25 transition cursor-pointer active:scale-95"
+              title={isAr ? 'العودة للمعرض' : 'Back to Catalog'}
+              aria-label={isAr ? 'العودة للمعرض' : 'Back to Catalog'}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
             {/* Interactive 3D Artifact wrapped with Duo Fold Carousel 3D mechanical hinge transition */}
             <AlqamiDuoFoldTransition
               currentArtifact={currentArtifact}
@@ -1336,7 +1368,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                     autoRotate={true}
                   />
                   {currentArtifact.model.glb.includes('/models/alkafeel/') && (
-                    <div className="absolute top-3 left-3 z-20 flex items-center gap-1 p-1 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-[11px] font-semibold shadow-lg">
+                    <div className="absolute top-3 left-14 z-20 flex items-center gap-1 p-1 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-[11px] font-semibold shadow-lg">
                       <button
                         onClick={() => {
                           spatialSound.playPinchTap();
@@ -1506,6 +1538,14 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                   title={isAr ? 'إضافة للمفضلة' : 'Favorite'}
                 >
                   <Heart className={`w-4 h-4 ${liked[currentArtifact.id] ? 'fill-white' : ''}`} />
+                </button>
+                <button
+                  onClick={(e) => handleDeleteItem(currentArtifact, e)}
+                  className="w-9 h-9 rounded-full bg-red-500/80 hover:bg-red-600 text-white flex items-center justify-center transition cursor-pointer shadow-md active:scale-95"
+                  title={isAr ? 'حذف القطعة نهائياً' : 'Delete Item Permanently'}
+                  aria-label={isAr ? 'حذف القطعة نهائياً' : 'Delete Item Permanently'}
+                >
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
