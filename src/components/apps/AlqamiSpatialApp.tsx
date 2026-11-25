@@ -465,6 +465,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
   const categories: { id: string; ar: string; en: string }[] = [
     { id: 'All', ar: 'الكل', en: 'All' },
+    { id: 'ANE', ar: 'الشرق الأدنى القديم (30 3D)', en: 'Ancient Near East (30 3D)' },
     { id: 'AlKafeel', ar: 'متحف الكفيل (30 3D)', en: 'Al-Kafeel Museum (30 3D)' },
     { id: 'KFL-KSH', ar: 'الكشاكيل 3D', en: '3D Kashkuls' },
     { id: 'KFL-SWD', ar: 'السيوف 3D', en: '3D Swords' },
@@ -483,8 +484,10 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
     const matchesCat =
       activeCategory === 'All'
         ? true
-        : activeCategory === 'AlKafeel'
-          ? a.id.startsWith('KFL-')
+        : activeCategory === 'ANE'
+          ? a.id.startsWith('ANE-')
+          : activeCategory === 'AlKafeel'
+            ? a.id.startsWith('KFL-')
           : activeCategory === 'KFL-LNT'
             ? a.id.startsWith('KFL-LNT') || a.id.startsWith('KFL-CND')
             : activeCategory === 'KFL-MTL'

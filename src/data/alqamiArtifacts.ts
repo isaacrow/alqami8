@@ -1,4 +1,5 @@
 import { ALKAFEEL_ARTIFACTS } from './alkafeelArtifacts';
+import { ANCIENT_NEAR_EAST_ARTIFACTS } from './ancientNearEastArtifacts';
 
 export interface AlqamiArtifact {
   id: string;
@@ -65,6 +66,7 @@ export interface AlqamiArtifact {
 }
 
 export const ALQAMI_ARTIFACTS: AlqamiArtifact[] = [
+  ...ANCIENT_NEAR_EAST_ARTIFACTS,
   ...ALKAFEEL_ARTIFACTS,
   {
     id: 'ALQ-MSS-006',
