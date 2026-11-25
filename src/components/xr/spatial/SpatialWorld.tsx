@@ -11,6 +11,7 @@ import { createPortal } from 'react-dom';
 import * as THREE from 'three';
 import { CSS3DObject, CSS3DRenderer } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { downscaleTextures, getDracoLoader, isPhoneViewport } from '../../../utils/modelMemory';
 import { Box, Camera, Compass, Crosshair, Hand, Layers, LayoutGrid, LogOut, Mountain, Navigation, PenTool, QrCode, RotateCcw, SlidersHorizontal, Trash2, Undo2 } from 'lucide-react';
 import { OrientationTracker, requestMotionPermission } from './orientationTracker';
@@ -1167,6 +1168,7 @@ export const SpatialWorld: React.FC<SpatialWorldProps> = ({
 
       if (artifactDetail?.glb) {
         const loader = new GLTFLoader();
+        loader.setMeshoptDecoder(MeshoptDecoder); // models/alkafeel* are meshopt-packed (scripts/compress-glb.mjs)
         loader.setDRACOLoader(getDracoLoader());
         retryModelLoad = () => loader.load(
           assetUrl(artifactDetail.glb!),

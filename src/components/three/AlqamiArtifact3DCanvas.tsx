@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { disposeObject, downscaleTextures, getDracoLoader } from '../../utils/modelMemory';
 import { isScannerOpen, onScannerChange } from '../../utils/scannerState';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
@@ -167,6 +168,7 @@ export const AlqamiArtifact3DCanvas: React.FC<AlqamiArtifact3DCanvasProps> = ({
     const modelRoot = new THREE.Group();
     scene.add(modelRoot);
     const loader = new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder); // models/alkafeel* are meshopt-packed (scripts/compress-glb.mjs)
     try {
       loader.setDRACOLoader(getDracoLoader());
     } catch (e) {

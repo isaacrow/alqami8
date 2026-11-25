@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { assetUrl } from '../utils/assetUrl';
 import { disposeObject, getDracoLoader } from '../utils/modelMemory';
@@ -101,6 +102,7 @@ export const Hologram3DCanvas: React.FC<Hologram3DCanvasProps> = ({
     pivot.add(ring);
 
     const loader = new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder); // models/alkafeel* are meshopt-packed (scripts/compress-glb.mjs)
     loader.setDRACOLoader(getDracoLoader());
 
     let loadedModel: THREE.Object3D | null = null;

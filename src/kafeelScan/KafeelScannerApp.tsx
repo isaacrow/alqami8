@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import {
   ArrowLeft,
@@ -1552,6 +1553,7 @@ const KafeelPrimaryARStage: React.FC<{
 
     let loadedObj: THREE.Object3D | null = null;
     const loader = new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder); // models/alkafeel* are meshopt-packed (scripts/compress-glb.mjs)
     try {
       loader.setDRACOLoader(getDracoLoader());
     } catch {

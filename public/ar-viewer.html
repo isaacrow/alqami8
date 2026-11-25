@@ -10,7 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   
-  <!-- Model Viewer Web Component -->
+  <!-- Model Viewer Web Component (meshopt-packed models decode with the local copy, scripts/compress-glb.mjs) -->
+  <script>self.ModelViewerElement = { meshoptDecoderLocation: new URL('./js/meshopt_decoder.js', location.href).href };</script>
   <script type="module" src="./js/model-viewer.min.js"></script>
 
   <style>

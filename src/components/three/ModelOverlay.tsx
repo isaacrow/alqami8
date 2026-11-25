@@ -9,7 +9,12 @@ export function loadModelViewer() {
     const s = document.createElement('script');
     s.type = 'module';
     s.src = new URL('js/model-viewer.min.js', new URL(import.meta.env.BASE_URL || './', location.href)).href;
-    s.onload = () => resolve();
+    s.onload = () => {
+      // Our meshopt-packed models (scripts/compress-glb.mjs) decode with the copy in public/js, so it works offline too.
+      const mv = customElements.get('model-viewer') as unknown as { meshoptDecoderLocation?: string } | undefined;
+      if (mv) mv.meshoptDecoderLocation = new URL('js/meshopt_decoder.js', new URL(import.meta.env.BASE_URL || './', location.href)).href;
+      resolve();
+    };
     s.onerror = () => reject(new Error('model-viewer'));
     document.head.appendChild(s);
   });

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import {
   Box,
@@ -513,6 +514,7 @@ export const Spatial3DStudioApp: React.FC = () => {
 
       if (extension === 'gltf' || extension === 'glb') {
         const loader = new GLTFLoader();
+        loader.setMeshoptDecoder(MeshoptDecoder); // models/alkafeel* are meshopt-packed (scripts/compress-glb.mjs)
         loader.parse(
           buffer as ArrayBuffer,
           '',

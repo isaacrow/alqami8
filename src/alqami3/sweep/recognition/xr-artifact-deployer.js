@@ -3,6 +3,7 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { ARCardManager } from '../ar-card.js';
 
 export class XRArtifactDeployer {
@@ -23,7 +24,7 @@ export class XRArtifactDeployer {
 
     this.cardManager = null;
     this.currentModel = null;
-    this.gltfLoader = new GLTFLoader();
+    this.gltfLoader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 
     // State & Animation
     this.isConfirmed = false;
