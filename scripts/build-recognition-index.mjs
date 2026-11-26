@@ -30,6 +30,11 @@ const IN_FRAME = 4;
 // scanner-like views: score >= 0.76 and gap >= 0.06 answered 61% of known covers with no wrong answer and accepted none
 // of 35 unknown images (scripts/recognition-bench.mjs, 2026-11-09).
 const SCORE_FLOOR = 0.76;
+// Al-Kafeel Museum objects (keys "alkafeel:<id>"), measured on phone-at-a-glass-case views by
+// scripts/alkafeel-sight-bench.mjs (2026-11-26): with the 0.06 gap and 3 steady frames, 0.72 named 57% of the 183
+// objects with none wrong, against 46% at 0.76, and named no more of 30 objects left out of the index (1 of 30 at
+// every floor up to 0.84: a near-twin coconut kashkul, which the gap rule separates when both are in the index).
+const MUSEUM_FLOOR = 0.72;
 
 const SIZE = 224;
 const MEAN = [0.485, 0.456, 0.406];
@@ -158,7 +163,7 @@ for (const key of new Set([...sources.keys(), ...rendered.keys()])) {
   entries.push({ key, views, angles });
 }
 
-for (const e of entries) e.threshold = SCORE_FLOOR;
+for (const e of entries) e.threshold = e.key.startsWith("alkafeel:") ? MUSEUM_FLOOR : SCORE_FLOOR;
 
 mkdirSync(join(process.cwd(), 'public', 'data'), { recursive: true });
 const file = {

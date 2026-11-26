@@ -129,8 +129,9 @@ export const MuseumLensApp: React.FC = () => {
 
   // Drawers & settings
   const [drawer, setDrawer] = useState<DrawerKind>('none');
-  const [sensitivity, setSensitivity] = useState<number>(0.60);
-  const sensitivityRef = useRef(0.60);
+  // 0.72: the lowest lock floor measured to name no museum object wrongly (scripts/alkafeel-sight-bench.mjs).
+  const [sensitivity, setSensitivity] = useState<number>(0.72);
+  const sensitivityRef = useRef(0.72);
   sensitivityRef.current = sensitivity;
   const [antiGlare, setAntiGlare] = useState<boolean>(true);
   const antiGlareRef = useRef(true);
@@ -1508,16 +1509,16 @@ export const MuseumLensApp: React.FC = () => {
                   </div>
                   <input
                     type="range"
-                    min={0.48}
-                    max={0.78}
+                    min={0.72}
+                    max={0.9}
                     step={0.02}
                     value={sensitivity}
                     onChange={(e) => setSensitivity(Number(e.target.value))}
                     className="w-full accent-slate-950"
                   />
                   <div className="flex justify-between text-[10px] font-bold text-slate-700">
-                    <span>{t('أسرع خلف الزجاج (48%)', 'Faster behind glass (48%)')}</span>
-                    <span>{t('أكثر صرامة (78%)', 'Stricter (78%)')}</span>
+                    <span>{t('الأسرع مع بقاء الدقة (72%)', 'Fastest that stays accurate (72%)')}</span>
+                    <span>{t('أكثر صرامة (90%)', 'Stricter (90%)')}</span>
                   </div>
                 </div>
 

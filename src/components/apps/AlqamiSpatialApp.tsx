@@ -46,6 +46,7 @@ import { useMoonRecord } from '../../moon/useMoon';
 import { roomViewUrl } from '../../moon/roomView';
 import { SpeakingPanel } from '../voice/SpeakingPanel';
 import { factsFromArtifact } from '../../voice/persona';
+import { isMuseumMode } from '../../utils/museumMode';
 
 interface BentoHotspot {
   id: string;
@@ -1115,6 +1116,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                     <div className="flex flex-col gap-2 pt-2.5 min-w-0">
                       {/* Action buttons placed cleanly above the item code number (no horizontal overflow on phones) */}
                       <div className="flex items-center gap-1.5">
+                        {!isMuseumMode() && (
                         <button
                           onClick={(e) => handleDeleteItem(prod, e)}
                           className="w-8 h-8 rounded-full bg-white/15 hover:bg-red-500/85 active:scale-95 border border-white/20 hover:border-red-300 flex items-center justify-center text-white/85 hover:text-white shadow-md transition-all cursor-pointer shrink-0"
@@ -1123,6 +1125,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
+                        )}
                         <button
                           onClick={(e) => toggleLike(prod.id, e)}
                           className={`w-8 h-8 rounded-full border border-white/25 flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md shrink-0 ${
@@ -1520,7 +1523,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                     if (navigator.share) {
                       navigator.share({
                         title: isAr ? currentArtifact.title.ar : currentArtifact.title.en,
-                        text: isAr ? currentArtifact.description.ar : currentArtifact.description.en,
+                        text: isAr ? currentArtifact.description.ar : currentArtifact.description.en || currentArtifact.description.ar,
                         url: window.location.href,
                       });
                     }
@@ -1539,6 +1542,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                 >
                   <Heart className={`w-4 h-4 ${liked[currentArtifact.id] ? 'fill-white' : ''}`} />
                 </button>
+                {!isMuseumMode() && (
                 <button
                   onClick={(e) => handleDeleteItem(currentArtifact, e)}
                   className="w-9 h-9 rounded-full bg-red-500/80 hover:bg-red-600 text-white flex items-center justify-center transition cursor-pointer shadow-md active:scale-95"
@@ -1547,6 +1551,7 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
+                )}
               </div>
             </div>
 
@@ -1569,7 +1574,8 @@ export const AlqamiSpatialApp: React.FC<AlqamiSpatialAppProps> = ({
 
             {/* Description Paragraph */}
             <p className="text-[13px] leading-relaxed text-white/80 font-light mb-3">
-              {isAr ? currentArtifact.description.ar : currentArtifact.description.en}
+              {/* No English description yet (museum records): the museum's Arabic text rather than nothing. */}
+              {isAr ? currentArtifact.description.ar : currentArtifact.description.en || <bdi dir="rtl">{currentArtifact.description.ar}</bdi>}
             </p>
 
             <div className="mb-3">

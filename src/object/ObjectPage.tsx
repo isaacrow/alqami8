@@ -106,7 +106,13 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
     ? (a.pagePins ?? []).map((p) => ({ title: p.title, text: p.text }))
     : pins3d.map((p) => ({ title: p.title, text: p.text }));
   const d = a.details;
-  const facts: Array<[string, string | undefined]> = [
+  // A museum record (facts from the holding museum) is shown as the museum wrote it, field by field.
+  const facts: Array<[string, string | undefined]> = a.facts?.length
+    ? [
+        ...a.facts.map(({ label, value }): [string, string] => [(lang === 'en' && label.en) || label.ar, value]),
+        [t('مكان الحفظ', 'Held at'), a.institution[lang]],
+      ]
+    : [
     [t('الفترة', 'Period'), a.period[lang]],
     [t('المؤلف أو الصانع', 'Maker'), a.creator[lang]],
     [t('مكان الحفظ', 'Held at'), a.institution[lang]],
@@ -118,6 +124,9 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
     [t('الأختام والتملكات', 'Seals and ownership'), d.seals?.[lang]],
     [t('المعرّف الموحد (URI)', 'Canonical URI'), a.uri || `https://alqami.net/artifact/${a.slug}`],
   ];
+  // No English description yet: show the museum's Arabic text, marked as such, rather than an invented one.
+  const descriptionLang: Lang = a.description[lang] ? lang : 'ar';
+  const aiModel = a.modelKind === 'ai-from-photo';
 
   return (
     <main className="min-h-screen pb-[calc(env(safe-area-inset-bottom)+96px)]">
@@ -209,9 +218,19 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
               ),
               React.createElement(
                 'button',
-                { slot: 'ar-button', key: 'ar', className: 'absolute bottom-4 start-1/2 -translate-x-1/2 h-11 px-5 rounded-full bg-white text-black text-[14px] font-semibold shadow-lg' },
+                { slot: 'ar-button', key: 'ar', className: 'absolute bottom-4 left-1/2 -translate-x-1/2 h-11 px-5 rounded-full bg-white text-black text-[14px] font-semibold shadow-lg' },
                 t('شاهدها في مكانك', 'See it in your room')
               )
+            )}
+            {aiModel && (
+              <p className="absolute bottom-[68px] inset-x-3 z-10 text-center text-[11.5px] leading-snug text-white/80 pointer-events-none">
+                <span className="inline-block rounded-full bg-black/60 backdrop-blur px-3 py-1">
+                  {t(
+                    'مجسّم تقريبي صنعه الذكاء الاصطناعي من صورة واحدة: الجوانب والظهر تخمين، وليس مسحاً للقطعة',
+                    'An AI guess from one photo: the sides and back are invented, not a scan of the object'
+                  )}
+                </span>
+              </p>
             )}
           </div>
         )}
@@ -224,7 +243,16 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
           {a.subtitle && <p className="text-[15px] text-white/70 mt-1">{a.subtitle[lang]}</p>}
         </div>
 
-        <p className="text-[15.5px] leading-[1.9] text-white/90">{a.description[lang]}</p>
+        {a.description[descriptionLang] && (
+          <div>
+            <p className="text-[15.5px] leading-[1.9] text-white/90" dir={descriptionLang === 'ar' ? 'rtl' : 'ltr'} lang={descriptionLang}>
+              {a.description[descriptionLang]}
+            </p>
+            {descriptionLang !== lang && (
+              <p className="text-[12px] text-white/50 mt-1">The museum's description, in Arabic. No checked English translation yet.</p>
+            )}
+          </div>
+        )}
 
         {openPin != null && pins[openPin] && (
           <div className="rounded-2xl bg-white/8 border border-[#FFD60A]/40 p-4">
@@ -277,6 +305,8 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             {ALQAMI_ARTIFACTS.filter((x) => x.id.startsWith('KFL-') && x.id !== a.id)
+              // Same hall and section first, so "more" means more of what the visitor is standing at.
+              .sort((x, y) => Number(y.categoryLabel.ar === a.categoryLabel.ar) - Number(x.categoryLabel.ar === a.categoryLabel.ar))
               .slice(0, 9)
               .map((item) => (
                 <a
@@ -299,6 +329,16 @@ const ObjectView: React.FC<{ a: AlqamiArtifact; lang: Lang; setLang: (l: Lang) =
               ))}
           </div>
         </section>
+
+        {a.source && (
+          <p className="text-[12.5px] text-white/60 leading-relaxed">
+            {t('النص والصورة من ', 'Text and photo from ')}
+            <a href={a.source.url} className="text-[#FFD60A] hover:underline" target="_blank" rel="noopener noreferrer">
+              {a.source.name[lang]}
+            </a>
+            {t('. حقوقهما محفوظة للمتحف.', '. All rights reserved by the museum.')}
+          </p>
+        )}
 
         <p className="text-[12px] text-white/45" dir="ltr">
           {a.id} · {a.itemCode}

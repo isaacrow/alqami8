@@ -367,8 +367,12 @@ export class MuseumSightEngine {
     const [best, second] = scored;
     if (best) {
       const margin = best.score - (second?.score ?? 0);
-      const instantHit = best.score >= Math.max(0.72, opts.autoLockThreshold + 0.08) && margin >= 0.025;
-      const steadyHit = best.score >= opts.autoLockThreshold && margin >= 0.03;
+      // Measured on phone-at-a-glass-case views (scripts/alkafeel-sight-bench.mjs, 2026-11-26): one frame names a
+      // wrong object only below about 0.82 / 0.08, and 3 steady frames at the entry's own floor (0.72 for museum
+      // objects) with a 0.06 gap named none wrongly. The sensitivity slider can only make locking stricter.
+      const floor = Math.max(this.entries.find((e) => e.key === best.key)?.threshold ?? 0.76, opts.autoLockThreshold);
+      const instantHit = best.score >= Math.max(0.84, floor + 0.08) && margin >= 0.08;
+      const steadyHit = best.score >= floor && margin >= 0.06;
 
       if (instantHit) {
         const res = best.isTaught
@@ -382,7 +386,7 @@ export class MuseumSightEngine {
           this.streak?.key === best.key
             ? { key: best.key, count: this.streak.count + 1 }
             : { key: best.key, count: 1 };
-        if (this.streak.count >= 2) {
+        if (this.streak.count >= 3) {
           const res = best.isTaught
             ? resultFromTaught(customMeta[best.key], best.score)
             : resultFromArtifact(best.artifact!, best.score, 'dinov2', best.angle);
