@@ -7,6 +7,10 @@ import '@fontsource/ibm-plex-sans-arabic/arabic-500.css';
 import '@fontsource/ibm-plex-sans-arabic/arabic-600.css';
 import '@fontsource/ibm-plex-sans-arabic/arabic-700.css';
 import './styles/visionos.css';
+import { startMuseumMode } from './utils/museumMode';
+
+// ?museum=kiosk / visitor: a museum's shared device or a visitor's phone (src/utils/museumMode.ts).
+startMuseumMode();
 
 // ?camera=<id>: this phone is the camera of ALQAMI on a PC (src/remoteCam); nothing else of the app is loaded.
 const cameraFor = new URLSearchParams(location.search).get('camera');

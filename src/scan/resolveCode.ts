@@ -2,6 +2,7 @@ import { MOON_SITE, searchRecords, getChangePages } from '../moon/moonApi';
 import { readRecord } from '../moon/readRecord';
 import { savedIsbnRecord } from '../moon/moonObjects';
 import { toIsbn13 } from '../moon/isbn';
+import { ALKAFEEL_ARTIFACTS } from '../data/alkafeelArtifacts';
 
 export { toIsbn13 };
 
@@ -96,7 +97,11 @@ export async function resolveCode(text: string): Promise<CodeTarget> {
   // Direct Al-Kafeel Museum subject links: https://museum.alkafeel.net/subjects/<id>
   if (url && /museum\.alkafeel\.net$/i.test(url.hostname)) {
     const subjMatch = url.pathname.match(/\/subjects\/(\d+)/);
-    if (subjMatch) return { kind: 'artifact', id: `KFL-${subjMatch[1]}` };
+    if (subjMatch) {
+      // The object's full ALQAMI id (KFL-SWD-2126), so every view that looks objects up by id finds it.
+      const known = ALKAFEEL_ARTIFACTS.find((a) => a.uri?.endsWith(`/subjects/${subjMatch[1]}`));
+      return { kind: 'artifact', id: known?.id ?? `KFL-${subjMatch[1]}` };
+    }
   }
 
   // ALQAMI & Al-Kafeel labels: "ALQAMI:<id>", "?artifact=<id>" links, or a bare ALQ-… / KFL-… object ID.

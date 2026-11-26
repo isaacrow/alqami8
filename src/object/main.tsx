@@ -6,6 +6,9 @@ import '@fontsource/ibm-plex-sans-arabic/arabic-700.css';
 import './object.css';
 import { ObjectPage } from './ObjectPage';
 import { LabelSheet } from './LabelSheet';
+import { startMuseumMode } from '../utils/museumMode';
+
+startMuseumMode();
 
 // object.html: one object's page (opened by its QR label). labels.html: every object's label, to print.
 const page = document.body.dataset.page;

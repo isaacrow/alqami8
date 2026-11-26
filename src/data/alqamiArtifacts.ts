@@ -53,6 +53,15 @@ export interface AlqamiArtifact {
   pagePins?: Array<{ x: number; y: number; title: { ar: string; en: string }; text?: { ar: string; en: string } }>;
   /** The published Moon record this object is catalogued as (mooon.site); Moon is then the source of its details. */
   moonRecordId?: string;
+  /**
+   * The holding museum's own labelled fields, in the order its record shows them (values in the museum's words).
+   * An empty English label means no translation yet: show the Arabic label.
+   */
+  facts?: Array<{ label: { ar: string; en: string }; value: string }>;
+  /** Where the text and photo come from, credited on the object's page. */
+  source?: { name: { ar: string; en: string }; url: string; photo?: string };
+  /** How the 3D model was made. "ai-from-photo": guessed by AI from one photo (its sides and back are invented). */
+  modelKind?: 'scan' | 'ai-from-photo' | 'hand-made';
   details: {
     dimensions: string;
     material: { ar: string; en: string };

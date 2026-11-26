@@ -54,6 +54,22 @@ function findArtifact(rawId: string, list: AlqamiArtifact[] = ALQAMI_ARTIFACTS):
   );
 }
 
+/**
+ * When sight may name an object, measured on phone-at-a-glass-case views (scripts/alkafeel-sight-bench.mjs,
+ * 2026-11-26). Live: the entry's own floor, a gap of 0.06 to the next object, and the same winner 3 frames running
+ * (no museum object named wrongly). One shot (a tap or an uploaded photo): 0.82 and 0.06 (none wrong in one frame).
+ */
+const SIGHT_RULE = { gap: 0.06, steadyFrames: 3, oneShotFloor: 0.82 };
+
+/** True when the best of `ranked` (best first) may be named from a single frame. */
+function oneShotClear(ranked: Array<{ artifact: AlqamiArtifact; score: number }>): boolean {
+  const [best] = ranked;
+  if (!best) return false;
+  // Two index entries can be the same object: the gap is to the next different object.
+  const next = ranked.find((r) => r.artifact.id !== best.artifact.id);
+  return best.score >= SIGHT_RULE.oneShotFloor && best.score - (next?.score ?? 0) >= SIGHT_RULE.gap;
+}
+
 const VIEW_ANGLES = [
   { deg: 0, ar: 'واجهة أمامية 0°', en: 'Front View 0°' },
   { deg: 45, ar: 'زاوية مائلة 45°', en: 'Oblique 45°' },
@@ -85,7 +101,8 @@ export const KafeelScannerApp: React.FC = () => {
     }
   }, [allScanArtifacts]);
   const [selectedPartId, setSelectedPartId] = useState<string | null>(null);
-  const [confidence, setConfidence] = useState<number>(0.97);
+  // 0 until something is actually recognised (a code, sight or the visitor's pick): no confidence is shown before.
+  const [confidence, setConfidence] = useState<number>(0);
   const [detectSource, setDetectSource] = useState<'sight' | 'qr' | 'catch' | 'photo' | 'ar-lock'>('ar-lock');
   const [sightStatus, setSightStatus] = useState<'loading' | 'ready' | 'off'>('loading');
   const [sightLatencyMs, setSightLatencyMs] = useState<number>(38);
@@ -132,6 +149,8 @@ export const KafeelScannerApp: React.FC = () => {
   const flowRef = useRef<FlowTracker>(new FlowTracker());
   const worldPinRef = useRef<WorldPin>(new WorldPin());
   const emaScoresRef = useRef<Map<string, number>>(new Map());
+  // The same object must win this many frames in a row before the live scan names it (see SIGHT_RULE).
+  const streakRef = useRef<{ id: string; count: number } | null>(null);
   const [vpSize, setVpSize] = useState<{ w: number; h: number }>({ w: 1280, h: 820 });
 
   const parts = useMemo(() => getSpatialPartsForArtifact(activeArtifact), [activeArtifact]);
@@ -247,7 +266,8 @@ export const KafeelScannerApp: React.FC = () => {
       spot = { x: 0.5, y: 0.46 }
     ) => {
       setActiveArtifact(art);
-      setConfidence(Math.max(0.76, Math.min(0.99, score)));
+      // The real score, never raised: a visitor should see how sure the scan actually is.
+      setConfidence(Math.min(0.99, score));
       setDetectSource(source);
       if (angle != null) setViewAngle(angle);
       setSelectedPartId(null);
@@ -342,8 +362,12 @@ export const KafeelScannerApp: React.FC = () => {
 
           if (mapped.length > 0) {
             setLiveCandidates(mapped.slice(0, 3).map((m) => ({ artifact: m.artifact, score: m.score })));
-            const [best, second] = mapped;
-            if (best.score >= best.threshold && best.score - (second?.score ?? 0) >= 0.048) {
+            const best = mapped[0];
+            const second = mapped.find((m) => m.artifact.id !== best.artifact.id);
+            const clear = best.score >= best.threshold && best.score - (second?.score ?? 0) >= SIGHT_RULE.gap;
+            const s = streakRef.current;
+            streakRef.current = clear ? { id: best.artifact.id, count: s?.id === best.artifact.id ? s.count + 1 : 1 } : null;
+            if (clear && streakRef.current!.count >= SIGHT_RULE.steadyFrames) {
               lockOnArtifact(best.artifact, best.score, 'sight', best.angle, { x: spot.x, y: spot.y });
             }
           }
@@ -417,26 +441,25 @@ export const KafeelScannerApp: React.FC = () => {
     if (v && v.videoWidth && sight) {
       try {
         const [r1, r2] = await Promise.all([sight.look(v, 0.85), sight.look(v, 0.6)]);
-        const combined = [...r1, ...r2].sort((a, b) => b.score - a.score);
-        for (const r of combined) {
-          if (r.target.kind === 'artifact') {
-            const found = findArtifact(r.target.id);
-            if (found) {
-              lockOnArtifact(found, Math.max(0.89, r.score), 'catch', r.angle ?? 0, { x: 0.5, y: 0.46 });
-              return;
-            }
-          }
+        const best = new Map<string, { artifact: AlqamiArtifact; score: number; angle: number | null }>();
+        for (const r of [...r1, ...r2]) {
+          if (r.target.kind !== 'artifact') continue;
+          const found = findArtifact(r.target.id);
+          if (found && r.score > (best.get(found.id)?.score ?? -1)) best.set(found.id, { artifact: found, score: r.score, angle: r.angle ?? null });
         }
+        const ranked = [...best.values()].sort((a, b) => b.score - a.score);
+        if (oneShotClear(ranked)) {
+          lockOnArtifact(ranked[0].artifact, ranked[0].score, 'catch', ranked[0].angle ?? 0, { x: 0.5, y: 0.46 });
+          return;
+        }
+        // Not sure enough to name it: offer the closest ones ("is it one of these?") instead of guessing.
+        if (ranked.length) setLiveCandidates(ranked.slice(0, 3).map((m) => ({ artifact: m.artifact, score: m.score })));
       } catch {
-        // Fallback below
+        // Fall through to the pulse
       }
     }
-    if (liveCandidates.length > 0) {
-      lockOnArtifact(liveCandidates[0].artifact, Math.max(0.9, liveCandidates[0].score), 'catch', 0, { x: 0.5, y: 0.46 });
-    } else {
-      setScanPulse(true);
-      window.setTimeout(() => setScanPulse(false), 650);
-    }
+    setScanPulse(true);
+    window.setTimeout(() => setScanPulse(false), 650);
   };
 
   // Upload any photo of a museum object to test instant DINOv2 recognition & spawn its 3D AR hologram + spatial parts
@@ -462,10 +485,10 @@ export const KafeelScannerApp: React.FC = () => {
 
       if (mapped.length > 0) {
         setLiveCandidates(mapped.slice(0, 3).map((m) => ({ artifact: m.artifact, score: m.score })));
-        lockOnArtifact(mapped[0].artifact, Math.max(0.92, mapped[0].score), 'photo', mapped[0].angle ?? 0, {
-          x: 0.5,
-          y: 0.46,
-        });
+        // One photo is one frame: name it only under the one-shot rule, otherwise leave the candidates to choose from.
+        if (oneShotClear(mapped)) {
+          lockOnArtifact(mapped[0].artifact, mapped[0].score, 'photo', mapped[0].angle ?? 0, { x: 0.5, y: 0.46 });
+        }
       }
     } catch {
       // Ignore invalid image file
@@ -716,7 +739,7 @@ export const KafeelScannerApp: React.FC = () => {
                   : detectSource === 'sight'
                     ? t('واقع معزز · تعرّف بصري DINOv2', 'AR · DINOv2 Sight Lock')
                     : t('واقع معزز مكاني ثلاثي الأبعاد نشط', 'Primary 3D Augmented Reality Active')}{' '}
-            · {Math.round(confidence * 100)}% · {sightLatencyMs}ms
+            · {confidence > 0 ? `${Math.round(confidence * 100)}%` : t('يبحث…', 'searching…')} · {sightLatencyMs}ms
           </span>
         </div>
 
@@ -1100,7 +1123,9 @@ export const KafeelScannerApp: React.FC = () => {
                 </span>
               </div>
               <p className="text-[11px] text-white/75 truncate">
-                {activeArtifact.period[lang]} · {activeArtifact.details.material[lang]} · {activeArtifact.details.dimensions}
+                {[activeArtifact.period[lang], activeArtifact.details.material[lang] || activeArtifact.details.material.ar, activeArtifact.details.dimensions]
+                  .filter(Boolean)
+                  .join(' · ')}
                 {activeArtifact.uri ? ` · ${activeArtifact.uri}` : ''}
               </p>
             </div>

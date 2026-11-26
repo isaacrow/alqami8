@@ -7,7 +7,9 @@
 export const SITE_URL = (import.meta.env.VITE_SITE_URL as string | undefined) || 'https://isaacrow.github.io/alqami8/';
 
 export function objectUrl(id: string): string {
-  return new URL(`object.html?artifact=${encodeURIComponent(id)}`, SITE_URL).href;
+  // Labels in the Al-Kafeel Museum open in visitor mode (src/utils/museumMode.ts): no owner-only controls.
+  const visitor = id.startsWith('KFL-') ? '&museum=visitor' : '';
+  return new URL(`object.html?artifact=${encodeURIComponent(id)}${visitor}`, SITE_URL).href;
 }
 
 /** The app with the scanner open (index.html?scan=1). */
