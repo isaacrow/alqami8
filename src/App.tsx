@@ -21,6 +21,7 @@ import {
   Table,
   PenTool,
   ScanLine,
+  Smartphone,
 } from 'lucide-react';
 import { ScannerLoading } from './components/scan/ScannerLoading';
 import { AppId, EnvironmentId, WindowState } from './types/spatial';
@@ -104,6 +105,12 @@ const isTouchPhone = () =>
 const AlqamiARKitObjectScanner = lazy(() =>
   import('./components/apps/AlqamiARKitObjectScanner').then((module) => ({
     default: module.AlqamiARKitObjectScanner,
+  }))
+);
+
+const Alqami3MobileShell = lazy(() =>
+  import('./components/mobile/Alqami3MobileShell').then((module) => ({
+    default: module.Alqami3MobileShell,
   }))
 );
 
@@ -330,6 +337,22 @@ export function App() {
   const [currentEnv, setCurrentEnv] = useState<EnvironmentId>('living-room');
   const [immersionLevel, setImmersionLevel] = useState<number>(65);
   const [isArkitScannerOpen, setIsArkitScannerOpen] = useState(false);
+  const [alqami3SelectedId, setAlqami3SelectedId] = useState<string | null>(null);
+  const [mobileMode, setMobileMode] = useState<'original' | 'alqami3'>(() => {
+    try {
+      const q = new URLSearchParams(window.location.search).get('mobileMode');
+      if (q === 'alqami3' || q === 'original') return q;
+      const saved = localStorage.getItem('alqami_mobile_mode');
+      if (saved === 'alqami3' || saved === 'original') return saved;
+    } catch {}
+    return 'original';
+  });
+  const switchMobileMode = useCallback((next: 'original' | 'alqami3') => {
+    setMobileMode(next);
+    try {
+      localStorage.setItem('alqami_mobile_mode', next);
+    } catch {}
+  }, []);
   const [ikeaActiveNav, setIkeaActiveNav] = useState<'grid' | 'search' | 'user' | 'favorites' | 'cart'>('grid');
   const [lang, setLang] = useState<'ar' | 'en'>(() => {
     try {
@@ -1049,7 +1072,8 @@ export function App() {
         />
       </Suspense>
 
-      {/* Quiet top controls: Single round Alqami Logo button matching img 5 (no text, no background), Home button, and Control Center */}
+      {/* Quiet top controls: hidden while Alqami 3 Mobile Mode (Mode 2) is active outside AR World */}
+      {!(mobileMode === 'alqami3' && !xrState.spatialWorldActive) && (
       <div className="visionos-shell-controls fixed top-3.5 left-1/2 -translate-x-1/2 z-[85] flex items-center gap-2 pointer-events-auto">
         {/* On a computer: use a phone as the camera (and motion sensor) for AR and scanning. */}
         {/* Scan, one tap from anywhere (also before the museum window has loaded). */}
@@ -1099,6 +1123,22 @@ export function App() {
           <LayoutGrid className="w-3.5 h-3.5" />
         </button>
 
+        {/* Mobile Mode 2 Switcher (Alqami 3 Style) */}
+        <button
+          onClick={() => {
+            spatialSound.playPinchTap();
+            setHomeOpen(false);
+            setControlCenterOpen(false);
+            switchMobileMode('alqami3');
+          }}
+          className="vision-btn h-8 px-2.5 rounded-full vision-ornament text-[11.5px] font-semibold flex items-center gap-1.5 text-white/95 hover:bg-white/20 transition active:scale-95 border border-white/20"
+          title={lang === 'ar' ? 'الوضع 2: واجهة علقمي 3 للموبايل' : 'Mode 2: Alqami 3 Mobile Style'}
+          aria-label="Switch to Alqami 3 Mobile Mode"
+        >
+          <Smartphone className="w-3.5 h-3.5" />
+          <span>{lang === 'ar' ? 'علقمي 3' : 'Mode 2'}</span>
+        </button>
+
         {/* Look-Up Control Center Pill */}
         <button
           onClick={() => {
@@ -1113,6 +1153,7 @@ export function App() {
           <ChevronDown className="w-3.5 h-3.5" />
         </button>
       </div>
+      )}
 
       {/* Creator Credit Badge: bottom-right corner; hidden in the AR world, where its toolbar sits at the bottom */}
       <div className={`fixed bottom-3 right-4 z-[75] pointer-events-auto max-w-[85vw] ${xrState.spatialWorldActive ? 'hidden' : ''}`}>
@@ -1183,6 +1224,29 @@ export function App() {
             {renderSpatialViewport(xrState.ipdOffset || 16)}
           </div>
         </div>
+      ) : mobileMode === 'alqami3' ? (
+        <Suspense
+          fallback={
+            <div className="fixed inset-0 z-40 flex items-center justify-center bg-black text-white text-sm">
+              <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/25 border-t-white mr-2" />
+              {lang === 'ar' ? 'جاري تحميل وضع علقمي 3…' : 'Loading Alqami 3 Mode…'}
+            </div>
+          }
+        >
+          <Alqami3MobileShell
+            lang={lang}
+            onToggleLang={(next) => {
+              setLang(next);
+              try { localStorage.setItem('alqami_lang', next); } catch {}
+            }}
+            onSwitchToOriginal={() => switchMobileMode('original')}
+            onOpenScan={() => setIsArkitScannerOpen(true)}
+            onToggleSpatialWorld={handleToggleSpatialWorld}
+            spatialWorldActive={Boolean(xrState.spatialWorldActive)}
+            selectedArtifactId={alqami3SelectedId}
+            onClearExternalSelection={() => setAlqami3SelectedId(null)}
+          />
+        </Suspense>
       ) : (
         renderSpatialViewport(0)
       )}
@@ -1276,8 +1340,13 @@ export function App() {
                 })
               );
             }}
-            onOpenDetail={() => {
-              openSingleOrFocusApp('ikea', false);
+            onOpenDetail={(art) => {
+              if (mobileMode === 'alqami3' && art?.id) {
+                setAlqami3SelectedId(art.id);
+                setIsArkitScannerOpen(false);
+              } else {
+                openSingleOrFocusApp('ikea', false);
+              }
             }}
           />
         </Suspense>

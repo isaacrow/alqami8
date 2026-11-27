@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowUp, BookOpen, Play, RotateCcw, Camera, Crosshair, CameraOff, Info, Keyboard, Mic, MicOff, PhoneOff, Send, Settings, SwitchCamera, X } from 'lucide-react';
+import { ArrowLeft, ArrowUp, BookOpen, Play, RotateCcw, Camera, Crosshair, CameraOff, Info, Keyboard, Mic, MicOff, Moon, Palette, PhoneOff, Send, Settings, Sun, SwitchCamera, X } from 'lucide-react';
 import { KeyTerminal } from './KeyTerminal';
 import { CHARACTERS, pageCharacter } from './characters';
 
@@ -18,6 +18,13 @@ import { Gesture, VisitorTracker } from './tracking';
 import { Glyph, isGlyph } from '../components/shell/Glyph';
 type CameraMode = 'off' | 'front' | 'back';
 type Lang = 'ar' | 'en';
+type CharBgTheme = 'studio' | 'alqami3-dark' | 'alqami3-light';
+
+const CHAR_BG_STYLES: Record<CharBgTheme, string> = {
+  studio: 'radial-gradient(ellipse at 50% 35%, #3a2f22 0%, #15110c 55%, #060504 100%)',
+  'alqami3-dark': 'radial-gradient(circle at center, #1a1a1a 0%, #000000 100%)',
+  'alqami3-light': 'radial-gradient(circle at center, #ffffff 0%, #e5e5ea 100%)',
+};
 
 const GESTURE_CUES: Record<Gesture, string> = {
   wave: '[الزائر يلوّح لك بيده مُحيّيًا]',
@@ -31,6 +38,13 @@ const GESTURE_CUES: Record<Gesture, string> = {
  */
 export const CharacterApp: React.FC = () => {
   const [lang, setLang] = useState<Lang>('ar');
+  const [bgTheme, setBgTheme] = useState<CharBgTheme>(() => {
+    try {
+      const saved = localStorage.getItem('alqami_char_bg');
+      if (saved === 'studio' || saved === 'alqami3-dark' || saved === 'alqami3-light') return saved;
+    } catch {}
+    return 'studio';
+  });
   const t = (ar: string, en: string) => (lang === 'ar' ? ar : en);
   const mount = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -294,8 +308,26 @@ export const CharacterApp: React.FC = () => {
         : `${t('انقطع الاتصال', 'Connection lost')}${stateDetail ? ` (${stateDetail})` : ''}`
       : '';
 
+  const cycleBgTheme = () => {
+    const order: CharBgTheme[] = ['studio', 'alqami3-dark', 'alqami3-light'];
+    const next = order[(order.indexOf(bgTheme) + 1) % order.length];
+    setBgTheme(next);
+    try {
+      localStorage.setItem('alqami_char_bg', next);
+    } catch {}
+    if (next === 'studio') flash(t('الخلفية الأصلية', 'Original studio background'));
+    else if (next === 'alqami3-dark') flash(t('خلفية علقمي 3 (داكن)', 'Alqami 3 background (Dark)'));
+    else flash(t('خلفية علقمي 3 (فاتح)', 'Alqami 3 background (Light)'));
+  };
+
+  const isLightBg = !ar && bgTheme === 'alqami3-light';
+
   return (
-    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className={`fixed inset-0 overflow-hidden text-white select-none ${ar ? 'bg-black' : 'bg-[radial-gradient(ellipse_at_50%_35%,#3a2f22_0%,#15110c_55%,#060504_100%)]'}`}>
+    <div
+      dir={lang === 'ar' ? 'rtl' : 'ltr'}
+      style={!ar ? { background: CHAR_BG_STYLES[bgTheme] } : undefined}
+      className={`fixed inset-0 overflow-hidden select-none transition-[background] duration-300 ${ar ? 'bg-black text-white' : isLightBg ? 'text-[#1d1d1f]' : 'text-white'}`}
+    >
       {/* Camera: full screen behind him in AR, a small mirror in the corner otherwise. */}
       <video
         ref={video}
@@ -310,18 +342,26 @@ export const CharacterApp: React.FC = () => {
       <div ref={mount} className="absolute inset-0 z-10" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} />
 
       {/* Top bar */}
-      <header style={{ viewTransitionName: 'char-header' }} className="absolute top-0 inset-x-0 z-30 flex items-center gap-2 px-3 pt-[calc(env(safe-area-inset-top)+10px)] pb-2 bg-gradient-to-b from-black/60 to-transparent">
-        <a href="./" className="w-10 h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center" aria-label={t('رجوع', 'Back')}>
+      <header style={{ viewTransitionName: 'char-header' }} className={`absolute top-0 inset-x-0 z-30 flex items-center gap-2 px-3 pt-[calc(env(safe-area-inset-top)+10px)] pb-2 ${isLightBg ? 'bg-gradient-to-b from-white/75 to-transparent text-[#1d1d1f]' : 'bg-gradient-to-b from-black/60 to-transparent text-white'}`}>
+        <a href="./" className={`w-10 h-10 rounded-full backdrop-blur flex items-center justify-center ${isLightBg ? 'bg-black/10 text-[#1d1d1f]' : 'bg-white/10 text-white'}`} aria-label={t('رجوع', 'Back')}>
           <ArrowLeft className={`w-5 h-5 ${lang === 'ar' ? 'rotate-180' : ''}`} />
         </a>
         <div className="flex-1 min-w-0">
           <h1 className="text-[16px] font-semibold leading-tight truncate">{t(C.nameAr, C.nameEn)}</h1>
-          <p className="text-[11px] text-white/60 truncate">
+          <p className={`text-[11px] truncate ${isLightBg ? 'text-black/60' : 'text-white/60'}`}>
             {t(C.datesAr, C.datesEn)} · {t('إعادة بناء بالذكاء الاصطناعي', 'AI recreation')}
             {recreated ? ` · ${t('صوت معاد بناؤه بالذكاء الاصطناعي', 'AI-recreated voice')}` : ` · ${t('ليس صوته الحقيقي', 'not his real voice')}`}
           </p>
         </div>
-        <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className="h-10 px-3 rounded-full bg-white/10 backdrop-blur text-[13px] font-semibold">
+        <button
+          onClick={cycleBgTheme}
+          className={`w-10 h-10 rounded-full backdrop-blur flex items-center justify-center ${isLightBg ? 'bg-black/10 text-[#1d1d1f]' : 'bg-white/10 text-white'}`}
+          title={t('تبديل خلفية علقمي 3', 'Switch Alqami 3 background')}
+          aria-label={t('تبديل الخلفية', 'Switch background')}
+        >
+          {bgTheme === 'alqami3-light' ? <Sun className="w-4 h-4" /> : bgTheme === 'alqami3-dark' ? <Moon className="w-4 h-4" /> : <Palette className="w-4 h-4" />}
+        </button>
+        <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className={`h-10 px-3 rounded-full backdrop-blur text-[13px] font-semibold ${isLightBg ? 'bg-black/10 text-[#1d1d1f]' : 'bg-white/10 text-white'}`}>
           {lang === 'ar' ? 'EN' : 'ع'}
         </button>
         {C.lectures && (
