@@ -315,9 +315,6 @@ export const CharacterApp: React.FC = () => {
     try {
       localStorage.setItem('alqami_char_bg', next);
     } catch {}
-    if (next === 'studio') flash(t('الخلفية الأصلية', 'Original studio background'));
-    else if (next === 'alqami3-dark') flash(t('خلفية علقمي 3 (داكن)', 'Alqami 3 background (Dark)'));
-    else flash(t('خلفية علقمي 3 (فاتح)', 'Alqami 3 background (Light)'));
   };
 
   const isLightBg = !ar && bgTheme === 'alqami3-light';

@@ -874,7 +874,7 @@ export const Alqami3MobileShell: React.FC<Alqami3MobileShellProps> = ({
                     className="a3m-char-card"
                     onClick={() => spatialSound.playPinchTap()}
                   >
-                    <div className="a3m-char-avatar" style={{ background: char.bg }}>
+                    <div className="a3m-char-avatar">
                       <Icon className="w-6 h-6" />
                     </div>
                     <div style={{ fontSize: 14, fontWeight: 700 }}>
